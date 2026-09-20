@@ -66,7 +66,7 @@
                     <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
                         <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
                         <span class="sm:hidden">Dashboard</span>
-                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">Real-Time</span>
+                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">Real-Time Sync</span>
                     </h2>
                 </div>
             </div>
@@ -374,7 +374,6 @@
         </div>
     </div>
 
-    <!-- Modal Realisasi Pembelian Bertahap (Tambah/Edit) -->
     <div id="modal-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -489,6 +488,9 @@
     </div>
 
     <script>
+        // URL Google Apps Script Web App
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxu8rhAhf0EBZ1xyhdNeWb3n3N2jRLZ3DXwwxMCRPDtaB4B3d9rkfS-2bEhvN9RlwU/exec";
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -522,11 +524,48 @@
         let keluarData = JSON.parse(localStorage.getItem('keluarData')) || initialKeluarData;
         let isGroupedMasukView = false;
 
+        // Fungsi Sinkronisasi dengan Google Sheets (Backend Cloud)
+        function syncDataToServer() {
+            const payload = {
+                sppData: sppData,
+                masukData: masukData,
+                keluarData: keluarData
+            };
+            
+            // Kirim data ke Google Sheets melalui Apps Script
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error("Sync error:", err));
+        }
+
+        function loadDataFromServer() {
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if(data && data.sppData) {
+                        sppData = data.sppData;
+                        masukData = data.masukData || masukData;
+                        keluarData = data.keluarData || keluarData;
+                        localStorage.setItem('sppData', JSON.stringify(sppData));
+                        localStorage.setItem('masukData', JSON.stringify(masukData));
+                        localStorage.setItem('keluarData', JSON.stringify(keluarData));
+                        renderAll();
+                    }
+                })
+                .catch(err => {
+                    console.log("Menggunakan data lokal cache:", err);
+                });
+        }
+
         function saveData() {
             localStorage.setItem('sppData', JSON.stringify(sppData));
             localStorage.setItem('masukData', JSON.stringify(masukData));
             localStorage.setItem('keluarData', JSON.stringify(keluarData));
             renderAll();
+            syncDataToServer(); // Sinkron otomatis ke Cloud Google Sheets
         }
 
         function resetDemoData() {
@@ -752,7 +791,6 @@
             }
         }
 
-        // --- FUNGSI REALISASI (TAMBAH & EDIT) ---
         function openRealisasiModal(sppId, histIndex = null) {
             document.getElementById('form-realisasi').reset();
             document.getElementById('realisasi-spp-id').value = sppId;
@@ -787,12 +825,10 @@
             const spp = sppData.find(i => i.id == id);
             if(spp) {
                 if (histIndex !== "") {
-                    // Update riwayat realisasi yang sudah ada
                     const oldQty = spp.realisasiHistory[histIndex].qty;
                     spp.realisasiHistory[histIndex] = { tgl, qty, detail };
                     spp.totalRealisasi = spp.totalRealisasi - oldQty + qty;
                 } else {
-                    // Tambah riwayat realisasi baru
                     spp.realisasiHistory.push({ tgl, qty, detail });
                     spp.totalRealisasi += qty;
                 }
@@ -812,7 +848,6 @@
                 }
             }
         }
-        // ----------------------------------------
 
         function openMasukModal(editId = null) {
             document.getElementById('masuk-items-container').innerHTML = '';
@@ -1313,7 +1348,10 @@
             });
         }
 
-        window.onload = () => { renderAll(); };
+        window.onload = () => { 
+            renderAll(); 
+            loadDataFromServer(); // Sinkronisasi otomatis data terbaru saat halaman dibuka
+        };
     </script>
 </body>
 </html>
