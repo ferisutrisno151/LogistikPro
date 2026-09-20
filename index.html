@@ -54,6 +54,22 @@
                 </button>
             </nav>
         </div>
+
+        <!-- Panduan Download & Install di Sidebar -->
+        <div class="mt-6 p-3 bg-slate-800/80 border border-slate-700/80 rounded-xl space-y-2 text-xs">
+            <div class="font-bold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-down text-blue-400"></i> Panduan Download & Install
+            </div>
+            <ol class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4">
+                <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
+                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[cite: 6].</li>
+                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[cite: 6].</li>
+                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[cite: 6].</li>
+            </ol>
+            <a href="javascript:alert('Link file .apk belum disetel.')" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-all text-[11px]">
+                <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
+            </a>
+        </div>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0 overflow-auto">
@@ -220,7 +236,7 @@
                                     <th class="p-3">Spesifikasi</th>
                                     <th class="p-3 text-center">Qty</th>
                                     <th class="p-3">Satuan</th>
-                                    <th class="p-3">Tgl Realisasi & Detail Pembelian</th>
+                                    <th class="p-3">Tgl Realisasi Pembelian</th>
                                     <th class="p-3 text-center">Total Realisasi</th>
                                     <th class="p-3 text-center">Sisa Kekurangan</th>
                                     <th class="p-3">Keterangan</th>
@@ -374,6 +390,7 @@
         </div>
     </div>
 
+    <!-- Modal Realisasi Pembelian Bertahap (Tanpa Detail/Catatan) -->
     <div id="modal-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -390,10 +407,6 @@
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Jumlah Realisasi (Qty)</label>
                     <input type="number" id="realisasi-qty" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Detail Pembelian / Catatan</label>
-                    <input type="text" id="realisasi-detail" placeholder="Contoh: Purchase Order #02 (Supplier X)" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modal-realisasi')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
@@ -488,7 +501,7 @@
     </div>
 
     <script>
-        // URL Google Apps Script Web App terbaru
+        // URL Google Apps Script Web App
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzv4TuqJ0rWAv-GorfLYp-V40Img_0GzV_yga_OMgUnWpDMMxEgvU_sFHm0uJYN6aCz/exec";
 
         function toggleSidebar() {
@@ -501,8 +514,8 @@
         const initialSppData = [
             { id: 1, no: "SPP/007/LOG/2026", tgl: "2026-09-04", pengaju: "Pembesian", barang: "Kawat Bendrat", spek: "@20Kg", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Urgent untuk balok lantai 2" },
             { id: 2, no: "SPP/001/LOG/2026", tgl: "2026-09-02", pengaju: "Tim Cor", barang: "Kawat Ayam", spek: "1/2", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Stop Cor" },
-            { id: 3, no: "SPP/002/LOG/2026", tgl: "2026-09-01", pengaju: "Bengkel Proyek", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 100, satuan: "Kg", realisasiHistory: [{tgl: "2026-09-02", qty: 50, detail: "Azidar H Berni"}, {tgl: "2026-09-03", qty: 50, detail: "Azidar H Berni"}], totalRealisasi: 100, ket: "Pengelasan struktur baja" },
-            { id: 4, no: "SPP/003/LOG/2026", tgl: "2026-08-10", pengaju: "Pengecoran", barang: "Semen Portland", spek: "Tiga Roda 50Kg", qty: 500, satuan: "Zak", realisasiHistory: [{tgl: "2026-08-12", qty: 200, detail: "PO-01 Material Utama"}, {tgl: "2026-08-15", qty: 150, detail: "PO-04 Indah Jaya"}], totalRealisasi: 350, ket: "Pengecoran Slab Lt 1" }
+            { id: 3, no: "SPP/002/LOG/2026", tgl: "2026-09-01", pengaju: "Bengkel Proyek", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 100, satuan: "Kg", realisasiHistory: [{tgl: "2026-09-02", qty: 50}, {tgl: "2026-09-03", qty: 50}], totalRealisasi: 100, ket: "Pengelasan struktur baja" },
+            { id: 4, no: "SPP/003/LOG/2026", tgl: "2026-08-10", pengaju: "Pengecoran", barang: "Semen Portland", spek: "Tiga Roda 50Kg", qty: 500, satuan: "Zak", realisasiHistory: [{tgl: "2026-08-12", qty: 200}, {tgl: "2026-08-15", qty: 150}], totalRealisasi: 350, ket: "Pengecoran Slab Lt 1" }
         ];
 
         const initialMasukData = [
@@ -524,15 +537,8 @@
         let keluarData = JSON.parse(localStorage.getItem('keluarData')) || initialKeluarData;
         let isGroupedMasukView = false;
 
-        // Fungsi Sinkronisasi dengan Google Sheets (Backend Cloud)
         function syncDataToServer() {
-            const payload = {
-                sppData: sppData,
-                masukData: masukData,
-                keluarData: keluarData
-            };
-            
-            // Kirim data ke Google Sheets melalui Apps Script
+            const payload = { sppData, masukData, keluarData };
             fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -555,9 +561,7 @@
                         renderAll();
                     }
                 })
-                .catch(err => {
-                    console.log("Menggunakan data lokal cache:", err);
-                });
+                .catch(err => console.log("Menggunakan data lokal cache:", err));
         }
 
         function saveData() {
@@ -565,7 +569,7 @@
             localStorage.setItem('masukData', JSON.stringify(masukData));
             localStorage.setItem('keluarData', JSON.stringify(keluarData));
             renderAll();
-            syncDataToServer(); // Sinkron otomatis ke Cloud Google Sheets
+            syncDataToServer();
         }
 
         function resetDemoData() {
@@ -583,15 +587,11 @@
                 app: "LogistikPro",
                 version: "1.0",
                 exportDate: new Date().toISOString(),
-                sppData: sppData,
-                masukData: masukData,
-                keluarData: keluarData
+                sppData, masukData, keluarData
             };
-
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            
             const dateStr = new Date().toISOString().split('T')[0];
             downloadAnchor.setAttribute("download", `LogistikPro_Backup_${dateStr}.json`);
             document.body.appendChild(downloadAnchor);
@@ -803,7 +803,6 @@
                 document.getElementById('realisasi-modal-title').innerText = 'Edit Realisasi Pembelian';
                 document.getElementById('realisasi-tgl').value = hist.tgl;
                 document.getElementById('realisasi-qty').value = hist.qty;
-                document.getElementById('realisasi-detail').value = hist.detail;
             } else {
                 document.getElementById('realisasi-modal-title').innerText = 'Input Realisasi Pembelian Bertahap';
                 const today = new Date().toISOString().split('T')[0];
@@ -820,16 +819,15 @@
             const histIndex = document.getElementById('realisasi-index').value;
             const tgl = document.getElementById('realisasi-tgl').value;
             const qty = parseFloat(document.getElementById('realisasi-qty').value);
-            const detail = document.getElementById('realisasi-detail').value;
 
             const spp = sppData.find(i => i.id == id);
             if(spp) {
                 if (histIndex !== "") {
                     const oldQty = spp.realisasiHistory[histIndex].qty;
-                    spp.realisasiHistory[histIndex] = { tgl, qty, detail };
+                    spp.realisasiHistory[histIndex] = { tgl, qty };
                     spp.totalRealisasi = spp.totalRealisasi - oldQty + qty;
                 } else {
-                    spp.realisasiHistory.push({ tgl, qty, detail });
+                    spp.realisasiHistory.push({ tgl, qty });
                     spp.totalRealisasi += qty;
                 }
             }
@@ -1073,7 +1071,7 @@
                 if (item.realisasiHistory && item.realisasiHistory.length > 0) {
                     historyHtml = item.realisasiHistory.map((h, hIdx) => `
                         <div class="flex items-center justify-between gap-2 py-0.5 border-b border-slate-100 last:border-0">
-                            <span>• ${h.tgl}: ${h.qty} ${item.satuan} (${h.detail})</span>
+                            <span>• ${h.tgl}: ${h.qty} ${item.satuan}</span>
                             <span class="space-x-1">
                                 <button onclick="openRealisasiModal(${item.id}, ${hIdx})" title="Edit Realisasi" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen text-[10px]"></i></button>
                                 <button onclick="deleteRealisasi(${item.id}, ${hIdx})" title="Hapus Realisasi" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash text-[10px]"></i></button>
@@ -1350,7 +1348,7 @@
 
         window.onload = () => { 
             renderAll(); 
-            loadDataFromServer(); // Sinkronisasi otomatis data terbaru saat halaman dibuka
+            loadDataFromServer(); 
         };
     </script>
 </body>
