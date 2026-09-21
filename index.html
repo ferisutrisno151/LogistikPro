@@ -580,42 +580,50 @@
             }
         }
 
-            function exportDataJSON() {
+                function exportDataJSON() {
         try {
-            let sppData = JSON.parse(localStorage.getItem('spp_data')) || [];
-            let masukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
-            let stokData = JSON.parse(localStorage.getItem('stok_barang_data')) || [];
+            // Mengambil data dari 3 fitur utama: SPP & Realisasi, Barang Masuk, dan Stok Barang
+            let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
+            let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || JSON.parse(localStorage.getItem('masukData')) || [];
+            let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || JSON.parse(localStorage.getItem('stokData')) || JSON.parse(localStorage.getItem('keluarData')) || [];
 
-            if(sppData.length === 0 && masukData.length === 0) {
-                alert("Tidak ada data untuk diexport!");
+            // Validasi jika ketiga fitur sama sekali belum memiliki data
+            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
+                alert("Belum ada data dari SPP, Barang Masuk, maupun Stok Barang yang bisa diexport!");
                 return;
             }
 
+            // Membuat Workbook Excel baru menggunakan SheetJS
             let wb = XLSX.utils.book_new();
             
+            // 1. Sheet untuk SPP & Realisasi
             if(sppData.length > 0) {
                 let wsSPP = XLSX.utils.json_to_sheet(sppData);
-                XLSX.utils.book_append_sheet(wb, wsSPP, "Data SPP");
+                XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
             }
             
-            if(masukData.length > 0) {
-                let wsMasuk = XLSX.utils.json_to_sheet(masukData);
+            // 2. Sheet untuk Barang Masuk
+            if(barangMasukData.length > 0) {
+                let wsMasuk = XLSX.utils.json_to_sheet(barangMasukData);
                 XLSX.utils.book_append_sheet(wb, wsMasuk, "Barang Masuk");
             }
 
-            if(stokData.length > 0) {
-                let wsStok = XLSX.utils.json_to_sheet(stokData);
-                XLSX.utils.book_append_sheet(wb, wsStok, "Stok Gudang");
+            // 3. Sheet untuk Stok Barang
+            if(stokBarangData.length > 0) {
+                let wsStok = XLSX.utils.json_to_sheet(stokBarangData);
+                XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
             }
 
-            XLSX.writeFile(wb, "LogistikPro_Export.xlsx");
-            alert("Data berhasil diunduh dalam format Excel!");
+            // Proses unduh file Excel (.xlsx)
+            XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
+            alert("Data SPP, Barang Masuk, dan Stok Barang berhasil diexport ke Excel!");
 
         } catch (error) {
             console.error(error);
-            alert("Gagal mengexport data ke Excel.");
+            alert("Terjadi kesalahan saat mengexport data.");
         }
     }
+
 
 
         function importDataJSON(event) {
