@@ -580,53 +580,61 @@
             }
         }
 
-                function exportDataJSON() {
+                    function exportDataJSON() {
         try {
-            // Mengambil data dari 3 fitur utama: SPP & Realisasi, Barang Masuk, dan Stok Barang
-            let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
-            let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || JSON.parse(localStorage.getItem('masukData')) || [];
-            let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || JSON.parse(localStorage.getItem('stokData')) || JSON.parse(localStorage.getItem('keluarData')) || [];
-
-            // Validasi jika ketiga fitur sama sekali belum memiliki data
-            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
-                alert("Belum ada data dari SPP, Barang Masuk, maupun Stok Barang yang bisa diexport!");
+            // Pastikan pustaka SheetJS (XLSX) sudah termuat dengan benar
+            if (typeof XLSX === 'undefined') {
+                alert("Pustaka Excel (SheetJS) belum dimuat dengan benar. Periksa koneksi internet Anda.");
                 return;
             }
 
-            // Membuat Workbook Excel baru menggunakan SheetJS
+            // Mengambil data dari localStorage dengan aman
+            let sppData = [];
+            let barangMasukData = [];
+            let stokBarangData = [];
+
+            try { sppData = JSON.parse(localStorage.getItem('spp_data')) || []; } catch(e) {}
+            try { barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || []; } catch(e) {}
+            try { stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || []; } catch(e) {}
+
+            // Jika semua data kosong
+            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
+                alert("Tidak ada data untuk diexport!");
+                return;
+            }
+
+            // Membuat Workbook Excel baru
             let wb = XLSX.utils.book_new();
             
-            // 1. Sheet untuk SPP & Realisasi
             if(sppData.length > 0) {
                 let wsSPP = XLSX.utils.json_to_sheet(sppData);
                 XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
             }
             
-            // 2. Sheet untuk Barang Masuk
             if(barangMasukData.length > 0) {
                 let wsMasuk = XLSX.utils.json_to_sheet(barangMasukData);
                 XLSX.utils.book_append_sheet(wb, wsMasuk, "Barang Masuk");
             }
 
-            // 3. Sheet untuk Stok Barang
             if(stokBarangData.length > 0) {
                 let wsStok = XLSX.utils.json_to_sheet(stokBarangData);
                 XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
             }
 
-            // Proses unduh file Excel (.xlsx)
+            // Proses unduh file Excel
             XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
-            alert("Data SPP, Barang Masuk, dan Stok Barang berhasil diexport ke Excel!");
+            alert("Data berhasil diunduh ke dalam format Excel!");
 
         } catch (error) {
-            console.error(error);
-            alert("Terjadi kesalahan saat mengexport data.");
+            console.error("Detail Error:", error);
+            alert("Terjadi kesalahan saat mengexport data: " + error.message);
         }
     }
 
 
 
-        function importDataJSON(event) {
+
+       function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
