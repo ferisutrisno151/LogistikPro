@@ -581,26 +581,19 @@
             }
         }
 
-                                    function exportDataJSON() {
+                                        function exportDataJSON() {
         try {
-            // 1. Cetak semua key yang ada di localStorage ke console browser untuk dilacak
-            console.log("=== DAFTAR SEMUA KEY DI LOCALSTORAGE ===");
-            for (let i = 0; i < localStorage.length; i++) {
-                let keyName = localStorage.key(i);
-                console.log("- Key:", keyName, "| Isi:", localStorage.getItem(keyName));
-            }
-
-            // 2. Data SPP & Realisasi
+            // 1. Data SPP & Realisasi
             let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
             if (typeof sppList !== 'undefined' && Array.isArray(sppList) && sppList.length > 0) sppData = sppList;
 
-            // 3. Data Barang Masuk
+            // 2. Data Barang Masuk
             let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || 
                                   JSON.parse(localStorage.getItem('barangMasukData')) || 
                                   JSON.parse(localStorage.getItem('masukData')) || [];
             if (typeof barangMasukList !== 'undefined' && Array.isArray(barangMasukList) && barangMasukList.length > 0) barangMasukData = barangMasukList;
 
-            // 4. Data Stok Barang (Mencakup lebih banyak kemungkinan nama key)
+            // 3. Data Stok Barang (Mencakup seluruh kemungkinan nama key / variabel lokal)
             let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || 
                                  JSON.parse(localStorage.getItem('stokBarangData')) || 
                                  JSON.parse(localStorage.getItem('stokData')) || 
@@ -608,13 +601,16 @@
                                  JSON.parse(localStorage.getItem('gudang_data')) || 
                                  JSON.parse(localStorage.getItem('inventory_data')) || 
                                  JSON.parse(localStorage.getItem('stok')) || 
-                                 JSON.parse(localStorage.getItem('data_stok')) || [];
+                                 JSON.parse(localStorage.getItem('data_stok')) || 
+                                 JSON.parse(localStorage.getItem('items')) || [];
             
             if (typeof stokBarangList !== 'undefined' && Array.isArray(stokBarangList) && stokBarangList.length > 0) {
                 stokBarangData = stokBarangList;
+            } else if (typeof inventarisList !== 'undefined' && Array.isArray(inventarisList) && inventarisList.length > 0) {
+                stokBarangData = inventarisList;
             }
 
-            // Validasi keseluruhan data
+            // Validasi jika semua data benar-benar kosong
             if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
                 alert("Tidak ada data untuk diexport!");
                 return;
@@ -631,19 +627,24 @@
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
             }
 
+            // Tab Stok Barang (Jika datanya terdeteksi, masukkan ke sheet. Jika masih kosong, buatkan tabel kosong dengan header info)
             if(stokBarangData.length > 0) {
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
+            } else {
+                let wsEmpty = XLSX.utils.json_to_sheet([{ Info: "Data Stok Barang Belum Tersimpan di LocalStorage" }]);
+                XLSX.utils.book_append_sheet(wb, wsEmpty, "Stok Barang");
             }
 
             // Proses unduh file Excel
             XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
-            alert("Export data lengkap berhasil!");
+            alert("Export data berhasil!");
 
         } catch (error) {
             console.error("Detail Error:", error);
             alert("Terjadi kesalahan saat mengexport data: " + error.message);
         }
     }
+
           function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
