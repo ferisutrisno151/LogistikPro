@@ -1341,62 +1341,63 @@
             renderAll(); 
             loadDataFromServer(); 
         };
-   // Fungsi Export Data ke Excel (.xlsx)
-function exportDataExcel() {
-    try {
-        let sppData = JSON.parse(localStorage.getItem('spp_data')) || [];
-        let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
-        let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || [];
-
-        if(sppData.length === 0) sppData = [{ Keterangan: "Belum ada data SPP" }];
-        if(barangMasukData.length === 0) barangMasukData = [{ Keterangan: "Belum ada data Barang Masuk" }];
-        if(stokBarangData.length === 0) stokBarangData = [{ Keterangan: "Belum ada data Stok" }];
-
-        let wb = XLSX.utils.book_new();
-        let wsSPP = XLSX.utils.json_to_sheet(sppData);
-        let wsBarangMasuk = XLSX.utils.json_to_sheet(barangMasukData);
-        let wsStok = XLSX.utils.json_to_sheet(stokBarangData);
-
-        XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
-        XLSX.utils.book_append_sheet(wb, wsBarangMasuk, "Barang Masuk");
-        XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
-
-        XLSX.writeFile(wb, "LogistikPro_Data.xlsx");
-        alert("Data berhasil diexport ke file LogistikPro_Data.xlsx");
-    } catch (error) {
-        console.error(error);
-        alert("Gagal mengexport data.");
-    }
-}
-
-// Fungsi Import Data dari Excel (.xlsx, .xls, .csv)
-function importDataExcel(event) {
-    let file = event.target.files[0];
-    if (!file) return;
-
-    let reader = new FileReader();
-    reader.onload = function(e) {
+       // Fungsi Export Data ke Excel (.xlsx)
+    function exportDataExcel() {
         try {
-            let data = new Uint8Array(e.target.result);
-            let workbook = XLSX.read(data, { type: 'array' });
-            let firstSheetName = workbook.SheetNames[0];
-            let worksheet = workbook.Sheets[firstSheetName];
-            let jsonhasil = XLSX.utils.sheet_to_json(worksheet);
+            let sppData = JSON.parse(localStorage.getItem('spp_data')) || [];
+            let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
+            let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || [];
 
-            if(jsonhasil.length > 0) {
-                localStorage.setItem('spp_data', JSON.stringify(jsonhasil));
-                alert("Data Excel berhasil diimport! Halaman akan dimuat ulang.");
-                location.reload();
-            } else {
-                alert("File Excel kosong.");
-            }
+            if(sppData.length === 0) sppData = [{ Keterangan: "Belum ada data SPP" }];
+            if(barangMasukData.length === 0) barangMasukData = [{ Keterangan: "Belum ada data Barang Masuk" }];
+            if(stokBarangData.length === 0) stokBarangData = [{ Keterangan: "Belum ada data Stok" }];
+
+            let wb = XLSX.utils.book_new();
+            let wsSPP = XLSX.utils.json_to_sheet(sppData);
+            let wsBarangMasuk = XLSX.utils.json_to_sheet(barangMasukData);
+            let wsStok = XLSX.utils.json_to_sheet(stokBarangData);
+
+            XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
+            XLSX.utils.book_append_sheet(wb, wsBarangMasuk, "Barang Masuk");
+            XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
+
+            XLSX.writeFile(wb, "LogistikPro_Data.xlsx");
+            alert("Data berhasil diexport ke file LogistikPro_Data.xlsx");
         } catch (error) {
             console.error(error);
-            alert("Terjadi kesalahan saat membaca file Excel.");
+            alert("Gagal mengexport data.");
         }
-    };
-    reader.readAsArrayBuffer(file);
-}
+    }
+
+       // Fungsi Import Data dari Excel (.xlsx, .xls, .csv)
+    function importDataExcel(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, { type: 'array' });
+                let firstSheetName = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheetName];
+                let jsonhasil = XLSX.utils.sheet_to_json(worksheet);
+
+                if(jsonhasil.length > 0) {
+                    localStorage.setItem('spp_data', JSON.stringify(jsonhasil));
+                    alert("Data Excel berhasil diimport! Halaman akan dimuat ulang.");
+                    location.reload();
+                } else {
+                    alert("File Excel kosong atau format tidak sesuai.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat membaca file Excel.");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
  </script>
 </body>
 </html>
