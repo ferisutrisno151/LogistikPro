@@ -908,7 +908,7 @@
                 <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
                 <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
                 <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
+                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga" class="item-harga ..."></div>
                 <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
                 <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
             `;
@@ -1008,7 +1008,7 @@
             document.getElementById('modal-keluar').classList.add('flex');
         }
 
-        function addKeluarItemRow(barang="", spek="", qty="", satuan="", ket="") {
+        function addKeluarItemRow(barang="", spek="Standar", qty="", satuan="", ket="") {
             const container = document.getElementById('keluar-items-container');
             const row = document.createElement('div');
             row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
