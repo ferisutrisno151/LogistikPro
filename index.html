@@ -74,16 +74,36 @@
 
     <main class="flex-1 flex flex-col min-w-0 overflow-auto">
         <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg bg-slate-100 hover:bg-slate-200">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-                <div id="page-title-container">
-                    <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
-                        <span class="sm:hidden">Dashboard</span>
-                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">Real-Time Sync</span>
-                    </h2>
+            <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg hover:bg-slate-100">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2">
+            <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
+            <span class="sm:hidden">Dashboard</span>
+        </h2>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-3">
+        <!-- Tombol Export JSON -->
+        <button type="button" onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span>
+        </button>
+
+        <!-- Tombol Import JSON -->
+        <label class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importDataJSON(event)">
+        </label>
+
+        <!-- Tombol Download APK -->
+        <a href="https://files.catbox.moe/k74n34.apk" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm">
+            <i class="fa-solid fa-download"></i>
+            <span>Download APK</span>
+        </a>
+    </div>
+</header>
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
