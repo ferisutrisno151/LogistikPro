@@ -581,25 +581,34 @@
             }
         }
 
-                                function exportDataJSON() {
+                                    function exportDataJSON() {
         try {
-            // 1. Data SPP & Realisasi
+            // 1. Cetak semua key yang ada di localStorage ke console browser untuk dilacak
+            console.log("=== DAFTAR SEMUA KEY DI LOCALSTORAGE ===");
+            for (let i = 0; i < localStorage.length; i++) {
+                let keyName = localStorage.key(i);
+                console.log("- Key:", keyName, "| Isi:", localStorage.getItem(keyName));
+            }
+
+            // 2. Data SPP & Realisasi
             let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
             if (typeof sppList !== 'undefined' && Array.isArray(sppList) && sppList.length > 0) sppData = sppList;
 
-            // 2. Data Barang Masuk
+            // 3. Data Barang Masuk
             let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || 
                                   JSON.parse(localStorage.getItem('barangMasukData')) || 
                                   JSON.parse(localStorage.getItem('masukData')) || [];
             if (typeof barangMasukList !== 'undefined' && Array.isArray(barangMasukList) && barangMasukList.length > 0) barangMasukData = barangMasukList;
 
-            // 3. Data Stok Barang (Ditambah berbagai variasi key stok/gudang)
+            // 4. Data Stok Barang (Mencakup lebih banyak kemungkinan nama key)
             let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || 
                                  JSON.parse(localStorage.getItem('stokBarangData')) || 
                                  JSON.parse(localStorage.getItem('stokData')) || 
                                  JSON.parse(localStorage.getItem('stok_barang')) || 
                                  JSON.parse(localStorage.getItem('gudang_data')) || 
-                                 JSON.parse(localStorage.getItem('inventory_data')) || [];
+                                 JSON.parse(localStorage.getItem('inventory_data')) || 
+                                 JSON.parse(localStorage.getItem('stok')) || 
+                                 JSON.parse(localStorage.getItem('data_stok')) || [];
             
             if (typeof stokBarangList !== 'undefined' && Array.isArray(stokBarangList) && stokBarangList.length > 0) {
                 stokBarangData = stokBarangList;
@@ -624,10 +633,6 @@
 
             if(stokBarangData.length > 0) {
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
-            } else {
-                // Jika masih kosong, buat sheet kosong dengan informasi agar tab-nya tetap terbentuk
-                let wsEmpty = XLSX.utils.json_to_sheet([{ Keterangan: "Data Stok Belum Tersedia atau Key Berbeda" }]);
-                XLSX.utils.book_append_sheet(wb, wsEmpty, "Stok Barang");
             }
 
             // Proses unduh file Excel
@@ -639,10 +644,7 @@
             alert("Terjadi kesalahan saat mengexport data: " + error.message);
         }
     }
-
-
-
-        function importDataJSON(event) {
+          function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
