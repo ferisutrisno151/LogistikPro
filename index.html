@@ -56,83 +56,161 @@
         </div>
 
         <!-- Panduan Download & Install di Sidebar -->
-        <div class="mt-6 p-3 bg-slate-800/80 border border-slate-700/80 rounded-xl space-y-2 text-xs">
-            <div class="font-bold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <i class="fa-solid fa-cloud-arrow-down text-blue-400"></i> Panduan Download & Install
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LogistikPro - Monitoring System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .sidebar-active { background-color: #2563eb; color: #ffffff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        @media (max-width: 767px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
+
+    <!-- Overlay Sidebar Mobile -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div>
+            <div class="flex items-center justify-between px-4 py-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-lg">LP</div>
+                    <div>
+                        <h1 class="font-bold text-white text-lg leading-none">LogistikPro</h1>
+                        <span class="text-xs text-slate-400">Monitoring System</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
             </div>
-            <ol class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4">
-                <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
-                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[cite: 6].</li>
-                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[cite: 6].</li>
-                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[cite: 6].</li>
-            </ol>
-            <!-- Tombol download diperbarui menjadi direct link href dengan atribut download -->
-            <a href="https://files.catbox.moe/k74n34.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
-    <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
-</a>
+
+            <!-- Menu Navigasi -->
+            <nav class="p-4 space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors sidebar-active">
+                    <i class="fa-solid fa-border-all text-lg w-5"></i> Dashboard
+                </button>
+                <button onclick="switchTab('app')" id="nav-app" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-file-invoice text-lg w-5"></i> SPP & Realisasi
+                </button>
+                <button onclick="switchTab('barang-masuk')" id="nav-barang-masuk" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-box-archive text-lg w-5"></i> Barang Masuk
+                </button>
+                <button onclick="switchTab('stok-barang')" id="nav-stok-barang" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-boxes-stacked text-lg w-5"></i> Stok Barang
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tombol Download APK di Sidebar (Sesuai Permintaan) -->
+        <div class="p-4 border-t border-slate-800">
+            <a href="https://files.catbox.moe/k74n34.apk" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition-colors shadow-sm">
+                <i class="fa-solid fa-download"></i>
+                <span>Download APK (v1.0.5)</span>
+            </a>
+        </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="flex-1 flex flex-col min-w-0 overflow-auto">
+        <!-- Header: Tulisan Dashboard, Logo SPP Biru, & Tombol Export/Import Excel Sejajar -->
         <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-    <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg hover:bg-slate-100">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-        <!-- Judul Dashboard & Badge SPP Biru -->
-        <div class="flex items-center gap-2">
-            <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800">Dashboard</h2>
-            <span class="px-2.5 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">SPP</span>
-        </div>
-    </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg hover:bg-slate-100">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <!-- Dashboard & Logo SPP Biru Sejajar -->
+                <div class="flex items-center gap-2">
+                    <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800">Dashboard</h2>
+                    <span class="px-2.5 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">SPP</span>
+                </div>
+            </div>
 
-    <!-- Tombol Export & Import Excel -->
-    <div class="flex items-center gap-2">
-        <button type="button" onclick="exportDataExcel()" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5">
-            <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export Excel</span>
-        </button>
-        <label class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline">Import Excel</span>
-            <input type="file" id="import-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="importDataExcel(event)">
-        </label>
-    </div>
-</header>
+            <!-- Tombol Export & Import Excel Sejajar di Kanan Header -->
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="exportDataExcel()" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export Excel</span>
+                </button>
+                <label class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-file-arrow-up"></i> <span class="hidden sm:inline">Import Excel</span>
+                    <input type="file" id="import-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="importDataExcel(event)">
+                </label>
+            </div>
+        </header>
 
+        <!-- Konten Dashboard -->
         <div class="p-4 md:p-8 space-y-6">
-
             <div id="tab-dashboard" class="tab-content active space-y-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-                    <div onclick="showCardDetail('spp')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-blue-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL PERMINTAAN (SPP)</span>
-                                <div class="text-xl md:text-2xl font-bold text-slate-800 mt-1" id="dash-total-spp">0 Qty</div>
-                                <div class="text-xs text-blue-600 mt-1 font-medium" id="dash-spp-count">0 SPP terdaftar &rarr;</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <i class="fa-regular fa-clipboard text-base md:text-lg"></i>
-                            </div>
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Permintaan (SPP)</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1">670 Qty</h3>
+                        <span class="text-xs text-blue-600 font-medium">4 SPP terdaftar →</span>
                     </div>
-
-                    <div onclick="showCardDetail('kurang')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-amber-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">KEKURANGAN REALISASI</span>
-                                <div class="text-xl md:text-2xl font-bold text-amber-500 mt-1" id="dash-total-kurang">0 Qty</div>
-                                <div class="text-xs text-amber-600 mt-1 font-medium">Klik rincian &rarr;</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                                <i class="fa-solid fa-triangle-exclamation text-base md:text-lg"></i>
-                            </div>
-                        </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kekurangan Realisasi</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-1">220 Qty</h3>
+                        <span class="text-xs text-amber-600 font-medium">Klik rincian →</span>
                     </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Barang Masuk</p>
+                        <h3 class="text-2xl font-bold text-emerald-600 mt-1">137 Qty</h3>
+                        <span class="text-xs text-slate-500 font-medium">Rp 37.415.000 →</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Item Di Gudang</p>
+                        <h3 class="text-2xl font-bold text-purple-600 mt-1">7 Jenis</h3>
+                        <span class="text-xs text-slate-500 font-medium">Saldo: 117 Qty →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-                    <div onclick="showCardDetail('masuk')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-emerald-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL BARANG MASUK</span>
-                                <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1" id="dash-total-masuk">0 Qty</div>
-                                <div class="text-xs text-emerald-600 mt-1 font-semibold" id="dash-val-masuk">Rp 0 &rarr;</div>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('sidebar-active', 'text-white'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.add('text-slate-400'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.getElementById('nav-' + tabId);
+            activeBtn.classList.add('sidebar-active', 'text-white');
+            activeBtn.classList.remove('text-slate-400');
+            
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function exportDataExcel() {
+            alert("Fitur Export Excel sedang diproses.");
+        }
+
+        function importDataExcel(event) {
+            alert("File Excel dipilih.");
+        }
+    </script>
+</body>
+</html>
                             </div>
                             <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                                 <i class="fa-solid fa-box-open text-base md:text-lg"></i>
