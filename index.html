@@ -38,22 +38,28 @@
                 </button>
             </div>
 
-            <nav class="space-y-1.5">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm sidebar-active">
-                    <i class="fa-solid fa-border-all text-lg w-5"></i> Dashboard
-                </button>
-                <button onclick="switchTab('spp')" id="nav-spp" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-file-invoice text-lg w-5"></i> SPP & Realisasi
-                </button>
-                <button onclick="switchTab('barang-masuk')" id="nav-barang-masuk" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-box-archive text-lg w-5"></i> Barang Masuk
-                </button>
-                <button onclick="switchTab('stok-barang')" id="nav-stok-barang" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-boxes-stacked text-lg w-5"></i> Stok Barang
-                </button>
-            </nav>
-        </div>
+            <nav class="flex-1 p-4 space-y-2">
+    <a href="#" onclick="switchTab('dashboard')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+        <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+    </a>
+    <a href="#" onclick="switchTab('spp')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+        <i class="fa-solid fa-file-invoice w-5"></i> SPP & Realisasi
+    </a>
+    <a href="#" onclick="switchTab('barang-masuk')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+        <i class="fa-solid fa-boxes-stacked w-5"></i> Barang Masuk
+    </a>
+    <a href="#" onclick="switchTab('stok')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+        <i class="fa-solid fa-warehouse w-5"></i> Stok Barang
+    </a>
+</nav>
 
+<!-- Tombol Download APK di Bawah Sidebar -->
+<div class="p-4 border-t border-slate-800">
+    <a href="https://files.catbox.moe/k74n34.apk" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg text-xs transition-colors">
+        <i class="fa-solid fa-download"></i>
+        <span>Download APK</span>
+    </a>
+</div>
         
                     <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
                         <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
