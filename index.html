@@ -581,36 +581,48 @@
             }
         }
 
-                                        function exportDataJSON() {
+                                            function exportDataJSON() {
         try {
-            // 1. Data SPP & Realisasi
+            // 1. Ambil semua nama key yang ada di localStorage untuk dideteksi
+            let allKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                allKeys.push(localStorage.key(i));
+            }
+            console.log("Semua Key di LocalStorage:", allKeys);
+
+            // 2. Data SPP & Realisasi
             let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
             if (typeof sppList !== 'undefined' && Array.isArray(sppList) && sppList.length > 0) sppData = sppList;
 
-            // 2. Data Barang Masuk
+            // 3. Data Barang Masuk
             let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || 
                                   JSON.parse(localStorage.getItem('barangMasukData')) || 
                                   JSON.parse(localStorage.getItem('masukData')) || [];
             if (typeof barangMasukList !== 'undefined' && Array.isArray(barangMasukList) && barangMasukList.length > 0) barangMasukData = barangMasukList;
 
-            // 3. Data Stok Barang (Mencakup seluruh kemungkinan nama key / variabel lokal)
-            let stokBarangData = JSON.parse(localStorage.getItem('stok_barang_data')) || 
-                                 JSON.parse(localStorage.getItem('stokBarangData')) || 
-                                 JSON.parse(localStorage.getItem('stokData')) || 
-                                 JSON.parse(localStorage.getItem('stok_barang')) || 
-                                 JSON.parse(localStorage.getItem('gudang_data')) || 
-                                 JSON.parse(localStorage.getItem('inventory_data')) || 
-                                 JSON.parse(localStorage.getItem('stok')) || 
-                                 JSON.parse(localStorage.getItem('data_stok')) || 
-                                 JSON.parse(localStorage.getItem('items')) || [];
-            
-            if (typeof stokBarangList !== 'undefined' && Array.isArray(stokBarangList) && stokBarangList.length > 0) {
-                stokBarangData = stokBarangList;
-            } else if (typeof inventarisList !== 'undefined' && Array.isArray(inventarisList) && inventarisList.length > 0) {
-                stokBarangData = inventarisList;
+            // 4. Data Stok Barang (Mencoba mendeteksi key yang mengandung kata 'stok', 'gudang', atau 'inventory')
+            let stokBarangData = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                let k = localStorage.key(i);
+                let lowerK = k.toLowerCase();
+                if (lowerK.includes('stok') || lowerK.includes('gudang') || lowerK.includes('inventory') || lowerK.includes('item')) {
+                    let val = JSON.parse(localStorage.getItem(k));
+                    if (Array.isArray(val) && val.length > 0) {
+                        stokBarangData = val;
+                        console.log("Data Stok ditemukan pada key:", k);
+                        break;
+                    }
+                }
             }
 
-            // Validasi jika semua data benar-benar kosong
+            // Jika masih kosong, cek variabel global umum
+            if (stokBarangData.length === 0) {
+                if (typeof stokBarangList !== 'undefined' && Array.isArray(stokBarangList)) stokBarangData = stokBarangList;
+                else if (typeof inventarisList !== 'undefined' && Array.isArray(inventarisList)) stokBarangData = inventarisList;
+                else if (typeof stokList !== 'undefined' && Array.isArray(stokList)) stokBarangData = stokList;
+            }
+
+            // Validasi jika semua data kosong
             if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
                 alert("Tidak ada data untuk diexport!");
                 return;
@@ -627,23 +639,24 @@
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
             }
 
-            // Tab Stok Barang (Jika datanya terdeteksi, masukkan ke sheet. Jika masih kosong, buatkan tabel kosong dengan header info)
             if(stokBarangData.length > 0) {
                 XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
             } else {
-                let wsEmpty = XLSX.utils.json_to_sheet([{ Info: "Data Stok Barang Belum Tersimpan di LocalStorage" }]);
+                // Tampilkan daftar key yang tersedia agar Anda tahu nama key aslinya
+                let wsEmpty = XLSX.utils.json_to_sheet([{ Daftar_Key_LocalStorage: allKeys.join(", ") }]);
                 XLSX.utils.book_append_sheet(wb, wsEmpty, "Stok Barang");
             }
 
             // Proses unduh file Excel
             XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
-            alert("Export data berhasil!");
+            alert("Export selesai! Cek tab Stok Barang untuk melihat daftar key jika data kosong.");
 
         } catch (error) {
             console.error("Detail Error:", error);
-            alert("Terjadi kesalahan saat mengexport data: " + error.message);
+            alert("Terjadi kesalahan: " + error.message);
         }
     }
+
 
           function importDataJSON(event) {
             const fileReader = new FileReader();
