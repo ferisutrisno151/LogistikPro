@@ -1008,21 +1008,34 @@
             document.getElementById('modal-keluar').classList.add('flex');
         }
 
-        function addKeluarItemRow(barang="", spek="Standar", qty="", satuan="", ket="") {
-            const container = document.getElementById('keluar-items-container');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
-            row.innerHTML = `
-                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
-                <div class="sm:col-span-3"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
-                <div class="sm:col-span-2"><input type="number" value="${qty}" placeholder="Qty Out" class="w-full p-1.5 border rounded item-qty" required></div>
-                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan" class="w-full p-1.5 border rounded item-ket"></div>
-                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
-            `;
-            container.appendChild(row);
-        }
-
+        function addKeluarItemRow(barang="", spek="", qty="", satuan="", ket="") {
+    const container = document.getElementById('keluar-items-container');
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2 rounded border mb-2';
+    row.innerHTML = `
+        <div class="sm:col-span-3">
+            <input type="text" list="list-barang-masuk" value="${barang}" placeholder="Nama Barang" class="item-nama w-full border rounded p-1" onchange="OtomatisIsiSpek(this)">
+        </div>
+        <div class="sm:col-span-3">
+            <input type="text" value="${spek}" placeholder="Spesifikasi" class="item-spek w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-2">
+            <input type="number" value="${qty}" placeholder="Qty Out" class="item-qty w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-2">
+            <input type="text" value="${satuan}" placeholder="Sat" class="item-satuan w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-1">
+            <input type="text" value="${ket}" placeholder="Ket" class="item-ket w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-1 text-right sm:text-center">
+            <button type="button" onclick="this.closest('.keluar-row').remove();" class="text-red-500 hover:text-red-700">
+                <i class="fa-solid fa-trash"></i> Hapus
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+}
         function saveKeluar(e) {
             e.preventDefault();
             const editId = document.getElementById('keluar-edit-id').value;
@@ -1376,6 +1389,25 @@
             renderAll(); 
             loadDataFromServer(); 
         };
+  function OtomatisIsiSpek(inputNamaBarang) {
+    const namaBarangDipilih = inputNamaBarang.value;
+    const barisItem = inputNamaBarang.closest('.keluar-row');
+    const inputSpek = barisItem.querySelector('.item-spek');
+
+    let spekDitemukan = "";
+    if (typeof masukData !== 'undefined') {
+        for (let itemMasuk of masukData) {
+            if (itemMasuk.items) {
+                let matched = itemMasuk.items.find(i => i.barang.toLowerCase() === namaBarangDipilih.toLowerCase());
+                if (matched) {
+                    spekDitemukan = matched.spek;
+                    break;
+                }
+            }
+        }
+    }
+    inputSpek.value = spekDitemukan || "Standar";
+}
     </script>
 </body>
 </html>
