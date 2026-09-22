@@ -17,7 +17,6 @@
             input, select, textarea { font-size: 16px !important; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
 
@@ -63,29 +62,51 @@
             </div>
             <ol class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4">
                 <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
-                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[span_1](start_span)[span_1](end_span).</li>
-                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[span_2](start_span)[span_2](end_span).</li>
-                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[span_3](start_span)[span_3](end_span).</li>
+                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[cite: 6].</li>
+                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[cite: 6].</li>
+                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[cite: 6].</li>
             </ol>
             <!-- Tombol download diperbarui menjadi direct link href dengan atribut download -->
             <a href="https://files.catbox.moe/k74n34.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
     <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
-            </a>
-        </div>
+</a>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0 overflow-auto">
-        <header class="bg-white border-b border-slate-200 px-4 pt-8 pb-3 md:pt-3 flex items-center justify-between sticky top-0 z-10">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg bg-slate-100 hover:bg-slate-200">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-                <div id="page-title-container">
-                    <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
-                        <span class="sm:hidden">Dashboard</span>
-                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">LogistikPro</span>
-                    </h2>
+        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+            <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg hover:bg-slate-100">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2">
+            <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
+            <span class="sm:hidden">Dashboard</span>
+        </h2>
+    </div>
+    <div class="flex items-center gap-2"></div>
+</header>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-3">
+        <!-- Tombol Export JSON -->
+        <button type="button" onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span>
+        </button>
+
+        <!-- Tombol Import JSON -->
+        <label class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importDataJSON(event)">
+        </label>
+
+        <!-- Tombol Download APK -->
+        <a href="https://files.catbox.moe/k74n34.apk" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm">
+            <i class="fa-solid fa-download"></i>
+            <span>Download APK</span>
+        </a>
+    </div>
+</header>
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
@@ -96,9 +117,12 @@
                     <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
                     <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
                 </label>
+
+                <button onclick="resetDemoData()" class="px-2.5 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Reset Demo</span>
                 </button>
                 <div class="flex items-center gap-2 md:gap-3 border-l border-slate-200 pl-2 md:pl-3">
-                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">151</div>
+                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">SPP</div>
                     <div class="hidden sm:block">
                         <div class="text-xs font-bold text-slate-800">Staff Logistik Proyek</div>
                         <div class="text-[10px] text-slate-400">Logistics & Supply</div>
@@ -581,84 +605,24 @@
             }
         }
 
-                                            function exportDataJSON() {
-        try {
-            // 1. Ambil semua nama key yang ada di localStorage untuk dideteksi
-            let allKeys = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                allKeys.push(localStorage.key(i));
-            }
-            console.log("Semua Key di LocalStorage:", allKeys);
-
-            // 2. Data SPP & Realisasi
-            let sppData = JSON.parse(localStorage.getItem('spp_data')) || JSON.parse(localStorage.getItem('sppData')) || [];
-            if (typeof sppList !== 'undefined' && Array.isArray(sppList) && sppList.length > 0) sppData = sppList;
-
-            // 3. Data Barang Masuk
-            let barangMasukData = JSON.parse(localStorage.getItem('barang_masuk_data')) || 
-                                  JSON.parse(localStorage.getItem('barangMasukData')) || 
-                                  JSON.parse(localStorage.getItem('masukData')) || [];
-            if (typeof barangMasukList !== 'undefined' && Array.isArray(barangMasukList) && barangMasukList.length > 0) barangMasukData = barangMasukList;
-
-            // 4. Data Stok Barang (Mencoba mendeteksi key yang mengandung kata 'stok', 'gudang', atau 'inventory')
-            let stokBarangData = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                let k = localStorage.key(i);
-                let lowerK = k.toLowerCase();
-                if (lowerK.includes('stok') || lowerK.includes('gudang') || lowerK.includes('inventory') || lowerK.includes('item')) {
-                    let val = JSON.parse(localStorage.getItem(k));
-                    if (Array.isArray(val) && val.length > 0) {
-                        stokBarangData = val;
-                        console.log("Data Stok ditemukan pada key:", k);
-                        break;
-                    }
-                }
-            }
-
-            // Jika masih kosong, cek variabel global umum
-            if (stokBarangData.length === 0) {
-                if (typeof stokBarangList !== 'undefined' && Array.isArray(stokBarangList)) stokBarangData = stokBarangList;
-                else if (typeof inventarisList !== 'undefined' && Array.isArray(inventarisList)) stokBarangData = inventarisList;
-                else if (typeof stokList !== 'undefined' && Array.isArray(stokList)) stokBarangData = stokList;
-            }
-
-            // Validasi jika semua data kosong
-            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
-                alert("Tidak ada data untuk diexport!");
-                return;
-            }
-
-            // Membuat Workbook Excel baru
-            let wb = XLSX.utils.book_new();
-            
-            if(sppData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppData), "SPP & Realisasi");
-            }
-            
-            if(barangMasukData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
-            }
-
-            if(stokBarangData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
-            } else {
-                // Tampilkan daftar key yang tersedia agar Anda tahu nama key aslinya
-                let wsEmpty = XLSX.utils.json_to_sheet([{ Daftar_Key_LocalStorage: allKeys.join(", ") }]);
-                XLSX.utils.book_append_sheet(wb, wsEmpty, "Stok Barang");
-            }
-
-            // Proses unduh file Excel
-            XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
-            alert("Export selesai! Cek tab Stok Barang untuk melihat daftar key jika data kosong.");
-
-        } catch (error) {
-            console.error("Detail Error:", error);
-            alert("Terjadi kesalahan: " + error.message);
+        function exportDataJSON() {
+            const dataToExport = {
+                app: "LogistikPro",
+                version: "1.0",
+                exportDate: new Date().toISOString(),
+                sppData, masukData, keluarData
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            const dateStr = new Date().toISOString().split('T')[0];
+            downloadAnchor.setAttribute("download", `LogistikPro_Backup_${dateStr}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
-    }
 
-
-          function importDataJSON(event) {
+        function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
@@ -933,36 +897,20 @@
         }
 
         function addMasukItemRow(barang="", spek="", qty="", satuan="", harga="", ket="") {
-    const container = document.getElementById('masuk-items-container');
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2 rounded border mb-2';
-    row.innerHTML = `
-        <div class="sm:col-span-3">
-            <input type="text" value="${barang}" placeholder="Nama Barang" class="item-nama w-full border rounded p-1">
-        </div>
-        <div class="sm:col-span-2">
-            <input type="text" value="${spek}" placeholder="Spesifikasi" class="item-spek w-full border rounded p-1">
-        </div>
-        <div class="sm:col-span-1">
-            <input type="number" value="${qty}" placeholder="Qty" class="item-qty w-full border rounded p-1" oninput="updateMasukSummary()">
-        </div>
-        <div class="sm:col-span-2">
-            <input type="text" value="${satuan}" placeholder="Satuan" class="item-satuan w-full border rounded p-1">
-        </div>
-        <div class="sm:col-span-2">
-            <input type="number" value="${harga}" placeholder="Harga Satuan" class="item-harga w-full border rounded p-1" oninput="updateMasukSummary()">
-        </div>
-        <div class="sm:col-span-1">
-            <input type="text" value="${ket}" placeholder="Ket" class="item-ket w-full border rounded p-1">
-        </div>
-        <div class="sm:col-span-1 text-right sm:text-center">
-            <button type="button" onclick="this.closest('.masuk-row').remove(); updateMasukSummary();" class="text-red-500 hover:text-red-700">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>
-    `;
-    container.appendChild(row);
-    updateMasukSummary();
+            const container = document.getElementById('masuk-items-container');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
+            row.innerHTML = `
+                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
+                <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
+                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
+                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
+                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
+            `;
+            container.appendChild(row);
+            updateMasukSummary();
         }
 
         function updateMasukSummary() {
@@ -985,47 +933,45 @@
         }
 
         function saveMasuk(e) {
-    e.preventDefault();
-    const editId = document.getElementById('masuk-edit-id').value;
-    const tgl = document.getElementById('masuk-tgl').value;
-    const vendor = document.getElementById('masuk-vendor').value;
-    
-    const rows = document.querySelectorAll('.masuk-row');
-    const items = [];
-    rows.forEach(row => {
-        items.push({
-            barang: row.querySelector('.item-nama').value,
-            spek: row.querySelector('.item-spek').value,
-            qty: parseFloat(row.querySelector('.item-qty').value) || 0,
-            satuan: row.querySelector('.item-satuan').value,
-            harga: parseFloat(row.querySelector('.item-harga').value) || 0,
-            ket: row.querySelector('.item-ket').value
-        });
-    });
+            e.preventDefault();
+            const editId = document.getElementById('masuk-edit-id').value;
+            const tgl = document.getElementById('masuk-tgl').value;
+            const vendor = document.getElementById('masuk-vendor').value;
 
-    if (editId) {
-        // Mode Edit / Update Data
-        const idx = masukData.findIndex(i => i.id == editId);
-        if (idx !== -1) {
-            masukData[idx] = { id: parseInt(editId), tgl, vendor, items };
+            if(editId) {
+                const idx = masukData.findIndex(i => i.id == editId);
+                const row = document.querySelector('.masuk-row');
+                const qty = parseFloat(row.querySelector('.item-qty').value);
+                const harga = parseFloat(row.querySelector('.item-harga').value);
+                masukData[idx].tgl = tgl;
+                masukData[idx].vendor = vendor;
+                masukData[idx].barang = row.querySelector('.item-nama').value;
+                masukData[idx].spek = row.querySelector('.item-spek').value;
+                masukData[idx].qty = qty;
+                masukData[idx].satuan = row.querySelector('.item-satuan').value;
+                masukData[idx].harga = harga;
+                masukData[idx].total = qty * harga;
+                masukData[idx].ket = row.querySelector('.item-ket').value;
+            } else {
+                const rows = document.querySelectorAll('.masuk-row');
+                rows.forEach(row => {
+                    const qty = parseFloat(row.querySelector('.item-qty').value);
+                    const harga = parseFloat(row.querySelector('.item-harga').value);
+                    masukData.push({
+                        id: Date.now() + Math.random(),
+                        tgl, vendor,
+                        barang: row.querySelector('.item-nama').value,
+                        spek: row.querySelector('.item-spek').value || '-',
+                        qty, satuan: row.querySelector('.item-satuan').value,
+                        harga, total: qty * harga, 
+                        ket: row.querySelector('.item-ket').value || '-'
+                    });
+                });
+            }
+
+            closeModal('modal-masuk');
+            saveData();
         }
-    } else {
-        // Mode Tambah Data Baru
-        const newData = { id: Date.now(), tgl, vendor, items };
-        masukData.push(newData);
-    }
-
-    // Simpan ke penyimpanan lokal browser
-    saveData();
-
-    // Tutup modal form barang masuk
-    document.getElementById('modal-masuk').classList.remove('flex');
-    document.getElementById('modal-masuk').classList.add('hidden');
-
-    // Perbarui tampilan tabel dan dashboard agar sinkron
-    if (typeof renderMasuk === 'function') renderMasuk();
-    if (typeof updateDashboard === 'function') updateDashboard();
-}
 
         function deleteMasuk(id) {
             if(confirm('Hapus transaksi barang masuk ini?')) {
