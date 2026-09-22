@@ -1376,31 +1376,75 @@
             renderAll(); 
             loadDataFromServer(); 
         };
-       function updateDashboard() {
+       f// 2. Hitung total Barang Masuk (Qty & Rupiah) & Jenis Barang
+        function updateDashboard() {
+    let totalSppQty = 0;
+    let totalKekuranganQty = 0;
     let totalMasukQty = 0;
     let totalMasukRp = 0;
+    let jenisBarangSet = new Set();
 
-    // Hitung total dari data barang masuk (masukData)
-    if (typeof masukData !== 'undefined' && Array.isArray(masukData)) {
-        masukData.forEach(entry => {
-            if (entry.items && Array.isArray(entry.items)) {
-                entry.items.forEach(item => {
+    // 1. Hitung total SPP & Kekurangan Realisasi
+    if (typeof sppData !== 'undefined' && Array.isArray(sppData)) {
+        sppData.forEach(spp => {
+            if (spp.items) {
+                spp.items.forEach(item => {
                     const q = parseFloat(item.qty) || 0;
-                    const h = parseFloat(item.harga) || 0;
-                    totalMasukQty += q;
-                    totalMasukRp += q * h;
+                    const r = parseFloat(item.totalRealisasi) || 0;
+                    totalSppQty += q;
+                    totalKekuranganQty += Math.max(0, q - r);
                 });
             }
         });
     }
 
-    // Perbarui tampilan pada elemen kartu dashboard
-    const elMasukQty = document.getElementById('dashboard-total-masuk-qty');
-    if (elMasukQty) elMasukQty.innerText = totalMasukQty.toLocaleString('id-ID') + ' Qty';
+    // 2. Hitung total Barang Masuk (Qty & Rupiah) & Jenis Barang
+    if (typeof masukData !== 'undefined' && Array.isArray(masukData)) {
+        masukData.forEach(entry => {
+            if (entry.items) {
+                entry.items.forEach(item => {
+                    const q = parseFloat(item.qty) || 0;
+                    const h = parseFloat(item.harga) || 0;
+                    totalMasukQty += q;
+                    totalMasukRp += q * h;
+                    if (item.barang) jenisBarangSet.add(item.barang.trim().toLowerCase());
+                });
+            }
+        });
+    }
 
-    const elMasukRp = document.getElementById('dashboard-total-masuk-rp');
-    if (elMasukRp) elMasukRp.innerText = 'Rp ' + totalMasukRp.toLocaleString('id-ID');
-}
+    // 3. Hitung Total Barang Keluar untuk Saldo Gudang
+    let totalKeluarQty = 0;
+    if (typeof keluarData !== 'undefined' && Array.isArray(keluarData)) {
+        keluarData.forEach(entry => {
+            if (entry.items) {
+                entry.items.forEach(item => {
+                    totalKeluarQty += parseFloat(item.qty) || 0;
+                });
+            }
+        });
+    }
+
+    const saldoGudang = totalMasukQty - totalKeluarQty;
+
+    // 4. Masukkan hasil perhitungan ke elemen ID HTML Dashboard
+    const elSpp = document.getElementById('dash-total-spp');
+    if (elSpp) elSpp.innerHTML = `${totalSppQty.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">Qty</span>`;
+
+    const elKurang = document.getElementById('dash-total-kurang');
+    if (elKurang) elKurang.innerHTML = `${totalKekuranganQty.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">Qty</span>`;
+
+    const elMasuk = document.getElementById('dash-val-masuk');
+    if (elMasuk) elMasuk.innerHTML = `Rp ${totalMasukRp.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">(${totalMasukQty.toLocaleString('id-ID')} Qty)</span>`;
+
+    const elJenis = document.getElementById('dash-total-jenis');
+    if (elJenis) {
+        elJenis.innerText = jenisBarangSet.size + ' Jenis';
+    }
+
+    const elSaldo = document.getElementById('dash-saldo-qty');
+    if (elSaldo) elSaldo.innerText = 'Saldo: ' + saldoGudang.toLocaleString('id-ID') + ' Qty';
+        }
     </script>
 </body>
 </html>
