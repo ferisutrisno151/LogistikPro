@@ -18,41 +18,6 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Firebase SDK untuk Kolaborasi Real-Time Bersama Rekan -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyDummyKeyForLogistikProSync",
-            authDomain: "logistikpro-proyek.firebaseapp.com",
-            projectId: "logistikpro-proyek",
-            storageBucket: "logistikpro-proyek.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
-
-        try {
-            const app = initializeApp(firebaseConfig);
-            window.db = getFirestore(app);
-            window.firebaseActive = true;
-            
-            // Real-time listener untuk update otomatis antar rekan kerja
-            const docRef = doc(window.db, "logistikpro", "data_proyek");
-            onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const cloudData = docSnap.data();
-                    if(cloudData && JSON.stringify(cloudData) !== JSON.stringify(appData)) {
-                        appData = cloudData;
-                        localStorage.setItem('logistikpro_persistent_data', JSON.stringify(appData));
-                        refreshAll();
-                    }
-                }
-            });
-        } catch(e) {
-            window.firebaseActive = false;
-        }
-    </script>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
 
@@ -91,18 +56,20 @@
             </nav>
         </div>
 
+        <!-- Panduan Download & Install di Sidebar -->
         <div class="mt-6 p-3 bg-slate-800/80 border border-slate-700/80 rounded-xl space-y-2 text-xs">
             <div class="font-bold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <i class="fa-solid fa-cloud-arrow-down text-blue-400"></i> Panduan Download & Install
             </div>
             <ol class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4">
                 <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
-                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta.</li>
-                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi.</li>
-                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai.</li>
+                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[span_1](start_span)[span_1](end_span).</li>
+                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[span_2](start_span)[span_2](end_span).</li>
+                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[span_3](start_span)[span_3](end_span).</li>
             </ol>
-            <a href="https://files.catbox.moe/2q3jjs.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
-                <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
+            <!-- Tombol download diperbarui menjadi direct link href dengan atribut download -->
+            <a href="https://files.catbox.moe/k74n34.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
+    <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
             </a>
         </div>
     </aside>
@@ -122,8 +89,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="exportToExcel()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm" title="Export Laporan ke Excel">
-                    <i class="fa-solid fa-file-excel text-sm"></i> <span class="hidden sm:inline">Export Excel</span>
+                <button onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 flex items-center gap-1.5" title="Backup Data ke File JSON">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span>
+                </button>
+                <label class="px-2.5 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer" title="Pulihkan Data dari File JSON">
+                    <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
+                    <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                </label>
                 </button>
                 <div class="flex items-center gap-2 md:gap-3 border-l border-slate-200 pl-2 md:pl-3">
                     <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">151</div>
@@ -137,7 +109,6 @@
 
         <div class="p-4 md:p-8 space-y-6">
 
-            <!-- TAB DASHBOARD -->
             <div id="tab-dashboard" class="tab-content active space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                     <div onclick="showCardDetail('spp')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-blue-500">
@@ -243,13 +214,12 @@
                 </div>
             </div>
 
-            <!-- TAB SPP -->
             <div id="tab-spp" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <button onclick="openSppModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
                         <i class="fa-solid fa-plus"></i> Tambah SPP Baru
                     </button>
-                    <input type="text" id="search-spp" onkeyup="renderSPP()" placeholder="Cari No SPP / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
+                    <input type="text" id="search-spp" onkeyup="filterTable('search-spp', 'spp-table-body')" placeholder="Cari No SPP / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -278,7 +248,6 @@
                 </div>
             </div>
 
-            <!-- TAB BARANG MASUK -->
             <div id="tab-barang-masuk" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <div class="flex items-center gap-2">
@@ -289,7 +258,7 @@
                             <i class="fa-solid fa-layer-group text-blue-600"></i> <span id="view-mode-label">Tampilkan Akumulasi per Vendor</span>
                         </button>
                     </div>
-                    <input type="text" id="search-masuk" onkeyup="renderMasuk()" placeholder="Cari vendor / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
+                    <input type="text" id="search-masuk" onkeyup="filterTable('search-masuk', 'masuk-table-body')" placeholder="Cari vendor / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -305,13 +274,12 @@
                 </div>
             </div>
 
-            <!-- TAB STOK BARANG -->
             <div id="tab-stok-barang" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <button onclick="openKeluarModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20">
                         <i class="fa-solid fa-plus"></i> Input Penyesuaian / Stok Keluar
                     </button>
-                    <input type="text" id="search-stok" onkeyup="renderStok()" placeholder="Cari item..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
+                    <input type="text" id="search-stok" onkeyup="filterTable('search-stok', 'stok-table-body')" placeholder="Cari item..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -365,7 +333,6 @@
         </div>
     </main>
 
-    <!-- MODAL CARD DETAIL -->
     <div id="modal-card-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-4xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -381,9 +348,8 @@
         </div>
     </div>
 
-    <!-- MODAL SPP -->
     <div id="modal-spp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="spp-modal-title" class="font-bold text-slate-800 text-sm">Form Permintaan Barang (SPP)</h3>
                 <button onclick="closeModal('modal-spp')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -400,16 +366,16 @@
                         <input type="date" id="spp-tgl" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Pengaju SPP</label>
+                        <label class="block font-semibold text-slate-600 mb-1">Yang Mengajukan SPP</label>
                         <input type="text" id="spp-pengaju" required placeholder="Nama / Bagian" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                     </div>
                 </div>
 
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Daftar Item Barang</span>
-                        <button type="button" onclick="addSppItemRow()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Tambah Item
+                        <span class="font-bold text-slate-700">Daftar Item Barang & Keterangan</span>
+                        <button type="button" id="btn-add-spp-item" onclick="addSppItemRow()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Tambah Barang
                         </button>
                     </div>
                     <div id="spp-items-container" class="space-y-2"></div>
@@ -423,7 +389,7 @@
         </div>
     </div>
 
-    <!-- MODAL REALISASI BERTAHAP -->
+    <!-- Modal Realisasi Pembelian Bertahap (Tanpa Detail/Catatan) -->
     <div id="modal-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -439,7 +405,7 @@
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Jumlah Realisasi (Qty)</label>
-                    <input type="number" id="realisasi-qty" min="1" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                    <input type="number" id="realisasi-qty" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modal-realisasi')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
@@ -449,31 +415,8 @@
         </div>
     </div>
 
-    <!-- MODAL LIST REALISASI -->
-    <div id="modal-list-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-sm">Daftar Realisasi Pembelian Bertahap</h3>
-                <button onclick="closeModal('modal-list-realisasi')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
-                            <th class="p-2">Tanggal</th>
-                            <th class="p-2 text-center">Qty Realisasi</th>
-                            <th class="p-2 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="list-realisasi-body" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL BARANG MASUK -->
     <div id="modal-masuk" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="masuk-modal-title" class="font-bold text-slate-800 text-sm">Input Barang Masuk Proyek</h3>
                 <button onclick="closeModal('modal-masuk')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -493,12 +436,22 @@
 
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Daftar Barang Masuk</span>
-                        <button type="button" onclick="addMasukItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Tambah Item
+                        <span class="font-bold text-slate-700">Daftar Barang Masuk & Keterangan</span>
+                        <button type="button" id="btn-add-masuk-item" onclick="addMasukItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Tambah Barang
                         </button>
                     </div>
                     <div id="masuk-items-container" class="space-y-2"></div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center text-amber-900">
+                    <div>
+                        <span class="font-bold block text-[11px] uppercase tracking-wider">Akumulasi Input Ini:</span>
+                        <span id="masuk-summary-text" class="text-xs font-medium">Total Qty: 0 | Total Biaya: Rp 0</span>
+                    </div>
+                    <div class="text-right text-[10px] text-amber-700 font-semibold">
+                        Otomatis dihitung berdasarkan Tanggal & Vendor
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
@@ -509,110 +462,46 @@
         </div>
     </div>
 
-    <!-- MODAL STOK KELUAR -->
     <div id="modal-keluar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="keluar-modal-title" class="font-bold text-slate-800 text-sm">Input Penyesuaian / Stok Keluar</h3>
+                <h3 id="keluar-modal-title" class="font-bold text-slate-800 text-sm">Input Barang Keluar / Penyesuaian</h3>
                 <button onclick="closeModal('modal-keluar')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="form-keluar" onsubmit="saveKeluar(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="keluar-edit-id">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Tanggal Out</label>
+                        <label class="block font-semibold text-slate-600 mb-1">Tanggal Keluar</label>
                         <input type="date" id="keluar-tgl" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Yang Mengambil</label>
-                        <input type="text" id="keluar-pengambil" required placeholder="Nama / Bagian" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                        <label class="block font-semibold text-slate-600 mb-1">Yang Mengambil Barang</label>
+                        <input type="text" id="keluar-pengambil" required placeholder="Nama / Subkon / Mandor" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Pilih Barang dari Stok Masuk</label>
-                    <select id="keluar-barang-select" required onchange="autofillKeluar()" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                        <option value="">-- Pilih Barang --</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Jumlah Keluar</label>
-                        <input type="number" id="keluar-qty" min="1" value="1" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Daftar Item Barang Keluar</span>
+                        <button type="button" id="btn-add-keluar-item" onclick="addKeluarItemRow()" class="bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Tambah Barang
+                        </button>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Satuan</label>
-                        <input type="text" id="keluar-satuan" readonly class="w-full p-2 border border-slate-200 rounded-lg bg-slate-100 text-slate-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Petugas Gudang</label>
-                        <input type="text" id="keluar-petugas" value="Admin" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Penggunaan / Keterangan</label>
-                    <input type="text" id="keluar-ket" placeholder="Cth: Untuk lantai 2" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                    <div id="keluar-items-container" class="space-y-2"></div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modal-keluar')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">Simpan Keluar</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">Simpan Pengeluaran</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT APLIKASI -->
     <script>
-        let appData = {
-            spp: [
-                { id: 1, no: "0001/SPP/EPC/IX/2026", tgl: "2026-09-04", pengaju: "Jamroni", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", realisasiList: [], ket: "Proyek Utama" },
-                { id: 2, no: "0002/SPP/EPC/IX/2026", tgl: "2026-09-05", pengaju: "Johan", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", realisasiList: [], ket: "Pengecatan" },
-                { id: 3, no: "0003/SPP/EPC/IX/2026", tgl: "2026-09-08", pengaju: "Feri", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", realisasiList: [], ket: "Struktur" },
-                { id: 4, no: "0004/SPP/EPC/IX/2026", tgl: "2026-09-21", pengaju: "Rosyd", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", realisasiList: [], ket: "Pembesian" }
-            ],
-            masuk: [
-                { id: 1, tgl: "2026-09-05", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", harsat: 15000, harga: 750000, ket: "Material Utama" },
-                { id: 2, tgl: "2026-09-05", vendor: "Azidar H Berni", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", harsat: 35000, harga: 350000, ket: "Finishing" },
-                { id: 3, tgl: "2026-09-05", vendor: "Stok Gudang", barang: "Scotlet Merah", spesifikasi: "Roll Besar", qty: 5, satuan: "Rol", harsat: 30000, harga: 150000, ket: "" },
-                { id: 4, tgl: "2026-09-07", vendor: "PT. Borma Karya Jaya", barang: "Skun Kabel", spesifikasi: "16mm", qty: 100, satuan: "Pcs", harsat: 5000, harga: 500000, ket: "Elektrikal" },
-                { id: 5, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", harsat: 50000, harga: 1250000, ket: "" },
-                { id: 6, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spesifikasi: "2.6mm", qty: 20, satuan: "Kg", harsat: 45000, harga: 900000, ket: "" },
-                { id: 7, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RB260", spesifikasi: "2.0mm", qty: 15, satuan: "Kg", harsat: 50000, harga: 750000, ket: "" },
-                { id: 8, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Resibon Potong", spesifikasi: "14 Inch", qty: 30, satuan: "Pcs", harsat: 15000, harga: 450000, ket: "" },
-                { id: 9, tgl: "2026-09-21", vendor: "PT. AgungTeknik Mandiri", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", harsat: 20000, harga: 600000, ket: "" }
-            ],
-            keluar: []
-        };
-
-        let isMasukAccumulated = false;
-        let barChartInstance = null;
-        let pieChartInstance = null;
-
-        function loadInitialData() {
-            const saved = localStorage.getItem('logistikpro_persistent_data');
-            if(saved) {
-                try {
-                    appData = JSON.parse(saved);
-                } catch(e) {}
-            }
-        }
-
-        async function saveData() {
-            localStorage.setItem('logistikpro_persistent_data', JSON.stringify(appData));
-            
-            if(window.firebaseActive && window.db) {
-                try {
-                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                    await setDoc(doc(window.db, "logistikpro", "data_proyek"), appData);
-                } catch(e) {
-                    console.error("Gagal sinkronisasi cloud:", e);
-                }
-            }
-            refreshAll();
-        }
+        // URL Google Apps Script Web App
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzv4TuqJ0rWAv-GorfLYp-V40Img_0GzV_yga_OMgUnWpDMMxEgvU_sFHm0uJYN6aCz/exec";
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -621,60 +510,263 @@
             overlay.classList.toggle('hidden');
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('aside nav button').forEach(btn => btn.classList.remove('sidebar-active', 'bg-blue-600', 'text-white'));
+        const initialSppData = [
+            { id: 1, no: "SPP/007/LOG/2026", tgl: "2026-09-04", pengaju: "Pembesian", barang: "Kawat Bendrat", spek: "@20Kg", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Urgent untuk balok lantai 2" },
+            { id: 2, no: "SPP/001/LOG/2026", tgl: "2026-09-02", pengaju: "Tim Cor", barang: "Kawat Ayam", spek: "1/2", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Stop Cor" },
+            { id: 3, no: "SPP/002/LOG/2026", tgl: "2026-09-01", pengaju: "Bengkel Proyek", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 100, satuan: "Kg", realisasiHistory: [{tgl: "2026-09-02", qty: 50}, {tgl: "2026-09-03", qty: 50}], totalRealisasi: 100, ket: "Pengelasan struktur baja" },
+            { id: 4, no: "SPP/003/LOG/2026", tgl: "2026-08-10", pengaju: "Pengecoran", barang: "Semen Portland", spek: "Tiga Roda 50Kg", qty: 500, satuan: "Zak", realisasiHistory: [{tgl: "2026-08-12", qty: 200}, {tgl: "2026-08-15", qty: 150}], totalRealisasi: 350, ket: "Pengecoran Slab Lt 1" }
+        ];
+
+        const initialMasukData = [
+            { id: 1, tgl: "2026-09-01", vendor: "Azidar H Berni", barang: "Kawat Bendrat", spek: "@20Kg", qty: 10, satuan: "Roll", harga: 475000, total: 4750000, ket: "PO 430011567" },
+            { id: 2, tgl: "2026-09-01", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spek: "RD460-2,6mm", qty: 5, satuan: "Kg", harga: 75000, total: 375000, ket: "PO 430011456" },
+            { id: 3, tgl: "2026-09-04", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spek: "20/20x4m", qty: 2, satuan: "M3", harga: 770000, total: 1540000, ket: "PO 430011789" },
+            { id: 4, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Kawat Licin", spek: "1,9mm", qty: 10, satuan: "Roll", harga: 1500000, total: 15000000, ket: "-" },
+            { id: 5, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Kawat Bendrat", spek: "@20Kg", qty: 10, satuan: "Roll", harga: 475000, total: 4750000, ket: "-" },
+            { id: 6, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Semen Conch", spek: "@50Kg", qty: 100, satuan: "Zak", harga: 110000, total: 11000000, ket: "-" }
+        ];
+
+        const initialKeluarData = [
+            { id: 1, tgl: "2026-09-04", pengambil: "Pekerja Precast", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 10, satuan: "Kg", ket: "Precast", petugas: "Staff Logistik" },
+            { id: 2, tgl: "2026-09-04", pengambil: "Mandor Dermaga", barang: "Besi Beton 12mm", spek: "Polos SNI 12m", qty: 10, satuan: "Batang", ket: "Jetty", petugas: "Staff Logistik" }
+        ];
+
+        let sppData = JSON.parse(localStorage.getItem('sppData')) || initialSppData;
+        let masukData = JSON.parse(localStorage.getItem('masukData')) || initialMasukData;
+        let keluarData = JSON.parse(localStorage.getItem('keluarData')) || initialKeluarData;
+        let isGroupedMasukView = false;
+
+        function syncDataToServer() {
+            const payload = { sppData, masukData, keluarData };
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error("Sync error:", err));
+        }
+
+        function loadDataFromServer() {
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if(data && data.sppData) {
+                        sppData = data.sppData;
+                        masukData = data.masukData || masukData;
+                        keluarData = data.keluarData || keluarData;
+                        localStorage.setItem('sppData', JSON.stringify(sppData));
+                        localStorage.setItem('masukData', JSON.stringify(masukData));
+                        localStorage.setItem('keluarData', JSON.stringify(keluarData));
+                        renderAll();
+                    }
+                })
+                .catch(err => console.log("Menggunakan data lokal cache:", err));
+        }
+
+        function saveData() {
+            localStorage.setItem('sppData', JSON.stringify(sppData));
+            localStorage.setItem('masukData', JSON.stringify(masukData));
+            localStorage.setItem('keluarData', JSON.stringify(keluarData));
+            renderAll();
+            syncDataToServer();
+        }
+
+        function resetDemoData() {
+            if(confirm('Reset data kembali ke data demo awal?')) {
+                localStorage.clear();
+                sppData = [...initialSppData];
+                masukData = [...initialMasukData];
+                keluarData = [...initialKeluarData];
+                saveData();
+            }
+        }
+
+                                                function exportDataJSON() {
+        try {
+            // 1. Data SPP & Realisasi
+            let sppData = JSON.parse(localStorage.getItem('sppData')) || JSON.parse(localStorage.getItem('spp_data')) || [];
+
+            // 2. Data Barang Masuk
+            let barangMasukData = JSON.parse(localStorage.getItem('masukData')) || JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
+
+            // 3. Data Stok Barang (menggunakan key asli: keluarData)
+            let stokBarangData = JSON.parse(localStorage.getItem('keluarData')) || JSON.parse(localStorage.getItem('stok_barang_data')) || [];
+
+            // Validasi jika semua data kosong
+            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
+                alert("Tidak ada data untuk diexport!");
+                return;
+            }
+
+            // Membuat Workbook Excel baru dengan 3 Sheet terpisah
+            let wb = XLSX.utils.book_new();
             
-            document.getElementById('tab-' + tabId).classList.add('active');
-            const activeBtn = document.getElementById('nav-' + tabId);
-            if(activeBtn) activeBtn.classList.add('sidebar-active');
+            if(sppData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppData), "SPP & Realisasi");
+            }
+            
+            if(barangMasukData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
+            }
 
-            if(window.innerWidth < 768) toggleSidebar();
-            refreshAll();
+            if(stokBarangData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
+            }
+
+            // Proses unduh file Excel
+            XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
+            alert("Data SPP, Barang Masuk, dan Stok Barang berhasil diexport ke Excel!");
+
+        } catch (error) {
+            console.error("Detail Error:", error);
+            alert("Terjadi kesalahan saat mengexport data: " + error.message);
+        }
+    }
+
+
+
+          function importDataJSON(event) {
+            const fileReader = new FileReader();
+            if (event.target.files && event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0], "UTF-8");
+                fileReader.onload = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+                        if (parsed.sppData && parsed.masukData && parsed.keluarData) {
+                            if(confirm("Impor data akan menggantikan data saat ini. Lanjutkan?")) {
+                                sppData = parsed.sppData;
+                                masukData = parsed.masukData;
+                                keluarData = parsed.keluarData;
+                                saveData();
+                                alert("Data berhasil diimpor!");
+                            }
+                        } else {
+                            alert("Format file JSON tidak valid untuk aplikasi LogistikPro.");
+                        }
+                    } catch (error) {
+                        alert("Gagal membaca file JSON: " + error.message);
+                    }
+                    event.target.value = '';
+                };
+            }
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('sidebar-active');
+                el.classList.add('hover:bg-slate-800', 'hover:text-white');
+            });
 
-        // SPP Dynamic Rows
-        function openSppModal(editId = null) {
-            document.getElementById('form-spp').reset();
-            document.getElementById('spp-edit-id').value = '';
-            document.getElementById('spp-tgl').value = new Date().toISOString().split('T')[0];
-            document.getElementById('spp-modal-title').innerText = 'Form Permintaan Barang (SPP)';
-            const container = document.getElementById('spp-items-container');
-            container.innerHTML = '';
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            activeNav.classList.add('sidebar-active');
+            activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
 
-            if(editId) {
-                const sppItem = appData.spp.find(s => s.id === editId);
-                if(sppItem) {
-                    document.getElementById('spp-edit-id').value = sppItem.id;
-                    document.getElementById('spp-no').value = sppItem.no;
-                    document.getElementById('spp-tgl').value = sppItem.tgl;
-                    document.getElementById('spp-pengaju').value = sppItem.pengaju;
-                    addSppItemRow(sppItem.barang, sppItem.spesifikasi, sppItem.qty, sppItem.satuan, sppItem.ket);
-                    document.getElementById('spp-modal-title').innerText = 'Edit Permintaan Barang (SPP)';
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
                 }
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function toggleMasukView() {
+            isGroupedMasukView = !isGroupedMasukView;
+            const label = document.getElementById('view-mode-label');
+            if(isGroupedMasukView) {
+                label.innerText = 'Kembali ke Tampilan Detail Item';
             } else {
+                label.innerText = 'Tampilkan Akumulasi per Vendor';
+            }
+            renderMasukTable();
+        }
+
+        function showCardDetail(type) {
+            const head = document.getElementById('card-detail-head');
+            const body = document.getElementById('card-detail-body');
+            const title = document.getElementById('card-detail-title');
+            body.innerHTML = '';
+
+            if(type === 'spp') {
+                title.innerText = 'Rincian Seluruh Permintaan SPP';
+                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">No SPP</th><th class="p-2">Tgl</th><th class="p-2">Pengaju</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty</th><th class="p-2">Keterangan</th></tr>`;
+                sppData.forEach(item => {
+                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold text-blue-600">${item.no}</td><td class="p-2">${item.tgl}</td><td class="p-2">${item.pengaju}</td><td class="p-2 font-semibold">${item.barang}</td><td class="p-2 text-center">${item.qty} ${item.satuan}</td><td class="p-2">${item.ket || '-'}</td></tr>`;
+                });
+            } else if(type === 'kurang') {
+                title.innerText = 'Rincian Kekurangan Realisasi SPP';
+                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">No SPP</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty Permintaan</th><th class="p-2 text-center">Realisasi</th><th class="p-2 text-center">Kekurangan</th></tr>`;
+                sppData.filter(i => (i.qty - i.totalRealisasi) > 0).forEach(item => {
+                    const sisa = item.qty - item.totalRealisasi;
+                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold text-blue-600">${item.no}</td><td class="p-2 font-semibold">${item.barang}</td><td class="p-2 text-center">${item.qty}</td><td class="p-2 text-center text-emerald-600">${item.totalRealisasi}</td><td class="p-2 text-center font-bold text-amber-600">${sisa} ${item.satuan}</td></tr>`;
+                });
+            } else if(type === 'masuk') {
+                title.innerText = 'Rincian Penerimaan Barang Masuk';
+                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">Tgl</th><th class="p-2">Vendor</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Total (Rp)</th><th class="p-2">Keterangan</th></tr>`;
+                masukData.forEach(item => {
+                    body.innerHTML += `<tr class="border-b"><td class="p-2">${item.tgl}</td><td class="p-2 font-semibold">${item.vendor}</td><td class="p-2">${item.barang}</td><td class="p-2 text-center font-bold">${item.qty} ${item.satuan}</td><td class="p-2 text-right font-bold text-emerald-600">Rp ${item.total.toLocaleString('id-ID')}</td><td class="p-2">${item.ket || '-'}</td></tr>`;
+                });
+            } else if(type === 'stok') {
+                title.innerText = 'Rincian Stok Barang Gudang Saat Ini';
+                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">Nama Barang</th><th class="p-2">Spek</th><th class="p-2 text-center">Total Masuk</th><th class="p-2 text-center">Total Keluar</th><th class="p-2 text-center">Saldo Akhir</th></tr>`;
+                const stokMap = {};
+                masukData.forEach(m => { stokMap[m.barang] = stokMap[m.barang] || {spek: m.spek, satuan: m.satuan, masuk: 0, keluar: 0}; stokMap[m.barang].masuk += m.qty; });
+                keluarData.forEach(k => { stokMap[k.barang] = stokMap[k.barang] || {spek: k.spek||'-', satuan: k.satuan, masuk: 0, keluar: 0}; stokMap[k.barang].keluar += k.qty; });
+                Object.keys(stokMap).forEach(b => {
+                    const st = stokMap[b];
+                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold">${b}</td><td class="p-2">${st.spek}</td><td class="p-2 text-center text-emerald-600">+${st.masuk}</td><td class="p-2 text-center text-rose-500">-${st.keluar}</td><td class="p-2 text-center font-bold text-purple-600">${st.masuk - st.keluar} ${st.satuan}</td></tr>`;
+                });
+            }
+
+            document.getElementById('modal-card-detail').classList.remove('hidden');
+            document.getElementById('modal-card-detail').classList.add('flex');
+        }
+
+        function openSppModal(editId = null) {
+            document.getElementById('spp-items-container').innerHTML = '';
+            document.getElementById('spp-edit-id').value = '';
+            
+            if(editId) {
+                const item = sppData.find(i => i.id === editId);
+                document.getElementById('spp-edit-id').value = item.id;
+                document.getElementById('spp-no').value = item.no;
+                document.getElementById('spp-tgl').value = item.tgl;
+                document.getElementById('spp-pengaju').value = item.pengaju;
+                document.getElementById('spp-modal-title').innerText = 'Edit Data SPP';
+                document.getElementById('btn-add-spp-item').style.display = 'none';
+
+                addSppItemRow(item.barang, item.spek, item.qty, item.satuan, item.ket);
+            } else {
+                document.getElementById('form-spp').reset();
+                document.getElementById('spp-modal-title').innerText = 'Form Permintaan Barang (SPP Baru)';
+                document.getElementById('btn-add-spp-item').style.display = 'inline-flex';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('spp-tgl').value = today;
                 addSppItemRow();
             }
             document.getElementById('modal-spp').classList.remove('hidden');
+            document.getElementById('modal-spp').classList.add('flex');
         }
 
-        function addSppItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', ket='') {
+        function addSppItemRow(barang="", spek="", qty="", satuan="", ket="") {
             const container = document.getElementById('spp-items-container');
             const row = document.createElement('div');
-            row.className = "grid grid-cols-1 sm:grid-cols-5 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
+            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center spp-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
             row.innerHTML = `
-                <div><input type="text" placeholder="Nama Barang" class="spp-barang w-full p-1.5 border rounded" value="${barang}" required></div>
-                <div><input type="text" placeholder="Spesifikasi" class="spp-spesifikasi w-full p-1.5 border rounded" value="${spesifikasi}"></div>
-                <div><input type="number" min="1" placeholder="Qty" class="spp-qty w-full p-1.5 border rounded" value="${qty}" required></div>
-                <div><input type="text" placeholder="Satuan" class="spp-satuan w-full p-1.5 border rounded" value="${satuan}" required></div>
-                <div class="flex gap-1">
-                    <input type="text" placeholder="Ket" class="spp-ket w-full p-1.5 border rounded" value="${ket}">
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
-                </div>
+                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
+                <div class="sm:col-span-2"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${satuan}" placeholder="Satuan" class="w-full p-1.5 border rounded item-satuan" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan SPP" class="w-full p-1.5 border rounded item-ket"></div>
+                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
             `;
             container.appendChild(row);
         }
@@ -686,163 +778,161 @@
             const tgl = document.getElementById('spp-tgl').value;
             const pengaju = document.getElementById('spp-pengaju').value;
 
-            const rows = document.querySelectorAll('#spp-items-container > div');
-            if(rows.length === 0) {
-                alert('Minimal tambahkan 1 item barang!');
-                return;
-            }
-
             if(editId) {
-                const r = rows[0];
-                const idx = appData.spp.findIndex(s => s.id === parseInt(editId));
-                if(idx !== -1) {
-                    appData.spp[idx].no = no;
-                    appData.spp[idx].tgl = tgl;
-                    appData.spp[idx].pengaju = pengaju;
-                    appData.spp[idx].barang = r.querySelector('.spp-barang').value;
-                    appData.spp[idx].spesifikasi = r.querySelector('.spp-spesifikasi').value;
-                    appData.spp[idx].qty = parseInt(r.querySelector('.spp-qty').value);
-                    appData.spp[idx].satuan = r.querySelector('.spp-satuan').value;
-                    appData.spp[idx].ket = r.querySelector('.spp-ket').value;
-                }
+                const idx = sppData.findIndex(i => i.id == editId);
+                const row = document.querySelector('.spp-row');
+                sppData[idx].no = no;
+                sppData[idx].tgl = tgl;
+                sppData[idx].pengaju = pengaju;
+                sppData[idx].barang = row.querySelector('.item-nama').value;
+                sppData[idx].spek = row.querySelector('.item-spek').value;
+                sppData[idx].qty = parseFloat(row.querySelector('.item-qty').value);
+                sppData[idx].satuan = row.querySelector('.item-satuan').value;
+                sppData[idx].ket = row.querySelector('.item-ket').value;
             } else {
-                rows.forEach(r => {
-                    const newItem = {
+                const rows = document.querySelectorAll('.spp-row');
+                rows.forEach(row => {
+                    sppData.push({
                         id: Date.now() + Math.random(),
                         no, tgl, pengaju,
-                        barang: r.querySelector('.spp-barang').value,
-                        spesifikasi: r.querySelector('.spp-spesifikasi').value,
-                        qty: parseInt(r.querySelector('.spp-qty').value),
-                        satuan: r.querySelector('.spp-satuan').value,
-                        ket: r.querySelector('.spp-ket').value,
-                        realisasiList: []
-                    };
-                    appData.spp.push(newItem);
+                        barang: row.querySelector('.item-nama').value,
+                        spek: row.querySelector('.item-spek').value || '-',
+                        qty: parseFloat(row.querySelector('.item-qty').value),
+                        satuan: row.querySelector('.item-satuan').value,
+                        realisasiHistory: [],
+                        totalRealisasi: 0,
+                        ket: row.querySelector('.item-ket').value || '-'
+                    });
                 });
             }
 
-            saveData();
             closeModal('modal-spp');
+            saveData();
         }
 
-        // Realisasi Pembelian Bertahap (Multi-Simpan Berulang Kali & Edit)
-        function openRealisasiModal(sppId, realisasiIdx = null) {
-            document.getElementById('realisasi-spp-id').value = sppId;
-            document.getElementById('realisasi-index').value = realisasiIdx !== null ? realisasiIdx : '';
-            document.getElementById('realisasi-tgl').value = new Date().toISOString().split('T')[0];
-            document.getElementById('realisasi-qty').value = 1;
-
-            if(realisasiIdx !== null) {
-                const spp = appData.spp.find(s => s.id == sppId);
-                if(spp && spp.realisasiList && spp.realisasiList[realisasiIdx]) {
-                    const r = spp.realisasiList[realisasiIdx];
-                    document.getElementById('realisasi-tgl').value = r.tgl;
-                    document.getElementById('realisasi-qty').value = r.qty;
-                }
+        function deleteSpp(id) {
+            if(confirm('Hapus SPP ini?')) {
+                sppData = sppData.filter(i => i.id !== id);
+                saveData();
             }
+        }
+
+        function openRealisasiModal(sppId, histIndex = null) {
+            document.getElementById('form-realisasi').reset();
+            document.getElementById('realisasi-spp-id').value = sppId;
+            document.getElementById('realisasi-index').value = histIndex !== null ? histIndex : '';
+
+            const spp = sppData.find(i => i.id == sppId);
+
+            if (histIndex !== null && spp && spp.realisasiHistory[histIndex]) {
+                const hist = spp.realisasiHistory[histIndex];
+                document.getElementById('realisasi-modal-title').innerText = 'Edit Realisasi Pembelian';
+                document.getElementById('realisasi-tgl').value = hist.tgl;
+                document.getElementById('realisasi-qty').value = hist.qty;
+            } else {
+                document.getElementById('realisasi-modal-title').innerText = 'Input Realisasi Pembelian Bertahap';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('realisasi-tgl').value = today;
+            }
+
             document.getElementById('modal-realisasi').classList.remove('hidden');
+            document.getElementById('modal-realisasi').classList.add('flex');
         }
 
         function saveRealisasi(e) {
             e.preventDefault();
-            const sppIdInput = document.getElementById('realisasi-spp-id').value;
-            const sppId = isNaN(sppIdInput) ? sppIdInput : Number(sppIdInput);
-            const rIdx = document.getElementById('realisasi-index').value;
+            const id = document.getElementById('realisasi-spp-id').value;
+            const histIndex = document.getElementById('realisasi-index').value;
             const tgl = document.getElementById('realisasi-tgl').value;
-            const qty = parseInt(document.getElementById('realisasi-qty').value);
+            const qty = parseFloat(document.getElementById('realisasi-qty').value);
 
-            const spp = appData.spp.find(s => s.id == sppId);
+            const spp = sppData.find(i => i.id == id);
             if(spp) {
-                if(!spp.realisasiList) spp.realisasiList = [];
-                if(rIdx !== '') {
-                    spp.realisasiList[parseInt(rIdx)] = { tgl, qty };
+                if (histIndex !== "") {
+                    const oldQty = spp.realisasiHistory[histIndex].qty;
+                    spp.realisasiHistory[histIndex] = { tgl, qty };
+                    spp.totalRealisasi = spp.totalRealisasi - oldQty + qty;
                 } else {
-                    spp.realisasiList.push({ tgl, qty });
-                }
-                saveData();
-                closeModal('modal-realisasi');
-                
-                // Jika modal list realisasi sedang terbuka, refresh daftarnya
-                if(!document.getElementById('modal-list-realisasi').classList.contains('hidden')) {
-                    openRealisasiListModal(sppId);
+                    spp.realisasiHistory.push({ tgl, qty });
+                    spp.totalRealisasi += qty;
                 }
             }
+
+            closeModal('modal-realisasi');
+            saveData();
         }
 
-        function openRealisasiListModal(sppId) {
-            const spp = appData.spp.find(s => s.id == sppId);
-            const tbody = document.getElementById('list-realisasi-body');
-            tbody.innerHTML = '';
-            if(!spp || !spp.realisasiList || spp.realisasiList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-slate-400 italic">Belum ada realisasi bertahap.</td></tr>`;
-            } else {
-                spp.realisasiList.forEach((r, idx) => {
-                    tbody.innerHTML += `
-                        <tr class="border-b">
-                            <td class="p-2">${r.tgl}</td>
-                            <td class="p-2 text-center font-medium text-emerald-600">${r.qty}</td>
-                            <td class="p-2 text-center space-x-1">
-                                <button onclick="openRealisasiModal('${spp.id}', ${idx})" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteRealisasi('${spp.id}', ${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('modal-list-realisasi').classList.remove('hidden');
-        }
-
-        function deleteRealisasi(sppId, rIdx) {
-            if(confirm('Hapus realisasi ini?')) {
-                const spp = appData.spp.find(s => s.id == sppId);
-                if(spp && spp.realisasiList) {
-                    spp.realisasiList.splice(rIdx, 1);
+        function deleteRealisasi(sppId, histIndex) {
+            if(confirm('Hapus riwayat realisasi ini?')) {
+                const spp = sppData.find(i => i.id == sppId);
+                if(spp && spp.realisasiHistory[histIndex]) {
+                    spp.totalRealisasi -= spp.realisasiHistory[histIndex].qty;
+                    spp.realisasiHistory.splice(histIndex, 1);
                     saveData();
-                    openRealisasiListModal(sppId);
                 }
             }
         }
 
-        // Barang Masuk Dynamic Rows & Ket
         function openMasukModal(editId = null) {
-            document.getElementById('form-masuk').reset();
+            document.getElementById('masuk-items-container').innerHTML = '';
             document.getElementById('masuk-edit-id').value = '';
-            document.getElementById('masuk-tgl').value = new Date().toISOString().split('T')[0];
-            document.getElementById('masuk-modal-title').innerText = 'Input Barang Masuk Proyek';
-            const container = document.getElementById('masuk-items-container');
-            container.innerHTML = '';
 
             if(editId) {
-                const mItem = appData.masuk.find(m => m.id === editId);
-                if(mItem) {
-                    document.getElementById('masuk-edit-id').value = mItem.id;
-                    document.getElementById('masuk-tgl').value = mItem.tgl;
-                    document.getElementById('masuk-vendor').value = mItem.vendor;
-                    addMasukItemRow(mItem.barang, mItem.spesifikasi, mItem.qty, mItem.satuan, mItem.harsat || 0, mItem.ket || '');
-                    document.getElementById('masuk-modal-title').innerText = 'Edit Barang Masuk Proyek';
-                }
+                const item = masukData.find(i => i.id === editId);
+                document.getElementById('masuk-edit-id').value = item.id;
+                document.getElementById('masuk-tgl').value = item.tgl;
+                document.getElementById('masuk-vendor').value = item.vendor;
+                document.getElementById('masuk-modal-title').innerText = 'Edit Barang Masuk';
+                document.getElementById('btn-add-masuk-item').style.display = 'none';
+
+                addMasukItemRow(item.barang, item.spek, item.qty, item.satuan, item.harga, item.ket);
             } else {
+                document.getElementById('form-masuk').reset();
+                document.getElementById('masuk-modal-title').innerText = 'Input Barang Masuk Proyek';
+                document.getElementById('btn-add-masuk-item').style.display = 'inline-flex';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('masuk-tgl').value = today;
                 addMasukItemRow();
             }
+            updateMasukSummary();
             document.getElementById('modal-masuk').classList.remove('hidden');
+            document.getElementById('modal-masuk').classList.add('flex');
         }
 
-        function addMasukItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', harsat=0, ket='') {
+        function addMasukItemRow(barang="", spek="", qty="", satuan="", harga="", ket="") {
             const container = document.getElementById('masuk-items-container');
             const row = document.createElement('div');
-            row.className = "grid grid-cols-1 sm:grid-cols-6 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
+            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
             row.innerHTML = `
-                <div><input type="text" placeholder="Nama Barang" class="masuk-barang w-full p-1.5 border rounded" value="${barang}" required></div>
-                <div><input type="text" placeholder="Spesifikasi" class="masuk-spesifikasi w-full p-1.5 border rounded" value="${spesifikasi}"></div>
-                <div><input type="number" min="1" placeholder="Qty" class="masuk-qty w-full p-1.5 border rounded" value="${qty}" required></div>
-                <div><input type="text" placeholder="Satuan" class="masuk-satuan w-full p-1.5 border rounded" value="${satuan}" required></div>
-                <div><input type="number" min="0" placeholder="Harsat (Rp)" class="masuk-harsat w-full p-1.5 border rounded" value="${harsat}"></div>
-                <div class="flex gap-1 items-center">
-                    <input type="text" placeholder="Ket (Opsional)" class="masuk-ket w-full p-1.5 border rounded" value="${ket}">
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
-                </div>
+                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
+                <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
+                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
+                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
+                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
             `;
             container.appendChild(row);
+            updateMasukSummary();
+        }
+
+        function updateMasukSummary() {
+            const rows = document.querySelectorAll('.masuk-row');
+            let totalQty = 0;
+            let totalRp = 0;
+
+            rows.forEach(row => {
+                const q = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const h = parseFloat(row.querySelector('.item-harga').value) || 0;
+                totalQty += q;
+                totalRp += (q * h);
+            });
+
+            const vendorVal = document.getElementById('masuk-vendor').value || 'Vendor Belum Diisi';
+            const tglVal = document.getElementById('masuk-tgl').value || '-';
+
+            document.getElementById('masuk-summary-text').innerHTML = 
+                `Vendor: <span class="font-bold">${vendorVal}</span> | Tgl: <span class="font-bold">${tglVal}</span><br>Akumulasi Qty: <span class="font-bold">${totalQty} Item</span> | Total Biaya: <span class="font-bold text-emerald-700">Rp ${totalRp.toLocaleString('id-ID')}</span>`;
         }
 
         function saveMasuk(e) {
@@ -851,600 +941,440 @@
             const tgl = document.getElementById('masuk-tgl').value;
             const vendor = document.getElementById('masuk-vendor').value;
 
-            const rows = document.querySelectorAll('#masuk-items-container > div');
-            if(rows.length === 0) {
-                alert('Minimal tambahkan 1 item barang masuk!');
-                return;
-            }
-
             if(editId) {
-                const r = rows[0];
-                const idx = appData.masuk.findIndex(m => m.id === parseInt(editId));
-                if(idx !== -1) {
-                    const qty = parseInt(r.querySelector('.masuk-qty').value);
-                    const harsat = parseInt(r.querySelector('.masuk-harsat').value) || 0;
-                    appData.masuk[idx].tgl = tgl;
-                    appData.masuk[idx].vendor = vendor;
-                    appData.masuk[idx].barang = r.querySelector('.masuk-barang').value;
-                    appData.masuk[idx].spesifikasi = r.querySelector('.masuk-spesifikasi').value;
-                    appData.masuk[idx].qty = qty;
-                    appData.masuk[idx].satuan = r.querySelector('.masuk-satuan').value;
-                    appData.masuk[idx].harsat = harsat;
-                    appData.masuk[idx].harga = qty * harsat;
-                    appData.masuk[idx].ket = r.querySelector('.masuk-ket').value;
-                }
+                const idx = masukData.findIndex(i => i.id == editId);
+                const row = document.querySelector('.masuk-row');
+                const qty = parseFloat(row.querySelector('.item-qty').value);
+                const harga = parseFloat(row.querySelector('.item-harga').value);
+                masukData[idx].tgl = tgl;
+                masukData[idx].vendor = vendor;
+                masukData[idx].barang = row.querySelector('.item-nama').value;
+                masukData[idx].spek = row.querySelector('.item-spek').value;
+                masukData[idx].qty = qty;
+                masukData[idx].satuan = row.querySelector('.item-satuan').value;
+                masukData[idx].harga = harga;
+                masukData[idx].total = qty * harga;
+                masukData[idx].ket = row.querySelector('.item-ket').value;
             } else {
-                rows.forEach(r => {
-                    const qty = parseInt(r.querySelector('.masuk-qty').value);
-                    const harsat = parseInt(r.querySelector('.masuk-harsat').value) || 0;
-                    const newItem = {
+                const rows = document.querySelectorAll('.masuk-row');
+                rows.forEach(row => {
+                    const qty = parseFloat(row.querySelector('.item-qty').value);
+                    const harga = parseFloat(row.querySelector('.item-harga').value);
+                    masukData.push({
                         id: Date.now() + Math.random(),
                         tgl, vendor,
-                        barang: r.querySelector('.masuk-barang').value,
-                        spesifikasi: r.querySelector('.masuk-spesifikasi').value,
-                        qty,
-                        satuan: r.querySelector('.masuk-satuan').value,
-                        harsat,
-                        harga: qty * harsat,
-                        ket: r.querySelector('.masuk-ket').value
-                    };
-                    appData.masuk.push(newItem);
+                        barang: row.querySelector('.item-nama').value,
+                        spek: row.querySelector('.item-spek').value || '-',
+                        qty, satuan: row.querySelector('.item-satuan').value,
+                        harga, total: qty * harga, 
+                        ket: row.querySelector('.item-ket').value || '-'
+                    });
                 });
             }
 
-            saveData();
             closeModal('modal-masuk');
+            saveData();
         }
 
-        // Stok Keluar & Edit Keluar
+        function deleteMasuk(id) {
+            if(confirm('Hapus transaksi barang masuk ini?')) {
+                masukData = masukData.filter(i => i.id !== id);
+                saveData();
+            }
+        }
+
         function openKeluarModal(editId = null) {
-            document.getElementById('form-keluar').reset();
+            document.getElementById('keluar-items-container').innerHTML = '';
             document.getElementById('keluar-edit-id').value = '';
-            document.getElementById('keluar-tgl').value = new Date().toISOString().split('T')[0];
-            document.getElementById('keluar-modal-title').innerText = 'Input Penyesuaian / Stok Keluar';
-            
-            const select = document.getElementById('keluar-barang-select');
-            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
-            const uniqueBarang = [...new Set(appData.masuk.map(i => i.barang))];
-            uniqueBarang.forEach(b => {
-                let opt = document.createElement('option');
-                opt.value = b;
-                opt.textContent = b;
-                select.appendChild(opt);
-            });
 
             if(editId) {
-                const kItem = appData.keluar.find(k => k.id === editId);
-                if(kItem) {
-                    document.getElementById('keluar-edit-id').value = kItem.id;
-                    document.getElementById('keluar-tgl').value = kItem.tgl;
-                    document.getElementById('keluar-pengambil').value = kItem.pengambil;
-                    select.value = kItem.barang;
-                    document.getElementById('keluar-qty').value = kItem.qty;
-                    document.getElementById('keluar-satuan').value = kItem.satuan;
-                    document.getElementById('keluar-petugas').value = kItem.petugas;
-                    document.getElementById('keluar-ket').value = kItem.ket;
-                    document.getElementById('keluar-modal-title').innerText = 'Edit Penyesuaian / Stok Keluar';
-                }
-            }
+                const item = keluarData.find(i => i.id === editId);
+                document.getElementById('keluar-edit-id').value = item.id;
+                document.getElementById('keluar-tgl').value = item.tgl;
+                document.getElementById('keluar-pengambil').value = item.pengambil;
+                document.getElementById('keluar-modal-title').innerText = 'Edit Pengeluaran Barang';
+                document.getElementById('btn-add-keluar-item').style.display = 'none';
 
+                addKeluarItemRow(item.barang, item.spek, item.qty, item.satuan, item.ket);
+            } else {
+                document.getElementById('form-keluar').reset();
+                document.getElementById('keluar-modal-title').innerText = 'Input Barang Keluar / Penyesuaian';
+                document.getElementById('btn-add-keluar-item').style.display = 'inline-flex';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('keluar-tgl').value = today;
+                addKeluarItemRow();
+            }
             document.getElementById('modal-keluar').classList.remove('hidden');
+            document.getElementById('modal-keluar').classList.add('flex');
         }
 
-        function autofillKeluar() {
-            const barangName = document.getElementById('keluar-barang-select').value;
-            const item = appData.masuk.find(i => i.barang === barangName);
-            if(item) document.getElementById('keluar-satuan').value = item.satuan || 'Pcs';
+        function addKeluarItemRow(barang="", spek="", qty="", satuan="", ket="") {
+            const container = document.getElementById('keluar-items-container');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
+            row.innerHTML = `
+                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
+                <div class="sm:col-span-3"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
+                <div class="sm:col-span-2"><input type="number" value="${qty}" placeholder="Qty Out" class="w-full p-1.5 border rounded item-qty" required></div>
+                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
+                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan" class="w-full p-1.5 border rounded item-ket"></div>
+                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
+            `;
+            container.appendChild(row);
         }
 
         function saveKeluar(e) {
             e.preventDefault();
             const editId = document.getElementById('keluar-edit-id').value;
-            const barangName = document.getElementById('keluar-barang-select').value;
-            const qtyOut = parseInt(document.getElementById('keluar-qty').value);
-
-            let totalMasuk = appData.masuk.filter(i => i.barang === barangName).reduce((a, b) => a + b.qty, 0);
-            let totalKeluar = appData.keluar.filter(i => i.barang === barangName && i.id !== parseInt(editId)).reduce((a, b) => a + b.qty, 0);
-            let saldo = totalMasuk - totalKeluar;
-
-            if(qtyOut > saldo) {
-                alert(`Stok tidak mencukupi! Sisa stok untuk ${barangName} adalah ${saldo}.`);
-                return;
-            }
-
-            const newKeluar = {
-                id: editId ? parseInt(editId) : Date.now(),
-                tgl: document.getElementById('keluar-tgl').value,
-                pengambil: document.getElementById('keluar-pengambil').value,
-                barang: barangName,
-                spesifikasi: appData.masuk.find(i => i.barang === barangName)?.spesifikasi || '-',
-                qty: qtyOut,
-                satuan: document.getElementById('keluar-satuan').value,
-                petugas: document.getElementById('keluar-petugas').value,
-                ket: document.getElementById('keluar-ket').value
-            };
+            const tgl = document.getElementById('keluar-tgl').value;
+            const pengambil = document.getElementById('keluar-pengambil').value;
 
             if(editId) {
-                const idx = appData.keluar.findIndex(k => k.id === parseInt(editId));
-                if(idx !== -1) appData.keluar[idx] = newKeluar;
+                const idx = keluarData.findIndex(i => i.id == editId);
+                const row = document.querySelector('.keluar-row');
+                keluarData[idx].tgl = tgl;
+                keluarData[idx].pengambil = pengambil;
+                keluarData[idx].barang = row.querySelector('.item-nama').value;
+                keluarData[idx].spek = row.querySelector('.item-spek').value;
+                keluarData[idx].qty = parseFloat(row.querySelector('.item-qty').value);
+                keluarData[idx].satuan = row.querySelector('.item-satuan').value;
+                keluarData[idx].ket = row.querySelector('.item-ket').value;
             } else {
-                appData.keluar.push(newKeluar);
+                const rows = document.querySelectorAll('.keluar-row');
+                rows.forEach(row => {
+                    keluarData.push({
+                        id: Date.now() + Math.random(),
+                        tgl, pengambil,
+                        barang: row.querySelector('.item-nama').value,
+                        spek: row.querySelector('.item-spek').value || '-',
+                        qty: parseFloat(row.querySelector('.item-qty').value),
+                        satuan: row.querySelector('.item-satuan').value,
+                        ket: row.querySelector('.item-ket').value || 'Pemakaian Proyek',
+                        petugas: "Staff Logistik"
+                    });
+                });
             }
 
-            saveData();
             closeModal('modal-keluar');
-        }
-
-        function deleteSpp(id) {
-            if(confirm('Hapus data SPP ini?')) {
-                appData.spp = appData.spp.filter(s => s.id !== id);
-                saveData();
-            }
-        }
-
-        function deleteMasuk(id) {
-            if(confirm('Hapus data Barang Masuk ini?')) {
-                appData.masuk = appData.masuk.filter(m => m.id !== id);
-                saveData();
-            }
+            saveData();
         }
 
         function deleteKeluar(id) {
-            if(confirm('Hapus riwayat pengeluaran ini?')) {
-                appData.keluar = appData.keluar.filter(k => k.id !== id);
+            if(confirm('Hapus catatan pengeluaran ini?')) {
+                keluarData = keluarData.filter(i => i.id !== id);
                 saveData();
             }
         }
 
-        function calculateRealized(spp) {
-            if(spp.realisasiList && spp.realisasiList.length > 0) {
-                return spp.realisasiList.reduce((acc, r) => acc + r.qty, 0);
-            }
-            return appData.masuk
-                .filter(m => m.barang.toLowerCase() === spp.barang.toLowerCase())
-                .reduce((acc, m) => acc + m.qty, 0);
-        }
-
-        function refreshAll() {
-            renderDashboard();
-            renderSPP();
-            renderMasuk();
-            renderStok();
-        }
-
-        function renderDashboard() {
-            let totalSppQty = appData.spp.reduce((acc, s) => acc + s.qty, 0);
-            let totalMasukQty = appData.masuk.reduce((acc, m) => acc + m.qty, 0);
-            let totalMasukRp = appData.masuk.reduce((acc, m) => acc + m.harga, 0);
-
-            let totalKurang = 0;
-            appData.spp.forEach(s => {
-                let realized = calculateRealized(s);
-                let diff = s.qty - realized;
-                if(diff > 0) totalKurang += diff;
+        function filterTable(inputId, tableBodyId) {
+            const val = document.getElementById(inputId).value.toLowerCase();
+            document.querySelectorAll(`#${tableBodyId} tr`).forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
             });
-
-            let uniqueJenis = [...new Set(appData.masuk.map(m => m.barang))];
-            let totalSaldo = 0;
-            uniqueJenis.forEach(j => {
-                let mQty = appData.masuk.filter(m => m.barang === j).reduce((a, b) => a + b.qty, 0);
-                let kQty = appData.keluar.filter(k => k.barang === j).reduce((a, b) => a + b.qty, 0);
-                totalSaldo += (mQty - kQty);
-            });
-
-            document.getElementById('dash-total-spp').innerText = totalSppQty + " Qty";
-            document.getElementById('dash-spp-count').innerText = appData.spp.length + " SPP terdaftar →";
-            document.getElementById('dash-total-kurang').innerText = totalKurang + " Qty";
-            document.getElementById('dash-total-masuk').innerText = totalMasukQty + " Qty";
-            document.getElementById('dash-val-masuk').innerText = "Rp " + totalMasukRp.toLocaleString('id-ID') + " →";
-            document.getElementById('dash-total-jenis').innerText = uniqueJenis.length + " Jenis";
-            document.getElementById('dash-saldo-total').innerText = "Saldo: " + totalSaldo + " Qty →";
-
-            const tbody = document.getElementById('dash-table-body');
-            tbody.innerHTML = '';
-            if(appData.spp.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 italic">Belum ada data SPP.</td></tr>`;
-            } else {
-                appData.spp.forEach((s, idx) => {
-                    let realized = calculateRealized(s);
-                    let sisa = Math.max(0, s.qty - realized);
-                    let statusHtml = sisa === 0 
-                        ? `<span class="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-semibold">Selesai</span>`
-                        : `<span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-semibold">Kurang</span>`;
-
-                    let tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                    tr.innerHTML = `
-                        <td class="p-3 pl-5">${idx + 1}</td>
-                        <td class="p-3 font-medium text-blue-600">${s.no}</td>
-                        <td class="p-3 text-slate-600">${s.tgl}</td>
-                        <td class="p-3 text-slate-600">${s.pengaju}</td>
-                        <td class="p-3 font-medium text-slate-800">${s.barang}</td>
-                        <td class="p-3 text-slate-500">${s.spesifikasi || '-'}</td>
-                        <td class="p-3 text-center font-medium">${s.qty} ${s.satuan}</td>
-                        <td class="p-3 text-center text-emerald-600 font-medium">${realized} ${s.satuan}</td>
-                        <td class="p-3 text-center text-amber-600 font-medium">${sisa} ${s.satuan}</td>
-                        <td class="p-3 text-center">${statusHtml}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            updateCharts();
         }
 
-        function renderSPP() {
-            const keyword = (document.getElementById('search-spp')?.value || '').toLowerCase();
-            const tbody = document.getElementById('spp-table-body');
-            tbody.innerHTML = '';
+        let barChartInstance = null;
+        let pieChartInstance = null;
 
-            const filtered = appData.spp.filter(s => 
-                s.no.toLowerCase().includes(keyword) || 
-                s.barang.toLowerCase().includes(keyword) || 
-                s.pengaju.toLowerCase().includes(keyword)
-            );
+        function renderAll() {
+            renderSppTable();
+            renderMasukTable();
+            renderKeluarTable();
+            renderStokTableAndDashboard();
+        }
 
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="13" class="p-4 text-center text-slate-400 italic">Tidak ada data SPP.</td></tr>`;
-                return;
-            }
+        function renderSppTable() {
+            const body = document.getElementById('spp-table-body');
+            body.innerHTML = '';
 
-            filtered.forEach((s, idx) => {
-                let realized = calculateRealized(s);
-                let sisa = Math.max(0, s.qty - realized);
-                
-                let tglRealHtml = '-';
-                if(s.realisasiList && s.realisasiList.length > 0) {
-                    tglRealHtml = s.realisasiList.map(r => `<span class="inline-block bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded mr-1 mb-1 font-medium">${r.tgl} (${r.qty})</span>`).join('');
+            sppData.forEach((item, index) => {
+                const sisa = item.qty - item.totalRealisasi;
+                const badge = sisa <= 0 
+                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">TERPENUHI</span>`
+                    : `<span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">SISA ${sisa} ${item.satuan}</span>`;
+
+                let historyHtml = 'Belum ada realisasi';
+                if (item.realisasiHistory && item.realisasiHistory.length > 0) {
+                    historyHtml = item.realisasiHistory.map((h, hIdx) => `
+                        <div class="flex items-center justify-between gap-2 py-0.5 border-b border-slate-100 last:border-0">
+                            <span>• ${h.tgl}: ${h.qty} ${item.satuan}</span>
+                            <span class="space-x-1">
+                                <button onclick="openRealisasiModal(${item.id}, ${hIdx})" title="Edit Realisasi" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                <button onclick="deleteRealisasi(${item.id}, ${hIdx})" title="Hapus Realisasi" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                            </span>
+                        </div>
+                    `).join('');
                 }
 
-                let tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                tr.innerHTML = `
-                    <td class="p-3 pl-5">${idx + 1}</td>
-                    <td class="p-3 font-medium text-blue-600">${s.no}</td>
-                    <td class="p-3 text-slate-600">${s.tgl}</td>
-                    <td class="p-3 text-slate-600">${s.pengaju}</td>
-                    <td class="p-3 font-medium text-slate-800">${s.barang}</td>
-                    <td class="p-3 text-slate-500">${s.spesifikasi || '-'}</td>
-                    <td class="p-3 text-center font-medium">${s.qty}</td>
-                    <td class="p-3 text-slate-600">${s.satuan}</td>
-                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal('${s.id}')" title="Klik untuk kelola realisasi bertahap">${tglRealHtml} <i class="fa-solid fa-list text-[10px] text-blue-500 ml-1"></i></td>
-                    <td class="p-3 text-center text-emerald-600 font-medium">${realized}</td>
-                    <td class="p-3 text-center text-amber-600 font-medium">${sisa}</td>
-                    <td class="p-3 text-slate-600">${s.ket || '-'}</td>
-                    <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                        <button onclick="openRealisasiModal('${s.id}')" title="Tambah Realisasi" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center transition"><i class="fa-solid fa-plus text-xs"></i></button>
-                        <button onclick="openSppModal(${s.id})" title="Edit SPP" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                        <button onclick="deleteSpp(${s.id})" title="Hapus SPP" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                    </td>
+                body.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3 pl-5 text-slate-400 font-semibold">${index + 1}</td>
+                        <td class="p-3 font-semibold text-blue-600">${item.no}</td>
+                        <td class="p-3 text-slate-500">${item.tgl}</td>
+                        <td class="p-3 font-medium text-slate-700">${item.pengaju || '-'}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
+                        <td class="p-3 text-slate-500">${item.spek}</td>
+                        <td class="p-3 text-center font-bold text-blue-600">${item.qty}</td>
+                        <td class="p-3 text-slate-500">${item.satuan}</td>
+                        <td class="p-3 text-slate-500 text-[11px]">${historyHtml}</td>
+                        <td class="p-3 text-center font-bold text-emerald-600">${item.totalRealisasi}</td>
+                        <td class="p-3 text-center">${badge}</td>
+                        <td class="p-3 text-slate-600 font-medium">${item.ket || '-'}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="openRealisasiModal(${item.id})" title="Tambah Realisasi" class="text-emerald-600 hover:text-emerald-800 p-1"><i class="fa-solid fa-cart-plus"></i></button>
+                            <button onclick="openSppModal(${item.id})" title="Edit SPP" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteSpp(${item.id})" title="Hapus SPP" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
         }
 
-        function toggleMasukView() {
-            isMasukAccumulated = !isMasukAccumulated;
-            document.getElementById('view-mode-label').innerText = isMasukAccumulated ? "Tampilkan Rincian Barang Masuk" : "Tampilkan Akumulasi per Vendor";
-            renderMasuk();
-        }
+        function renderMasukTable() {
+            const body = document.getElementById('masuk-table-body');
+            const header = document.getElementById('masuk-table-header');
+            body.innerHTML = '';
 
-        function renderMasuk() {
-            const keyword = (document.getElementById('search-masuk')?.value || '').toLowerCase();
-            const thead = document.getElementById('masuk-table-header');
-            const tbody = document.getElementById('masuk-table-body');
-            tbody.innerHTML = '';
-
-            if(isMasukAccumulated) {
-                thead.innerHTML = `
+            if (isGroupedMasukView) {
+                header.innerHTML = `
                     <th class="p-3 pl-5">No</th>
+                    <th class="p-3">Tanggal</th>
                     <th class="p-3">Nama Vendor</th>
-                    <th class="p-3 text-center">Total Item Masuk</th>
-                    <th class="p-3 text-center">Total Qty Masuk</th>
-                    <th class="p-3 text-center">Total Nilai (Rp)</th>
-                    <th class="p-3">Keterangan Vendor / Catatan</th>
+                    <th class="p-3">Daftar Item / Rincian Barang</th>
+                    <th class="p-3 text-center">Total Macam Item</th>
+                    <th class="p-3 text-right">Akumulasi Total Biaya (Rp)</th>
+                    <th class="p-3">Keterangan / Catatan</th>
                 `;
 
                 const grouped = {};
-                appData.masuk.forEach(m => {
-                    if(!grouped[m.vendor]) grouped[m.vendor] = { count: 0, qty: 0, harga: 0, kets: new Set() };
-                    grouped[m.vendor].count += 1;
-                    grouped[m.vendor].qty += m.qty;
-                    grouped[m.vendor].harga += m.harga;
-                    if(m.ket) grouped[m.vendor].kets.add(m.ket);
+                masukData.forEach(item => {
+                    const key = `${item.tgl}_${item.vendor}`;
+                    if(!grouped[key]) {
+                        grouped[key] = {
+                            tgl: item.tgl,
+                            vendor: item.vendor,
+                            items: [],
+                            totalBiaya: 0,
+                            kets: new Set()
+                        };
+                    }
+                    grouped[key].items.push(`${item.barang} (${item.qty} ${item.satuan})`);
+                    grouped[key].totalBiaya += item.total;
+                    if(item.ket && item.ket !== '-') grouped[key].kets.add(item.ket);
                 });
 
-                let entries = Object.entries(grouped).filter(([vendor]) => vendor.toLowerCase().includes(keyword));
-                if(entries.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Tidak ada data akumulasi vendor.</td></tr>`;
-                    return;
-                }
-
-                entries.forEach(([vendor, data], idx) => {
-                    let ketGabung = Array.from(data.kets).join(', ') || '-';
-                    let tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                    tr.innerHTML = `
-                        <td class="p-3 pl-5">${idx + 1}</td>
-                        <td class="p-3 font-medium text-slate-800">${vendor}</td>
-                        <td class="p-3 text-center">${data.count} Jenis</td>
-                        <td class="p-3 text-center font-medium text-blue-600">${data.qty} Qty</td>
-                        <td class="p-3 text-center font-bold text-emerald-600">Rp ${data.harga.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-slate-600">${ketGabung}</td>
+                let idx = 1;
+                Object.values(grouped).forEach(g => {
+                    const ketStr = Array.from(g.kets).join(', ') || '-';
+                    body.innerHTML += `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100 bg-blue-50/20">
+                            <td class="p-3 pl-5 text-slate-400 font-semibold">${idx++}</td>
+                            <td class="p-3 text-slate-600 font-medium">${g.tgl}</td>
+                            <td class="p-3 font-bold text-blue-700">${g.vendor}</td>
+                            <td class="p-3 text-slate-700 font-medium text-[11px]">${g.items.join(', ')}</td>
+                            <td class="p-3 text-center font-bold text-slate-800">${g.items.length} Jenis Item</td>
+                            <td class="p-3 text-right font-bold text-emerald-600 text-sm">Rp ${g.totalBiaya.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-slate-600">${ketStr}</td>
+                        </tr>
                     `;
-                    tbody.appendChild(tr);
                 });
 
             } else {
-                thead.innerHTML = `
-                    <th class="p-3 pl-5">Tanggal</th>
+                header.innerHTML = `
+                    <th class="p-3 pl-5">No</th>
+                    <th class="p-3">Tanggal</th>
                     <th class="p-3">Nama Vendor</th>
                     <th class="p-3">Nama Barang</th>
                     <th class="p-3">Spesifikasi</th>
-                    <th class="p-3 text-center">Qty Masuk</th>
+                    <th class="p-3 text-center">Qty</th>
                     <th class="p-3">Satuan</th>
-                    <th class="p-3 text-center">Harsat (Rp)</th>
-                    <th class="p-3 text-center">Total Harga (Rp)</th>
+                    <th class="p-3 text-right">Harga Satuan (Rp)</th>
+                    <th class="p-3 text-right">Jumlah Total (Rp)</th>
                     <th class="p-3">Keterangan</th>
                     <th class="p-3 text-center">Aksi</th>
                 `;
 
-                const filtered = appData.masuk.filter(m => 
-                    m.vendor.toLowerCase().includes(keyword) || 
-                    m.barang.toLowerCase().includes(keyword)
-                );
-
-                if(filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 italic">Tidak ada data barang masuk.</td></tr>`;
-                    return;
-                }
-
-                filtered.forEach(m => {
-                    let tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                    tr.innerHTML = `
-                        <td class="p-3 pl-5 text-slate-600">${m.tgl}</td>
-                        <td class="p-3 font-medium text-slate-800">${m.vendor}</td>
-                        <td class="p-3 font-medium text-blue-600">${m.barang}</td>
-                        <td class="p-3 text-slate-500">${m.spesifikasi || '-'}</td>
-                        <td class="p-3 text-center font-medium text-emerald-600">${m.qty}</td>
-                        <td class="p-3 text-slate-600">${m.satuan}</td>
-                        <td class="p-3 text-center">Rp ${(m.harsat || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-center font-bold">Rp ${(m.harga || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-slate-600">${m.ket || '-'}</td>
-                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                            <button onclick="openMasukModal(${m.id})" title="Edit" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteMasuk(${m.id})" title="Hapus" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                        </td>
+                masukData.forEach((item, index) => {
+                    body.innerHTML += `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100">
+                            <td class="p-3 pl-5 text-slate-400 font-semibold">${index + 1}</td>
+                            <td class="p-3 text-slate-500">${item.tgl}</td>
+                            <td class="p-3 font-bold text-slate-800">${item.vendor}</td>
+                            <td class="p-3 font-bold text-blue-600">${item.barang}</td>
+                            <td class="p-3 text-slate-500">${item.spek}</td>
+                            <td class="p-3 text-center font-bold text-amber-500">${item.qty}</td>
+                            <td class="p-3 text-slate-500">${item.satuan}</td>
+                            <td class="p-3 text-right text-slate-600">Rp ${item.harga.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right font-bold text-emerald-600">Rp ${item.total.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-slate-600 font-medium">${item.ket || '-'}</td>
+                            <td class="p-3 text-center space-x-2">
+                                <button onclick="openMasukModal(${item.id})" title="Edit Barang Masuk" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMasuk(${item.id})" title="Hapus Barang Masuk" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
                     `;
-                    tbody.appendChild(tr);
                 });
             }
         }
 
-        function renderStok() {
-            const keyword = (document.getElementById('search-stok')?.value || '').toLowerCase();
-            const tbodyStok = document.getElementById('stok-table-body');
-            const tbodyKeluar = document.getElementById('keluar-table-body');
-            
-            tbodyStok.innerHTML = '';
-            tbodyKeluar.innerHTML = '';
-
-            const uniqueMap = {};
-            appData.masuk.forEach(m => {
-                if(!uniqueMap[m.barang]) {
-                    uniqueMap[m.barang] = {
-                        barang: m.barang,
-                        spesifikasi: m.spesifikasi || '-',
-                        satuan: m.satuan,
-                        tgl: m.tgl,
-                        masuk: 0
-                    };
-                }
-                uniqueMap[m.barang].masuk += m.qty;
-                if(m.tgl > uniqueMap[m.barang].tgl) uniqueMap[m.barang].tgl = m.tgl;
-            });
-
-            let stokList = Object.values(uniqueMap).filter(i => i.barang.toLowerCase().includes(keyword));
-
-            if(stokList.length === 0) {
-                tbodyStok.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400 italic">Belum ada item di kartu stok.</td></tr>`;
-            } else {
-                stokList.forEach((item, idx) => {
-                    let totalKeluar = appData.keluar.filter(k => k.barang === item.barang).reduce((a, b) => a + b.qty, 0);
-                    let saldo = item.masuk - totalKeluar;
-                    let statusBadge = saldo > 0 
-                        ? `<span class="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-semibold">Tersedia</span>`
-                        : `<span class="bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-semibold">Habis</span>`;
-
-                    let tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                    tr.innerHTML = `
-                        <td class="p-3 pl-5">${idx + 1}</td>
-                        <td class="p-3 text-slate-600">${item.tgl}</td>
-                        <td class="p-3 font-medium text-blue-600">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spesifikasi}</td>
-                        <td class="p-3 text-slate-600">${item.satuan}</td>
-                        <td class="p-3 text-center text-emerald-600 font-medium">${item.masuk}</td>
-                        <td class="p-3 text-center text-amber-600 font-medium">${totalKeluar}</td>
-                        <td class="p-3 text-center text-purple-600 font-bold">${saldo}</td>
-                        <td class="p-3">${statusBadge}</td>
-                    `;
-                    tbodyStok.appendChild(tr);
-                });
-            }
-
-            const filteredKeluar = appData.keluar.filter(k => 
-                k.barang.toLowerCase().includes(keyword) || 
-                k.pengambil.toLowerCase().includes(keyword)
-            );
-
-            if(filteredKeluar.length === 0) {
-                tbodyKeluar.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400 italic">Belum ada riwayat pengeluaran.</td></tr>`;
-            } else {
-                filteredKeluar.forEach(k => {
-                    let tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50 border-b border-slate-50";
-                    tr.innerHTML = `
-                        <td class="p-3 pl-5 text-slate-600">${k.tgl}</td>
-                        <td class="p-3 font-medium text-slate-800">${k.pengambil}</td>
-                        <td class="p-3 font-medium text-blue-600">${k.barang}</td>
-                        <td class="p-3 text-slate-500">${k.spesifikasi}</td>
-                        <td class="p-3 text-center font-medium text-purple-600">${k.qty} ${k.satuan}</td>
-                        <td class="p-3 text-slate-600">${k.ket || '-'}</td>
-                        <td class="p-3 text-slate-600">${k.petugas}</td>
-                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                            <button onclick="openKeluarModal(${k.id})" title="Edit" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteKeluar(${k.id})" title="Hapus" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                        </td>
-                    `;
-                    tbodyKeluar.appendChild(tr);
-                });
-            }
-        }
-
-        function showCardDetail(type) {
-            const modal = document.getElementById('modal-card-detail');
-            const title = document.getElementById('card-detail-title');
-            const head = document.getElementById('card-detail-head');
-            const body = document.getElementById('card-detail-body');
+        function renderKeluarTable() {
+            const body = document.getElementById('keluar-table-body');
             body.innerHTML = '';
 
-            if(type === 'spp') {
-                title.innerText = "Rincian Total Permintaan (SPP)";
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]"><th class="p-3">No SPP</th><th class="p-3">Tanggal</th><th class="p-3">Pengaju</th><th class="p-3">Barang</th><th class="p-3 text-center">Qty</th></tr>`;
-                appData.spp.forEach(s => {
-                    body.innerHTML += `<tr class="border-b"><td class="p-3 text-blue-600">${s.no}</td><td class="p-3">${s.tgl}</td><td class="p-3">${s.pengaju}</td><td class="p-3">${s.barang}</td><td class="p-3 text-center font-medium">${s.qty} ${s.satuan}</td></tr>`;
-                });
-            } else if(type === 'kurang') {
-                title.innerText = "Rincian Kekurangan Realisasi SPP";
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]"><th class="p-3">No SPP</th><th class="p-3">Barang</th><th class="p-3 text-center">Diminta</th><th class="p-3 text-center">Realisasi</th><th class="p-3 text-center">Kekurangan</th></tr>`;
-                appData.spp.forEach(s => {
-                    let realized = calculateRealized(s);
-                    let diff = s.qty - realized;
-                    if(diff > 0) {
-                        body.innerHTML += `<tr class="border-b"><td class="p-3 text-blue-600">${s.no}</td><td class="p-3">${s.barang}</td><td class="p-3 text-center">${s.qty}</td><td class="p-3 text-center text-emerald-600">${realized}</td><td class="p-3 text-center text-amber-600 font-bold">${diff} ${s.satuan}</td></tr>`;
-                    }
-                });
-            } else if(type === 'masuk') {
-                title.innerText = "Rincian Total Barang Masuk";
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]"><th class="p-3">Tanggal</th><th class="p-3">Vendor</th><th class="p-3">Barang</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Harga</th></tr>`;
-                appData.masuk.forEach(m => {
-                    body.innerHTML += `<tr class="border-b"><td class="p-3">${m.tgl}</td><td class="p-3">${m.vendor}</td><td class="p-3">${m.barang}</td><td class="p-3 text-center">${m.qty} ${m.satuan}</td><td class="p-3 text-center">Rp ${(m.harga || 0).toLocaleString('id-ID')}</td></tr>`;
-                });
-            } else if(type === 'stok') {
-                title.innerText = "Rincian Item di Gudang";
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]"><th class="p-3">Nama Barang</th><th class="p-3">Spesifikasi</th><th class="p-3 text-center">Masuk</th><th class="p-3 text-center">Keluar</th><th class="p-3 text-center">Saldo</th></tr>`;
-                let uniqueMap = {};
-                appData.masuk.forEach(m => {
-                    if(!uniqueMap[m.barang]) uniqueMap[m.barang] = { spec: m.spesifikasi || '-', masuk: 0, satuan: m.satuan };
-                    uniqueMap[m.barang].masuk += m.qty;
-                });
-                Object.keys(uniqueMap).forEach(b => {
-                    let item = uniqueMap[b];
-                    let keluar = appData.keluar.filter(k => k.barang === b).reduce((a, b) => a + b.qty, 0);
-                    let saldo = item.masuk - keluar;
-                    body.innerHTML += `<tr class="border-b"><td class="p-3 text-blue-600 font-medium">${b}</td><td class="p-3">${item.spec}</td><td class="p-3 text-center">${item.masuk}</td><td class="p-3 text-center">${keluar}</td><td class="p-3 text-center font-bold text-purple-600">${saldo} ${item.satuan}</td></tr>`;
-                });
-            }
-
-            modal.classList.remove('hidden');
+            keluarData.forEach((item) => {
+                body.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3 pl-5 text-slate-500">${item.tgl}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.pengambil || '-'}</td>
+                        <td class="p-3 font-bold text-slate-700">${item.barang}</td>
+                        <td class="p-3 text-slate-500">${item.spek || '-'}</td>
+                        <td class="p-3 text-center font-bold text-rose-500">-${item.qty} ${item.satuan}</td>
+                        <td class="p-3 text-slate-500">${item.ket}</td>
+                        <td class="p-3 text-slate-400">${item.petugas}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="openKeluarModal(${item.id})" title="Edit Pengeluaran" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteKeluar(${item.id})" title="Hapus Pengeluaran" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        function updateCharts() {
-            const ctxBar = document.getElementById('barChart').getContext('2d');
+        function renderStokTableAndDashboard() {
+            const itemsMap = {};
+
+            masukData.forEach(m => {
+                if(!itemsMap[m.barang]) {
+                    itemsMap[m.barang] = { barang: m.barang, spek: m.spek, satuan: m.satuan, masuk: 0, keluar: 0, tglUpdate: m.tgl };
+                }
+                itemsMap[m.barang].masuk += m.qty;
+                if(m.tgl > itemsMap[m.barang].tglUpdate) itemsMap[m.barang].tglUpdate = m.tgl;
+            });
+
+            keluarData.forEach(k => {
+                if(!itemsMap[k.barang]) {
+                    itemsMap[k.barang] = { barang: k.barang, spek: k.spek || '-', satuan: k.satuan, masuk: 0, keluar: 0, tglUpdate: k.tgl };
+                }
+                itemsMap[k.barang].keluar += k.qty;
+                if(k.tgl > itemsMap[k.barang].tglUpdate) itemsMap[k.barang].tglUpdate = k.tgl;
+            });
+
+            const stokBody = document.getElementById('stok-table-body');
+            stokBody.innerHTML = '';
+
+            let totalSaldoStokAll = 0;
+            let stokList = Object.values(itemsMap);
+
+            stokList.forEach((item, idx) => {
+                const saldo = item.masuk - item.keluar;
+                totalSaldoStokAll += saldo;
+
+                stokBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
+                        <td class="p-3 text-slate-500">${item.tglUpdate}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
+                        <td class="p-3 text-slate-500">${item.spek}</td>
+                        <td class="p-3 text-slate-500">${item.satuan}</td>
+                        <td class="p-3 text-center font-bold text-emerald-600">+${item.masuk}</td>
+                        <td class="p-3 text-center font-bold text-rose-500">-${item.keluar}</td>
+                        <td class="p-3 text-center font-bold text-purple-600">${saldo}</td>
+                        <td class="p-3 text-slate-400 italic text-[11px]">Terhubung Stok</td>
+                    </tr>
+                `;
+            });
+
+            const totalSppQty = sppData.reduce((a, b) => a + b.qty, 0);
+            const totalRealisasiQty = sppData.reduce((a, b) => a + b.totalRealisasi, 0);
+            const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
+
+            const totalMasukQty = masukData.reduce((a, b) => a + b.qty, 0);
+            const totalMasukRp = masukData.reduce((a, b) => a + b.total, 0);
+
+            document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
+            document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar \u2192`;
+            document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
+            document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
+            document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')} \u2192`;
+            document.getElementById('dash-total-jenis').innerHTML = `${stokList.length} <span class="text-sm font-normal text-slate-500">Jenis</span>`;
+            document.getElementById('dash-saldo-total').innerText = `Saldo: ${totalSaldoStokAll} Qty \u2192`;
+
+            const dashTableBody = document.getElementById('dash-table-body');
+            dashTableBody.innerHTML = '';
+            sppData.forEach((item, idx) => {
+                const sisa = item.qty - item.totalRealisasi;
+                const statusBadge = sisa <= 0 
+                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS</span>`
+                    : `<span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">KURANG</span>`;
+
+                dashTableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
+                        <td class="p-3 font-semibold text-blue-600">${item.no}</td>
+                        <td class="p-3 text-slate-500">${item.tgl}</td>
+                        <td class="p-3 font-medium text-slate-700">${item.pengaju || '-'}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
+                        <td class="p-3 text-slate-500">${item.spek}</td>
+                        <td class="p-3 text-center text-slate-700">${item.qty} ${item.satuan}</td>
+                        <td class="p-3 text-center text-slate-700">${item.totalRealisasi} ${item.satuan}</td>
+                        <td class="p-3 text-center font-bold text-amber-600">${sisa} ${item.satuan}</td>
+                        <td class="p-3 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+
+            renderCharts();
+        }
+
+        function renderCharts() {
+            const sppBarang = sppData.map(i => i.barang);
+            const sppPermintaan = sppData.map(i => i.qty);
+            const sppRealisasi = sppData.map(i => i.totalRealisasi);
+
             if(barChartInstance) barChartInstance.destroy();
-
-            let labels = appData.spp.slice(0, 6).map(s => s.barang);
-            let dataSpp = appData.spp.slice(0, 6).map(s => s.qty);
-            let dataReal = appData.spp.slice(0, 6).map(s => calculateRealized(s));
-
+            const ctxBar = document.getElementById('barChart').getContext('2d');
             barChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: labels.length ? labels : ['Belum Ada Data'],
+                    labels: sppBarang,
                     datasets: [
-                        { label: 'Permintaan (SPP)', data: dataSpp.length ? dataSpp : [0], backgroundColor: '#3b82f6', borderRadius: 6 },
-                        { label: 'Realisasi Masuk', data: dataReal.length ? dataReal : [0], backgroundColor: '#10b981', borderRadius: 6 }
+                        { label: 'Permintaan SPP', data: sppPermintaan, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Terealisasi', data: sppRealisasi, backgroundColor: '#10b981', borderRadius: 4 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+                }
             });
 
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            const masukMap = {};
+            masukData.forEach(m => { masukMap[m.barang] = (masukMap[m.barang] || 0) + m.qty; });
+
             if(pieChartInstance) pieChartInstance.destroy();
-
-            let uniqueJenis = [...new Set(appData.masuk.map(m => m.barang))].slice(0, 5);
-            let pieData = uniqueJenis.map(j => {
-                let m = appData.masuk.filter(item => item.barang === j).reduce((a, b) => a + b.qty, 0);
-                let k = appData.keluar.filter(item => item.barang === j).reduce((a, b) => a + b.qty, 0);
-                return Math.max(0, m - k);
-            });
-
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
             pieChartInstance = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: uniqueJenis.length ? uniqueJenis : ['Kosong'],
+                    labels: Object.keys(masukMap),
                     datasets: [{
-                        data: pieData.length ? pieData : [1],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899']
+                        data: Object.values(masukMap),
+                        backgroundColor: ['#06b6d4', '#f59e0b', '#a855f7', '#ec4899', '#3b82f6']
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                }
             });
         }
 
-        function exportToExcel() {
-            const wb = XLSX.utils.book_new();
-
-            const sppWsData = appData.spp.map((s, idx) => ({
-                No: idx + 1,
-                "No SPP": s.no,
-                "Tanggal SPP": s.tgl,
-                "Pengaju": s.pengaju,
-                "Nama Barang": s.barang,
-                "Spesifikasi": s.spesifikasi,
-                "Qty": s.qty,
-                "Satuan": s.satuan,
-                "Total Realisasi": calculateRealized(s),
-                "Sisa Kekurangan": Math.max(0, s.qty - calculateRealized(s)),
-                "Keterangan": s.ket
-            }));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppWsData), "Data SPP");
-
-            const masukWsData = appData.masuk.map((m, idx) => ({
-                No: idx + 1,
-                "Tanggal Masuk": m.tgl,
-                "Vendor": m.vendor,
-                "Nama Barang": m.barang,
-                "Spesifikasi": m.spesifikasi,
-                "Qty": m.qty,
-                "Satuan": m.satuan,
-                "Harga Satuan": m.harsat || 0,
-                "Total Harga": m.harga || 0,
-                "Keterangan": m.ket || ""
-            }));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(masukWsData), "Barang Masuk");
-
-            const keluarWsData = appData.keluar.map((k, idx) => ({
-                No: idx + 1,
-                "Tanggal Out": k.tgl,
-                "Pengambil": k.pengambil,
-                "Nama Barang": k.barang,
-                "Spesifikasi": k.spesifikasi,
-                "Qty Keluar": k.qty,
-                "Satuan": k.satuan,
-                "Petugas": k.petugas,
-                "Keterangan": k.ket
-            }));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(keluarWsData), "Stok Keluar");
-
-            XLSX.writeFile(wb, "LogistikPro_Report.xlsx");
-        }
-
-        window.onload = function() {
-            loadInitialData();
-            refreshAll();
+        window.onload = () => { 
+            renderAll(); 
+            loadDataFromServer(); 
         };
     </script>
 </body>
