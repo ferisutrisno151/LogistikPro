@@ -498,6 +498,11 @@
             </form>
         </div>
     </div>
+    window.onload = () => {
+    renderAll();
+    loadDataFromServer();
+    updateDashboard(); // <--- Tambahkan baris ini jika belum ada
+};
 
     <script>
         // URL Google Apps Script Web App
@@ -1445,6 +1450,11 @@
     const elSaldo = document.getElementById('dash-saldo-qty');
     if (elSaldo) elSaldo.innerText = 'Saldo: ' + saldoGudang.toLocaleString('id-ID') + ' Qty';
         }
+        function loadDataFromServer() {
+    // ... proses ambil data ...
+    // Setelah data berhasil dimasukkan ke variabel sppData, masukData, dll:
+    updateDashboard();
+}
     </script>
 </body>
 </html>
