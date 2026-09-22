@@ -1376,6 +1376,31 @@
             renderAll(); 
             loadDataFromServer(); 
         };
+       function updateDashboard() {
+    let totalMasukQty = 0;
+    let totalMasukRp = 0;
+
+    // Hitung total dari data barang masuk (masukData)
+    if (typeof masukData !== 'undefined' && Array.isArray(masukData)) {
+        masukData.forEach(entry => {
+            if (entry.items && Array.isArray(entry.items)) {
+                entry.items.forEach(item => {
+                    const q = parseFloat(item.qty) || 0;
+                    const h = parseFloat(item.harga) || 0;
+                    totalMasukQty += q;
+                    totalMasukRp += q * h;
+                });
+            }
+        });
+    }
+
+    // Perbarui tampilan pada elemen kartu dashboard
+    const elMasukQty = document.getElementById('dashboard-total-masuk-qty');
+    if (elMasukQty) elMasukQty.innerText = totalMasukQty.toLocaleString('id-ID') + ' Qty';
+
+    const elMasukRp = document.getElementById('dashboard-total-masuk-rp');
+    if (elMasukRp) elMasukRp.innerText = 'Rp ' + totalMasukRp.toLocaleString('id-ID');
+}
     </script>
 </body>
 </html>
