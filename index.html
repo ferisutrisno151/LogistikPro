@@ -933,20 +933,36 @@
         }
 
         function addMasukItemRow(barang="", spek="", qty="", satuan="", harga="", ket="") {
-            const container = document.getElementById('masuk-items-container');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
-            row.innerHTML = `
-                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
-                <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
-                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
-                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
-            `;
-            container.appendChild(row);
-            updateMasukSummary();
+    const container = document.getElementById('masuk-items-container');
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2 rounded border mb-2';
+    row.innerHTML = `
+        <div class="sm:col-span-3">
+            <input type="text" value="${barang}" placeholder="Nama Barang" class="item-nama w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-2">
+            <input type="text" value="${spek}" placeholder="Spesifikasi" class="item-spek w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-1">
+            <input type="number" value="${qty}" placeholder="Qty" class="item-qty w-full border rounded p-1" oninput="updateMasukSummary()">
+        </div>
+        <div class="sm:col-span-2">
+            <input type="text" value="${satuan}" placeholder="Satuan" class="item-satuan w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-2">
+            <input type="number" value="${harga}" placeholder="Harga Satuan" class="item-harga w-full border rounded p-1" oninput="updateMasukSummary()">
+        </div>
+        <div class="sm:col-span-1">
+            <input type="text" value="${ket}" placeholder="Ket" class="item-ket w-full border rounded p-1">
+        </div>
+        <div class="sm:col-span-1 text-right sm:text-center">
+            <button type="button" onclick="this.closest('.masuk-row').remove(); updateMasukSummary();" class="text-red-500 hover:text-red-700">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+    updateMasukSummary();
         }
 
         function updateMasukSummary() {
@@ -969,45 +985,47 @@
         }
 
         function saveMasuk(e) {
-            e.preventDefault();
-            const editId = document.getElementById('masuk-edit-id').value;
-            const tgl = document.getElementById('masuk-tgl').value;
-            const vendor = document.getElementById('masuk-vendor').value;
+    e.preventDefault();
+    const editId = document.getElementById('masuk-edit-id').value;
+    const tgl = document.getElementById('masuk-tgl').value;
+    const vendor = document.getElementById('masuk-vendor').value;
+    
+    const rows = document.querySelectorAll('.masuk-row');
+    const items = [];
+    rows.forEach(row => {
+        items.push({
+            barang: row.querySelector('.item-nama').value,
+            spek: row.querySelector('.item-spek').value,
+            qty: parseFloat(row.querySelector('.item-qty').value) || 0,
+            satuan: row.querySelector('.item-satuan').value,
+            harga: parseFloat(row.querySelector('.item-harga').value) || 0,
+            ket: row.querySelector('.item-ket').value
+        });
+    });
 
-            if(editId) {
-                const idx = masukData.findIndex(i => i.id == editId);
-                const row = document.querySelector('.masuk-row');
-                const qty = parseFloat(row.querySelector('.item-qty').value);
-                const harga = parseFloat(row.querySelector('.item-harga').value);
-                masukData[idx].tgl = tgl;
-                masukData[idx].vendor = vendor;
-                masukData[idx].barang = row.querySelector('.item-nama').value;
-                masukData[idx].spek = row.querySelector('.item-spek').value;
-                masukData[idx].qty = qty;
-                masukData[idx].satuan = row.querySelector('.item-satuan').value;
-                masukData[idx].harga = harga;
-                masukData[idx].total = qty * harga;
-                masukData[idx].ket = row.querySelector('.item-ket').value;
-            } else {
-                const rows = document.querySelectorAll('.masuk-row');
-                rows.forEach(row => {
-                    const qty = parseFloat(row.querySelector('.item-qty').value);
-                    const harga = parseFloat(row.querySelector('.item-harga').value);
-                    masukData.push({
-                        id: Date.now() + Math.random(),
-                        tgl, vendor,
-                        barang: row.querySelector('.item-nama').value,
-                        spek: row.querySelector('.item-spek').value || '-',
-                        qty, satuan: row.querySelector('.item-satuan').value,
-                        harga, total: qty * harga, 
-                        ket: row.querySelector('.item-ket').value || '-'
-                    });
-                });
-            }
-
-            closeModal('modal-masuk');
-            saveData();
+    if (editId) {
+        // Mode Edit / Update Data
+        const idx = masukData.findIndex(i => i.id == editId);
+        if (idx !== -1) {
+            masukData[idx] = { id: parseInt(editId), tgl, vendor, items };
         }
+    } else {
+        // Mode Tambah Data Baru
+        const newData = { id: Date.now(), tgl, vendor, items };
+        masukData.push(newData);
+    }
+
+    // Simpan ke penyimpanan lokal browser
+    saveData();
+
+    // Tutup modal form barang masuk
+    document.getElementById('modal-masuk').classList.remove('flex');
+    document.getElementById('modal-masuk').classList.add('hidden');
+
+    // Perbarui tampilan tabel dan dashboard agar sinkron
+    if (typeof renderMasuk === 'function') renderMasuk();
+    if (typeof updateDashboard === 'function') updateDashboard();
+}
 
         function deleteMasuk(id) {
             if(confirm('Hapus transaksi barang masuk ini?')) {
