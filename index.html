@@ -591,7 +591,6 @@
         let barChartInstance = null;
         let pieChartInstance = null;
 
-        // Muat data persisten dari LocalStorage saat pertama kali load
         function loadInitialData() {
             const saved = localStorage.getItem('logistikpro_persistent_data');
             if(saved) {
@@ -602,10 +601,8 @@
         }
 
         async function saveData() {
-            // Simpan permanen ke localStorage agar tidak hilang saat refresh
             localStorage.setItem('logistikpro_persistent_data', JSON.stringify(appData));
             
-            // Simpan ke Firebase Firestore agar tersinkronisasi dan dapat diedit bersama rekan
             if(window.firebaseActive && window.db) {
                 try {
                     const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
@@ -728,7 +725,7 @@
             closeModal('modal-spp');
         }
 
-        // Realisasi Pembelian Bertahap (Mendukung Simpan Berulang Kali & Edit)
+        // Realisasi Pembelian Bertahap (Multi-Simpan Berulang Kali & Edit)
         function openRealisasiModal(sppId, realisasiIdx = null) {
             document.getElementById('realisasi-spp-id').value = sppId;
             document.getElementById('realisasi-index').value = realisasiIdx !== null ? realisasiIdx : '';
@@ -736,7 +733,7 @@
             document.getElementById('realisasi-qty').value = 1;
 
             if(realisasiIdx !== null) {
-                const spp = appData.spp.find(s => s.id === sppId);
+                const spp = appData.spp.find(s => s.id == sppId);
                 if(spp && spp.realisasiList && spp.realisasiList[realisasiIdx]) {
                     const r = spp.realisasiList[realisasiIdx];
                     document.getElementById('realisasi-tgl').value = r.tgl;
@@ -748,12 +745,13 @@
 
         function saveRealisasi(e) {
             e.preventDefault();
-            const sppId = parseInt(document.getElementById('realisasi-spp-id').value);
+            const sppIdInput = document.getElementById('realisasi-spp-id').value;
+            const sppId = isNaN(sppIdInput) ? sppIdInput : Number(sppIdInput);
             const rIdx = document.getElementById('realisasi-index').value;
             const tgl = document.getElementById('realisasi-tgl').value;
             const qty = parseInt(document.getElementById('realisasi-qty').value);
 
-            const spp = appData.spp.find(s => s.id === sppId);
+            const spp = appData.spp.find(s => s.id == sppId);
             if(spp) {
                 if(!spp.realisasiList) spp.realisasiList = [];
                 if(rIdx !== '') {
@@ -763,14 +761,16 @@
                 }
                 saveData();
                 closeModal('modal-realisasi');
-                if(document.getElementById('modal-list-realisasi').classList.contains('flex')) {
+                
+                // Jika modal list realisasi sedang terbuka, refresh daftarnya
+                if(!document.getElementById('modal-list-realisasi').classList.contains('hidden')) {
                     openRealisasiListModal(sppId);
                 }
             }
         }
 
         function openRealisasiListModal(sppId) {
-            const spp = appData.spp.find(s => s.id === sppId);
+            const spp = appData.spp.find(s => s.id == sppId);
             const tbody = document.getElementById('list-realisasi-body');
             tbody.innerHTML = '';
             if(!spp || !spp.realisasiList || spp.realisasiList.length === 0) {
@@ -782,8 +782,8 @@
                             <td class="p-2">${r.tgl}</td>
                             <td class="p-2 text-center font-medium text-emerald-600">${r.qty}</td>
                             <td class="p-2 text-center space-x-1">
-                                <button onclick="openRealisasiModal(${spp.id}, ${idx})" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteRealisasi(${spp.id}, ${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="openRealisasiModal('${spp.id}', ${idx})" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteRealisasi('${spp.id}', ${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -794,7 +794,7 @@
 
         function deleteRealisasi(sppId, rIdx) {
             if(confirm('Hapus realisasi ini?')) {
-                const spp = appData.spp.find(s => s.id === sppId);
+                const spp = appData.spp.find(s => s.id == sppId);
                 if(spp && spp.realisasiList) {
                     spp.realisasiList.splice(rIdx, 1);
                     saveData();
@@ -1109,12 +1109,12 @@
                     <td class="p-3 text-slate-500">${s.spesifikasi || '-'}</td>
                     <td class="p-3 text-center font-medium">${s.qty}</td>
                     <td class="p-3 text-slate-600">${s.satuan}</td>
-                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal(${s.id})" title="Klik untuk kelola realisasi bertahap">${tglRealHtml} <i class="fa-solid fa-list text-[10px] text-blue-500 ml-1"></i></td>
+                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal('${s.id}')" title="Klik untuk kelola realisasi bertahap">${tglRealHtml} <i class="fa-solid fa-list text-[10px] text-blue-500 ml-1"></i></td>
                     <td class="p-3 text-center text-emerald-600 font-medium">${realized}</td>
                     <td class="p-3 text-center text-amber-600 font-medium">${sisa}</td>
                     <td class="p-3 text-slate-600">${s.ket || '-'}</td>
                     <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                        <button onclick="openRealisasiModal(${s.id})" title="Tambah Realisasi" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                        <button onclick="openRealisasiModal('${s.id}')" title="Tambah Realisasi" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center transition"><i class="fa-solid fa-plus text-xs"></i></button>
                         <button onclick="openSppModal(${s.id})" title="Edit SPP" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
                         <button onclick="deleteSpp(${s.id})" title="Hapus SPP" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     </td>
