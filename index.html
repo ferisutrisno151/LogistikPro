@@ -1400,47 +1400,62 @@ function renderStokTableAndDashboard() {
             stokBody.innerHTML += `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
-                    <td class="p-3 font-bold text-slate-800">${item.barang}</td>
-                    <td class="p-3 text-slate-500">${item.spek}</td>
-                    <td class="p-3 text-center text-slate-600">${item.satuan}</td>
-                    <td class="p-3 text-center font-bold text-emerald-600">${item.masuk}</td>
-                    <td class="p-3 text-center font-bold text-rose-600">${item.keluar}</td>
-                    <td class="p-3 text-center font-bold text-purple-600">${saldo}</td>
-                    <td class="p-3 text-slate-400 italic text-[11px]">${item.tglupdate}</td>
-                </tr>
-            `;
-        });
-    }
+function renderStokTableAndDashboard() {
+    // 1. Ambil data langsung paksa dari memori localStorage browser agar selalu update
+    const sppData = JSON.parse(localStorage.getItem('sppData')) || [];
+    const masukData = JSON.parse(localStorage.getItem('masukData')) || [];
+    const keluarData = JSON.parse(localStorage.getItem('keluarData')) || [];
 
-    // Hitung Ringkasan Dashboard
+    const itemsMap = {};
+
+    // 2. Proses Barang Masuk
+    masukData.forEach(m => {
+        if (!m || !m.barang) return;
+        const nama = m.barang.trim();
+        if (!itemsMap[nama]) {
+            itemsMap[nama] = { barang: nama, spek: m.spek || '-', satuan: m.satuan || 'Pcs', masuk: 0, keluar: 0, tglupdate: m.tgl || '-' };
+        }
+        itemsMap[nama].masuk += Number(m.qty) || 0;
+    });
+
+    // 3. Proses Barang Keluar
+    keluarData.forEach(k => {
+        if (!k || !k.barang) return;
+        const nama = k.barang.trim();
+        if (!itemsMap[nama]) {
+            itemsMap[nama] = { barang: nama, spek: k.spek || '-', satuan: k.satuan || 'Pcs', masuk: 0, keluar: 0, tglupdate: k.tgl || '-' };
+        }
+        itemsMap[nama].keluar += Number(k.qty) || 0;
+    });
+
+    // 4. Hitung Total untuk Kartu Dashboard
     const totalSppQty = sppData.reduce((a, b) => a + (Number(b.qty) || 0), 0);
     const totalRealisasiQty = sppData.reduce((a, b) => a + (Number(b.totalRealisasi) || 0), 0);
     const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
-
     const totalMasukQty = masukData.reduce((a, b) => a + (Number(b.qty) || 0), 0);
     const totalMasukRp = masukData.reduce((a, b) => a + (Number(b.total) || 0), 0);
     const totalSaldoStokAll = Object.values(itemsMap).reduce((acc, item) => acc + (item.masuk - item.keluar), 0);
 
-    // Update Elemen Tampilan di Dashboard
-    const elSppCount = document.getElementById('dash-spp-count');
-    if (elSppCount) elSppCount.innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-400">(${sppData.length} SPP terdaftar)</span>`;
+    // 5. Masukkan Angka ke Tampilan Dashboard HTML secara Langsung
+    if(document.getElementById('dash-spp-count')) 
+        document.getElementById('dash-spp-count').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-400">(${sppData.length} SPP terdaftar)</span>`;
+    
+    if(document.getElementById('dash-total-kurang')) 
+        document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-400">Qty</span>`;
+    
+    if(document.getElementById('dash-total-masuk')) 
+        document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-400">Item</span>`;
+    
+    if(document.getElementById('dash-val-masuk')) 
+        document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')}`;
+    
+    if(document.getElementById('dash-total-jenis')) 
+        document.getElementById('dash-total-jenis').innerHTML = `${Object.keys(itemsMap).length} <span class="text-sm font-normal text-slate-400">Jenis Item</span>`;
+    
+    if(document.getElementById('dash-saldo-total')) 
+        document.getElementById('dash-saldo-total').innerHTML = `Saldo: ${totalSaldoStokAll} Qty`;
 
-    const elTotalKurang = document.getElementById('dash-total-kurang');
-    if (elTotalKurang) elTotalKurang.innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-400">Qty</span>`;
-
-    const elTotalMasuk = document.getElementById('dash-total-masuk');
-    if (elTotalMasuk) elTotalMasuk.innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-400">Item</span>`;
-
-    const elValMasuk = document.getElementById('dash-val-masuk');
-    if (elValMasuk) elValMasuk.innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')}`;
-
-    const elTotalJenis = document.getElementById('dash-total-jenis');
-    if (elTotalJenis) elTotalJenis.innerHTML = `${Object.keys(itemsMap).length} <span class="text-sm font-normal text-slate-400">Jenis Item</span>`;
-
-    const elSaldoTotal = document.getElementById('dash-saldo-total');
-    if (elSaldoTotal) elSaldoTotal.innerHTML = `Saldo: ${totalSaldoStokAll} Qty`;
-
-    // Render Tabel Detail Status Realisasi di Dashboard
+    // 6. Render Tabel Status Realisasi di Dashboard
     const dashTableBody = document.getElementById('dash-table-body');
     if (dashTableBody) {
         dashTableBody.innerHTML = '';
@@ -1466,6 +1481,28 @@ function renderStokTableAndDashboard() {
             `;
         });
     }
+
+    // 7. Render Tabel Stok Gudang
+    const stokBody = document.getElementById('stok-table-body');
+    if (stokBody) {
+        stokBody.innerHTML = '';
+        Object.values(itemsMap).forEach((item, idx) => {
+            const saldo = item.masuk - item.keluar;
+            stokBody.innerHTML += `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.barang}</td>
+                    <td class="p-3 text-slate-500">${item.spek}</td>
+                    <td class="p-3 text-center text-slate-600">${item.satuan}</td>
+                    <td class="p-3 text-center font-bold text-emerald-600">${item.masuk}</td>
+                    <td class="p-3 text-center font-bold text-rose-600">${item.keluar}</td>
+                    <td class="p-3 text-center font-bold text-purple-600">${saldo}</td>
+                    <td class="p-3 text-slate-400 italic text-[11px]">${item.tglupdate}</td>
+                </tr>
+            `;
+        });
+    }
+}
 
     // Refresh Grafik jika ada
     if (typeof renderCharts === 'function') {
