@@ -1241,90 +1241,134 @@
         }
 
         function renderStokTableAndDashboard() {
-            const itemsMap = {};
+    const itemsMap = {};
 
-            masukData.forEach(m => {
-                if(!itemsMap[m.barang]) {
-                    itemsMap[m.barang] = { barang: m.barang, spek: m.spek, satuan: m.satuan, masuk: 0, keluar: 0, tglUpdate: m.tgl };
-                }
-                itemsMap[m.barang].masuk += m.qty;
-                if(m.tgl > itemsMap[m.barang].tglUpdate) itemsMap[m.barang].tglUpdate = m.tgl;
-            });
+    // 1. Ambil data dari Barang Masuk
+    if (Array.isArray(masukData)) {
+        masukData.forEach(m => {
+            if (!m || !m.barang) return;
+            const namaBarang = m.barang.trim();
+            if (!itemsMap[namaBarang]) {
+                itemsMap[namaBarang] = { 
+                    barang: namaBarang, 
+                    spek: m.spek || '-', 
+                    satuan: m.satuan || 'Pcs', 
+                    masuk: 0, 
+                    keluar: 0, 
+                    tglupdate: m.tgl || '-' 
+                };
+            }
+            itemsMap[namaBarang].masuk += Number(m.qty) || 0;
+            if (m.tgl) itemsMap[namaBarang].tglupdate = m.tgl;
+        });
+    }
 
-            keluarData.forEach(k => {
-                if(!itemsMap[k.barang]) {
-                    itemsMap[k.barang] = { barang: k.barang, spek: k.spek || '-', satuan: k.satuan, masuk: 0, keluar: 0, tglUpdate: k.tgl };
-                }
-                itemsMap[k.barang].keluar += k.qty;
-                if(k.tgl > itemsMap[k.barang].tglUpdate) itemsMap[k.barang].tglUpdate = k.tgl;
-            });
+    // 2. Ambil data dari Barang Keluar
+    if (Array.isArray(keluarData)) {
+        keluarData.forEach(k => {
+            if (!k || !k.barang) return;
+            const namaBarang = k.barang.trim();
+            if (!itemsMap[namaBarang]) {
+                itemsMap[namaBarang] = { 
+                    barang: namaBarang, 
+                    spek: k.spek || '-', 
+                    satuan: k.satuan || 'Pcs', 
+                    masuk: 0, 
+                    keluar: 0, 
+                    tglupdate: k.tgl || '-' 
+                };
+            }
+            itemsMap[namaBarang].keluar += Number(k.qty) || 0;
+            if (k.tgl) itemsMap[namaBarang].tglupdate = k.tgl;
+        });
+    }
 
-            const stokBody = document.getElementById('stok-table-body');
-            stokBody.innerHTML = '';
+    // Render Tabel Stok
+    const stokBody = document.getElementById('stok-table-body');
+    if (stokBody) {
+        stokBody.innerHTML = '';
+        let totalSaldoStokAll = 0;
+        let stokList = Object.values(itemsMap);
 
-            let totalSaldoStokAll = 0;
-            let stokList = Object.values(itemsMap);
+        stokList.forEach((item, idx) => {
+            const saldo = item.masuk - item.keluar;
+            totalSaldoStokAll += saldo;
+            
+            stokBody.innerHTML += `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.barang}</td>
+                    <td class="p-3 text-slate-500">${item.spek}</td>
+                    <td class="p-3 text-center text-slate-600">${item.satuan}</td>
+                    <td class="p-3 text-center font-bold text-emerald-600">${item.masuk}</td>
+                    <td class="p-3 text-center font-bold text-rose-600">${item.keluar}</td>
+                    <td class="p-3 text-center font-bold text-purple-600">${saldo}</td>
+                    <td class="p-3 text-slate-400 italic text-[11px]">${item.tglupdate}</td>
+                </tr>
+            `;
+        });
+    }
 
-            stokList.forEach((item, idx) => {
-                const saldo = item.masuk - item.keluar;
-                totalSaldoStokAll += saldo;
+    // Hitung Ringkasan untuk Kartu Dashboard
+    const totalSppQty = Array.isArray(sppData) ? sppData.reduce((a, b) => a + (Number(b.qty) || 0), 0) : 0;
+    const totalRealisasiQty = Array.isArray(sppData) ? sppData.reduce((a, b) => a + (Number(b.totalRealisasi) || 0), 0) : 0;
+    const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
 
-                stokBody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
-                        <td class="p-3 text-slate-500">${item.tglUpdate}</td>
-                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spek}</td>
-                        <td class="p-3 text-slate-500">${item.satuan}</td>
-                        <td class="p-3 text-center font-bold text-emerald-600">+${item.masuk}</td>
-                        <td class="p-3 text-center font-bold text-rose-500">-${item.keluar}</td>
-                        <td class="p-3 text-center font-bold text-purple-600">${saldo}</td>
-                        <td class="p-3 text-slate-400 italic text-[11px]">Terhubung Stok</td>
-                    </tr>
-                `;
-            });
+    const totalMasukQty = Array.isArray(masukData) ? masukData.reduce((a, b) => a + (Number(b.qty) || 0), 0) : 0;
+    const totalMasukRp = Array.isArray(masukData) ? masukData.reduce((a, b) => a + (Number(b.total) || 0), 0) : 0;
+    const totalSaldoStokAll = Object.values(itemsMap).reduce((acc, item) => acc + (item.masuk - item.keluar), 0);
 
-            const totalSppQty = sppData.reduce((a, b) => a + b.qty, 0);
-            const totalRealisasiQty = sppData.reduce((a, b) => a + b.totalRealisasi, 0);
-            const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
+    // Update Elemen Tampilan di Dashboard
+    const elSppCount = document.getElementById('dash-spp-count');
+    if (elSppCount) elSppCount.innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-400">(${Array.isArray(sppData) ? sppData.length : 0} SPP terdaftar)</span>`;
 
-            const totalMasukQty = masukData.reduce((a, b) => a + b.qty, 0);
-            const totalMasukRp = masukData.reduce((a, b) => a + b.total, 0);
+    const elTotalKurang = document.getElementById('dash-total-kurang');
+    if (elTotalKurang) elTotalKurang.innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-400">Qty</span>`;
 
-            document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar \u2192`;
-            document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')} \u2192`;
-            document.getElementById('dash-total-jenis').innerHTML = `${stokList.length} <span class="text-sm font-normal text-slate-500">Jenis</span>`;
-            document.getElementById('dash-saldo-total').innerText = `Saldo: ${totalSaldoStokAll} Qty \u2192`;
+    const elTotalMasuk = document.getElementById('dash-total-masuk');
+    if (elTotalMasuk) elTotalMasuk.innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-400">Item</span>`;
 
-            const dashTableBody = document.getElementById('dash-table-body');
-            dashTableBody.innerHTML = '';
-            sppData.forEach((item, idx) => {
-                const sisa = item.qty - item.totalRealisasi;
-                const statusBadge = sisa <= 0 
-                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS</span>`
-                    : `<span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">KURANG</span>`;
+    const elValMasuk = document.getElementById('dash-val-masuk');
+    if (elValMasuk) elValMasuk.innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')}`;
 
-                dashTableBody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
-                        <td class="p-3 font-semibold text-blue-600">${item.no}</td>
-                        <td class="p-3 text-slate-500">${item.tgl}</td>
-                        <td class="p-3 font-medium text-slate-700">${item.pengaju || '-'}</td>
-                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spek}</td>
-                        <td class="p-3 text-center text-slate-700">${item.qty} ${item.satuan}</td>
-                        <td class="p-3 text-center text-slate-700">${item.totalRealisasi} ${item.satuan}</td>
-                        <td class="p-3 text-center font-bold text-amber-600">${sisa} ${item.satuan}</td>
-                        <td class="p-3 text-center">${statusBadge}</td>
-                    </tr>
-                `;
-            });
+    const elTotalJenis = document.getElementById('dash-total-jenis');
+    if (elTotalJenis) elTotalJenis.innerHTML = `${Object.keys(itemsMap).length} <span class="text-sm font-normal text-slate-400">Jenis Item</span>`;
 
-            renderCharts();
-        }
+    const elSaldoTotal = document.getElementById('dash-saldo-total');
+    if (elSaldoTotal) elSaldoTotal.innerHTML = `Saldo: ${totalSaldoStokAll} Qty`;
+
+    // Render Tabel Detail di Dashboard
+    const dashTableBody = document.getElementById('dash-table-body');
+    if (dashTableBody && Array.isArray(sppData)) {
+        dashTableBody.innerHTML = '';
+        sppData.forEach((item, idx) => {
+            const sisa = item.qty - (item.totalRealisasi || 0);
+            const statusBadge = sisa <= 0 
+                ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-text-[10px]">TERPENUHI</span>`
+                : `<span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-text-[10px]">KURANG (${sisa})</span>`;
+
+            dashTableBody.innerHTML += `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-3 pl-5 text-slate-400 font-semibold">${idx + 1}</td>
+                    <td class="p-3 font-semibold text-blue-600">${item.no || '-'}</td>
+                    <td class="p-3 text-slate-500">${item.tgl || '-'}</td>
+                    <td class="p-3 font-medium text-slate-800">${item.pengaju || '-'}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.barang || '-'}</td>
+                    <td class="p-3 text-slate-500">${item.spek || '-'}</td>
+                    <td class="p-3 text-center text-slate-700">${item.qty} ${item.satuan || ''}</td>
+                    <td class="p-3 text-center text-slate-600">${item.totalRealisasi || 0}</td>
+                    <td class="p-3 text-center font-bold text-amber-600">${sisa}</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // Jalankan pembaruan Grafik jika fungsi renderCharts tersedia
+    if (typeof renderCharts === 'function') {
+        renderCharts();
+    }
+}
 
         function renderCharts() {
             const sppBarang = sppData.map(i => i.barang);
@@ -1373,7 +1417,6 @@
         }
 
         window.onload = () => {
-    // Panggil fungsi muat data dulu, jangan render duluan
     loadDataFromServer();
 };
 
