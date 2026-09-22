@@ -17,6 +17,7 @@
             input, select, textarea { font-size: 16px !important; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
 
@@ -62,19 +63,19 @@
             </div>
             <ol class="text-[11px] text-slate-300 space-y-1.5 list-decimal pl-4">
                 <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
-                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[cite: 6].</li>
-                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[cite: 6].</li>
-                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[cite: 6].</li>
+                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta[span_1](start_span)[span_1](end_span).</li>
+                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi[span_2](start_span)[span_2](end_span).</li>
+                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai[span_3](start_span)[span_3](end_span).</li>
             </ol>
             <!-- Tombol download diperbarui menjadi direct link href dengan atribut download -->
-            <a href="nama-file-anda.apk" download class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-all text-[11px]">
-                <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
+            <a href="https://files.catbox.moe/k74n34.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
+    <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
             </a>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0 overflow-auto">
-        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <header class="bg-white border-b border-slate-200 px-4 pt-8 pb-3 md:pt-3 flex items-center justify-between sticky top-0 z-10">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg bg-slate-100 hover:bg-slate-200">
                     <i class="fa-solid fa-bars text-lg"></i>
@@ -83,7 +84,7 @@
                     <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
                         <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
                         <span class="sm:hidden">Dashboard</span>
-                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">Real-Time Sync</span>
+                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">LogistikPro</span>
                     </h2>
                 </div>
             </div>
@@ -95,12 +96,9 @@
                     <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
                     <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
                 </label>
-
-                <button onclick="resetDemoData()" class="px-2.5 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 flex items-center gap-1.5">
-                    <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Reset Demo</span>
                 </button>
                 <div class="flex items-center gap-2 md:gap-3 border-l border-slate-200 pl-2 md:pl-3">
-                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">SPP</div>
+                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">151</div>
                     <div class="hidden sm:block">
                         <div class="text-xs font-bold text-slate-800">Staff Logistik Proyek</div>
                         <div class="text-[10px] text-slate-400">Logistics & Supply</div>
@@ -583,24 +581,51 @@
             }
         }
 
-        function exportDataJSON() {
-            const dataToExport = {
-                app: "LogistikPro",
-                version: "1.0",
-                exportDate: new Date().toISOString(),
-                sppData, masukData, keluarData
-            };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            const dateStr = new Date().toISOString().split('T')[0];
-            downloadAnchor.setAttribute("download", `LogistikPro_Backup_${dateStr}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
+                                                function exportDataJSON() {
+        try {
+            // 1. Data SPP & Realisasi
+            let sppData = JSON.parse(localStorage.getItem('sppData')) || JSON.parse(localStorage.getItem('spp_data')) || [];
 
-        function importDataJSON(event) {
+            // 2. Data Barang Masuk
+            let barangMasukData = JSON.parse(localStorage.getItem('masukData')) || JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
+
+            // 3. Data Stok Barang (menggunakan key asli: keluarData)
+            let stokBarangData = JSON.parse(localStorage.getItem('keluarData')) || JSON.parse(localStorage.getItem('stok_barang_data')) || [];
+
+            // Validasi jika semua data kosong
+            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
+                alert("Tidak ada data untuk diexport!");
+                return;
+            }
+
+            // Membuat Workbook Excel baru dengan 3 Sheet terpisah
+            let wb = XLSX.utils.book_new();
+            
+            if(sppData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppData), "SPP & Realisasi");
+            }
+            
+            if(barangMasukData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
+            }
+
+            if(stokBarangData.length > 0) {
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
+            }
+
+            // Proses unduh file Excel
+            XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
+            alert("Data SPP, Barang Masuk, dan Stok Barang berhasil diexport ke Excel!");
+
+        } catch (error) {
+            console.error("Detail Error:", error);
+            alert("Terjadi kesalahan saat mengexport data: " + error.message);
+        }
+    }
+
+
+
+          function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
