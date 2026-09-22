@@ -87,10 +87,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 flex items-center gap-1.5" title="Backup Data ke File JSON">
-                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Export</span>
+                <button onclick="exportToExcel()" class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 flex items-center gap-1.5" title="Export ke Excel (.xlsx)">
+                    <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export Excel</span>
                 </button>
-                <label class="px-2.5 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer" title="Pulihkan Data dari File JSON">
+                <button onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5" title="Backup Data JSON">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Backup</span>
+                </button>
+                <label class="px-2.5 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer" title="Pulihkan Data JSON">
                     <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
                     <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
                 </label>
@@ -266,7 +269,6 @@
                         <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                             <thead>
                                 <tr id="masuk-table-header" class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <!-- Dynamic Header -->
                                 </tr>
                             </thead>
                             <tbody id="masuk-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -351,9 +353,9 @@
         </div>
     </div>
 
-    <!-- MODAL SPP -->
+    <!-- MODAL SPP (MULTI ITEM) -->
     <div id="modal-spp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="spp-modal-title" class="font-bold text-slate-800 text-sm">Form Permintaan Barang (SPP)</h3>
                 <button onclick="closeModal('modal-spp')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -375,30 +377,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Nama Barang</label>
-                        <input type="text" id="spp-barang" required placeholder="Cth: Kayu Balok" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Daftar Item Barang</span>
+                        <button type="button" onclick="addSppItemRow()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Tambah Item
+                        </button>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Spesifikasi</label>
-                        <input type="text" id="spp-spesifikasi" placeholder="Cth: 5x10" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Qty Diminta</label>
-                        <input type="number" id="spp-qty" min="1" value="1" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Satuan</label>
-                        <input type="text" id="spp-satuan" value="Pcs" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Keterangan</label>
-                        <input type="text" id="spp-ket" placeholder="Opsional" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
+                    <div id="spp-items-container" class="space-y-2"></div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
@@ -409,15 +395,16 @@
         </div>
     </div>
 
-    <!-- MODAL REALISASI -->
+    <!-- MODAL REALISASI BERTAHAP -->
     <div id="modal-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="realisasi-modal-title" class="font-bold text-slate-800 text-sm">Input Realisasi Pembelian</h3>
+                <h3 id="realisasi-modal-title" class="font-bold text-slate-800 text-sm">Input Realisasi Pembelian Bertahap</h3>
                 <button onclick="closeModal('modal-realisasi')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="form-realisasi" onsubmit="saveRealisasi(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="realisasi-spp-id">
+                <input type="hidden" id="realisasi-index">
                 <div>
                     <label class="block font-semibold text-slate-600 mb-1">Tanggal Realisasi</label>
                     <input type="date" id="realisasi-tgl" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
@@ -434,9 +421,31 @@
         </div>
     </div>
 
-    <!-- MODAL BARANG MASUK -->
+    <!-- MODAL LIST REALISASI (UNTUK EDIT/HAPUS REALISASI) -->
+    <div id="modal-list-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-sm">Daftar Realisasi Pembelian Bertahap</h3>
+                <button onclick="closeModal('modal-list-realisasi')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 uppercase text-[10px]">
+                            <th class="p-2">Tanggal</th>
+                            <th class="p-2 text-center">Qty Realisasi</th>
+                            <th class="p-2 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-realisasi-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BARANG MASUK (MULTI ITEM & HARSAT) -->
     <div id="modal-masuk" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="masuk-modal-title" class="font-bold text-slate-800 text-sm">Input Barang Masuk Proyek</h3>
                 <button onclick="closeModal('modal-masuk')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -454,30 +463,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Nama Barang</label>
-                        <input type="text" id="masuk-barang" required placeholder="Cth: Kayu Balok" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Daftar Barang Masuk</span>
+                        <button type="button" onclick="addMasukItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Tambah Item
+                        </button>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Spesifikasi</label>
-                        <input type="text" id="masuk-spesifikasi" placeholder="Cth: 5x10" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Qty Masuk</label>
-                        <input type="number" id="masuk-qty" min="1" value="1" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Satuan</label>
-                        <input type="text" id="masuk-satuan" value="Pcs" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Total Harga (Rp)</label>
-                        <input type="number" id="masuk-harga" min="0" value="0" required class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
+                    <div id="masuk-items-container" class="space-y-2"></div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
@@ -496,6 +489,7 @@
                 <button onclick="closeModal('modal-keluar')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="form-keluar" onsubmit="saveKeluar(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="keluar-edit-id">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold text-slate-600 mb-1">Tanggal Out</label>
@@ -544,7 +538,6 @@
 
     <!-- JAVASCRIPT APLIKASI -->
     <script>
-        // State Data Utama
         let appData = {
             spp: JSON.parse(localStorage.getItem('logistikpro_spp')) || [
                 { id: 1, no: "0001/SPP/EPC/IX/2026", tgl: "2026-09-04", pengaju: "Jamroni", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", realisasiList: [], ket: "Proyek Utama" },
@@ -553,15 +546,15 @@
                 { id: 4, no: "0004/SPP/EPC/IX/2026", tgl: "2026-09-21", pengaju: "Rosyd", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", realisasiList: [], ket: "Pembesian" }
             ],
             masuk: JSON.parse(localStorage.getItem('logistikpro_masuk')) || [
-                { id: 1, tgl: "2026-09-05", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", harga: 750000 },
-                { id: 2, tgl: "2026-09-05", vendor: "Azidar H Berni", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", harga: 350000 },
-                { id: 3, tgl: "2026-09-05", vendor: "Stok Gudang", barang: "Scotlet Merah", spesifikasi: "Roll Besar", qty: 5, satuan: "Rol", harga: 150000 },
-                { id: 4, tgl: "2026-09-07", vendor: "PT. Borma Karya Jaya", barang: "Skun Kabel", spesifikasi: "16mm", qty: 100, satuan: "Pcs", harga: 500000 },
-                { id: 5, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", harga: 1250000 },
-                { id: 6, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spesifikasi: "2.6mm", qty: 20, satuan: "Kg", harga: 900000 },
-                { id: 7, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RB260", spesifikasi: "2.0mm", qty: 15, satuan: "Kg", harga: 750000 },
-                { id: 8, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Resibon Potong", spesifikasi: "14 Inch", qty: 30, satuan: "Pcs", harga: 450000 },
-                { id: 9, tgl: "2026-09-21", vendor: "PT. AgungTeknik Mandiri", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", harga: 600000 }
+                { id: 1, tgl: "2026-09-05", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", harsat: 15000, harga: 750000 },
+                { id: 2, tgl: "2026-09-05", vendor: "Azidar H Berni", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", harsat: 35000, harga: 350000 },
+                { id: 3, tgl: "2026-09-05", vendor: "Stok Gudang", barang: "Scotlet Merah", spesifikasi: "Roll Besar", qty: 5, satuan: "Rol", harsat: 30000, harga: 150000 },
+                { id: 4, tgl: "2026-09-07", vendor: "PT. Borma Karya Jaya", barang: "Skun Kabel", spesifikasi: "16mm", qty: 100, satuan: "Pcs", harsat: 5000, harga: 500000 },
+                { id: 5, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", harsat: 50000, harga: 1250000 },
+                { id: 6, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spesifikasi: "2.6mm", qty: 20, satuan: "Kg", harsat: 45000, harga: 900000 },
+                { id: 7, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RB260", spesifikasi: "2.0mm", qty: 15, satuan: "Kg", harsat: 50000, harga: 750000 },
+                { id: 8, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Resibon Potong", spesifikasi: "14 Inch", qty: 30, satuan: "Pcs", harsat: 15000, harga: 450000 },
+                { id: 9, tgl: "2026-09-21", vendor: "PT. AgungTeknik Mandiri", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", harsat: 20000, harga: 600000 }
             ],
             keluar: JSON.parse(localStorage.getItem('logistikpro_keluar')) || []
         };
@@ -590,14 +583,9 @@
             
             document.getElementById('tab-' + tabId).classList.add('active');
             const activeBtn = document.getElementById('nav-' + tabId);
-            if(activeBtn) {
-                activeBtn.classList.add('sidebar-active');
-            }
+            if(activeBtn) activeBtn.classList.add('sidebar-active');
 
-            if(window.innerWidth < 768) {
-                toggleSidebar();
-            }
-
+            if(window.innerWidth < 768) toggleSidebar();
             refreshAll();
         }
 
@@ -605,29 +593,271 @@
             document.getElementById(modalId).classList.add('hidden');
         }
 
-        function openSppModal() {
+        // SPP Dynamic Rows
+        function openSppModal(editId = null) {
             document.getElementById('form-spp').reset();
             document.getElementById('spp-edit-id').value = '';
             document.getElementById('spp-tgl').value = new Date().toISOString().split('T')[0];
             document.getElementById('spp-modal-title').innerText = 'Form Permintaan Barang (SPP)';
+            const container = document.getElementById('spp-items-container');
+            container.innerHTML = '';
+
+            if(editId) {
+                const sppItem = appData.spp.find(s => s.id === editId);
+                if(sppItem) {
+                    document.getElementById('spp-edit-id').value = sppItem.id;
+                    document.getElementById('spp-no').value = sppItem.no;
+                    document.getElementById('spp-tgl').value = sppItem.tgl;
+                    document.getElementById('spp-pengaju').value = sppItem.pengaju;
+                    addSppItemRow(sppItem.barang, sppItem.spesifikasi, sppItem.qty, sppItem.satuan, sppItem.ket);
+                    document.getElementById('spp-modal-title').innerText = 'Edit Permintaan Barang (SPP)';
+                }
+            } else {
+                addSppItemRow();
+            }
             document.getElementById('modal-spp').classList.remove('hidden');
         }
 
-        function openMasukModal() {
+        function addSppItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', ket='') {
+            const container = document.getElementById('spp-items-container');
+            const row = document.createElement('div');
+            row.className = "grid grid-cols-1 sm:grid-cols-5 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
+            row.innerHTML = `
+                <div><input type="text" placeholder="Nama Barang" class="spp-barang w-full p-1.5 border rounded" value="${barang}" required></div>
+                <div><input type="text" placeholder="Spesifikasi" class="spp-spesifikasi w-full p-1.5 border rounded" value="${spesifikasi}"></div>
+                <div><input type="number" min="1" placeholder="Qty" class="spp-qty w-full p-1.5 border rounded" value="${qty}" required></div>
+                <div><input type="text" placeholder="Satuan" class="spp-satuan w-full p-1.5 border rounded" value="${satuan}" required></div>
+                <div class="flex gap-1">
+                    <input type="text" placeholder="Ket" class="spp-ket w-full p-1.5 border rounded" value="${ket}">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function saveSpp(e) {
+            e.preventDefault();
+            const editId = document.getElementById('spp-edit-id').value;
+            const no = document.getElementById('spp-no').value;
+            const tgl = document.getElementById('spp-tgl').value;
+            const pengaju = document.getElementById('spp-pengaju').value;
+
+            const rows = document.querySelectorAll('#spp-items-container > div');
+            if(rows.length === 0) {
+                alert('Minimal tambahkan 1 item barang!');
+                return;
+            }
+
+            if(editId) {
+                // Edit existing single item representation
+                const r = rows[0];
+                const idx = appData.spp.findIndex(s => s.id === parseInt(editId));
+                if(idx !== -1) {
+                    appData.spp[idx].no = no;
+                    appData.spp[idx].tgl = tgl;
+                    appData.spp[idx].pengaju = pengaju;
+                    appData.spp[idx].barang = r.querySelector('.spp-barang').value;
+                    appData.spp[idx].spesifikasi = r.querySelector('.spp-spesifikasi').value;
+                    appData.spp[idx].qty = parseInt(r.querySelector('.spp-qty').value);
+                    appData.spp[idx].satuan = r.querySelector('.spp-satuan').value;
+                    appData.spp[idx].ket = r.querySelector('.spp-ket').value;
+                }
+            } else {
+                rows.forEach(r => {
+                    const newItem = {
+                        id: Date.now() + Math.random(),
+                        no, tgl, pengaju,
+                        barang: r.querySelector('.spp-barang').value,
+                        spesifikasi: r.querySelector('.spp-spesifikasi').value,
+                        qty: parseInt(r.querySelector('.spp-qty').value),
+                        satuan: r.querySelector('.spp-satuan').value,
+                        ket: r.querySelector('.spp-ket').value,
+                        realisasiList: []
+                    };
+                    appData.spp.push(newItem);
+                });
+            }
+
+            saveData();
+            closeModal('modal-spp');
+        }
+
+        // Realisasi Bertahap
+        function openRealisasiModal(sppId, realisasiIdx = null) {
+            document.getElementById('realisasi-spp-id').value = sppId;
+            document.getElementById('realisasi-index').value = realisasiIdx !== null ? realisasiIdx : '';
+            document.getElementById('realisasi-tgl').value = new Date().toISOString().split('T')[0];
+            document.getElementById('realisasi-qty').value = 1;
+
+            if(realisasiIdx !== null) {
+                const spp = appData.spp.find(s => s.id === sppId);
+                if(spp && spp.realisasiList && spp.realisasiList[realisasiIdx]) {
+                    const r = spp.realisasiList[realisasiIdx];
+                    document.getElementById('realisasi-tgl').value = r.tgl;
+                    document.getElementById('realisasi-qty').value = r.qty;
+                }
+            }
+            document.getElementById('modal-realisasi').classList.remove('hidden');
+        }
+
+        function saveRealisasi(e) {
+            e.preventDefault();
+            const sppId = parseInt(document.getElementById('realisasi-spp-id').value);
+            const rIdx = document.getElementById('realisasi-index').value;
+            const tgl = document.getElementById('realisasi-tgl').value;
+            const qty = parseInt(document.getElementById('realisasi-qty').value);
+
+            const spp = appData.spp.find(s => s.id === sppId);
+            if(spp) {
+                if(!spp.realisasiList) spp.realisasiList = [];
+                if(rIdx !== '') {
+                    spp.realisasiList[parseInt(rIdx)] = { tgl, qty };
+                } else {
+                    spp.realisasiList.push({ tgl, qty });
+                }
+                saveData();
+                closeModal('modal-realisasi');
+                if(document.getElementById('modal-list-realisasi').classList.contains('flex')) {
+                    openRealisasiListModal(sppId);
+                }
+            }
+        }
+
+        function openRealisasiListModal(sppId) {
+            const spp = appData.spp.find(s => s.id === sppId);
+            const tbody = document.getElementById('list-realisasi-body');
+            tbody.innerHTML = '';
+            if(!spp || !spp.realisasiList || spp.realisasiList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-slate-400 italic">Belum ada realisasi bertahap.</td></tr>`;
+            } else {
+                spp.realisasiList.forEach((r, idx) => {
+                    tbody.innerHTML += `
+                        <tr class="border-b">
+                            <td class="p-2">${r.tgl}</td>
+                            <td class="p-2 text-center font-medium text-emerald-600">${r.qty}</td>
+                            <td class="p-2 text-center space-x-1">
+                                <button onclick="openRealisasiModal(${spp.id}, ${idx})" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteRealisasi(${spp.id}, ${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('modal-list-realisasi').classList.remove('hidden');
+        }
+
+        function deleteRealisasi(sppId, rIdx) {
+            if(confirm('Hapus realisasi ini?')) {
+                const spp = appData.spp.find(s => s.id === sppId);
+                if(spp && spp.realisasiList) {
+                    spp.realisasiList.splice(rIdx, 1);
+                    saveData();
+                    openRealisasiListModal(sppId);
+                }
+            }
+        }
+
+        // Barang Masuk Dynamic Rows & Harsat
+        function openMasukModal(editId = null) {
             document.getElementById('form-masuk').reset();
             document.getElementById('masuk-edit-id').value = '';
             document.getElementById('masuk-tgl').value = new Date().toISOString().split('T')[0];
             document.getElementById('masuk-modal-title').innerText = 'Input Barang Masuk Proyek';
+            const container = document.getElementById('masuk-items-container');
+            container.innerHTML = '';
+
+            if(editId) {
+                const mItem = appData.masuk.find(m => m.id === editId);
+                if(mItem) {
+                    document.getElementById('masuk-edit-id').value = mItem.id;
+                    document.getElementById('masuk-tgl').value = mItem.tgl;
+                    document.getElementById('masuk-vendor').value = mItem.vendor;
+                    addMasukItemRow(mItem.barang, mItem.spesifikasi, mItem.qty, mItem.satuan, mItem.harsat || 0);
+                    document.getElementById('masuk-modal-title').innerText = 'Edit Barang Masuk Proyek';
+                }
+            } else {
+                addMasukItemRow();
+            }
             document.getElementById('modal-masuk').classList.remove('hidden');
         }
 
+        function addMasukItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', harsat=0) {
+            const container = document.getElementById('masuk-items-container');
+            const row = document.createElement('div');
+            row.className = "grid grid-cols-1 sm:grid-cols-5 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
+            row.innerHTML = `
+                <div><input type="text" placeholder="Nama Barang" class="masuk-barang w-full p-1.5 border rounded" value="${barang}" required></div>
+                <div><input type="text" placeholder="Spesifikasi" class="masuk-spesifikasi w-full p-1.5 border rounded" value="${spesifikasi}"></div>
+                <div><input type="number" min="1" placeholder="Qty" class="masuk-qty w-full p-1.5 border rounded" value="${qty}" oninput="calcMasukTotal(this)" required></div>
+                <div><input type="text" placeholder="Satuan" class="masuk-satuan w-full p-1.5 border rounded" value="${satuan}" required></div>
+                <div class="flex gap-1 items-center">
+                    <input type="number" min="0" placeholder="Harsat (Rp)" class="masuk-harsat w-full p-1.5 border rounded" value="${harsat}" oninput="calcMasukTotal(this)">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function calcMasukTotal(el) {
+            // Optional live calculation handler if needed
+        }
+
+        function saveMasuk(e) {
+            e.preventDefault();
+            const editId = document.getElementById('masuk-edit-id').value;
+            const tgl = document.getElementById('masuk-tgl').value;
+            const vendor = document.getElementById('masuk-vendor').value;
+
+            const rows = document.querySelectorAll('#masuk-items-container > div');
+            if(rows.length === 0) {
+                alert('Minimal tambahkan 1 item barang masuk!');
+                return;
+            }
+
+            if(editId) {
+                const r = rows[0];
+                const idx = appData.masuk.findIndex(m => m.id === parseInt(editId));
+                if(idx !== -1) {
+                    const qty = parseInt(r.querySelector('.masuk-qty').value);
+                    const harsat = parseInt(r.querySelector('.masuk-harsat').value) || 0;
+                    appData.masuk[idx].tgl = tgl;
+                    appData.masuk[idx].vendor = vendor;
+                    appData.masuk[idx].barang = r.querySelector('.masuk-barang').value;
+                    appData.masuk[idx].spesifikasi = r.querySelector('.masuk-spesifikasi').value;
+                    appData.masuk[idx].qty = qty;
+                    appData.masuk[idx].satuan = r.querySelector('.masuk-satuan').value;
+                    appData.masuk[idx].harsat = harsat;
+                    appData.masuk[idx].harga = qty * harsat;
+                }
+            } else {
+                rows.forEach(r => {
+                    const qty = parseInt(r.querySelector('.masuk-qty').value);
+                    const harsat = parseInt(r.querySelector('.masuk-harsat').value) || 0;
+                    const newItem = {
+                        id: Date.now() + Math.random(),
+                        tgl, vendor,
+                        barang: r.querySelector('.masuk-barang').value,
+                        spesifikasi: r.querySelector('.masuk-spesifikasi').value,
+                        qty,
+                        satuan: r.querySelector('.masuk-satuan').value,
+                        harsat,
+                        harga: qty * harsat
+                    };
+                    appData.masuk.push(newItem);
+                });
+            }
+
+            saveData();
+            closeModal('modal-masuk');
+        }
+
+        // Stok Keluar
         function openKeluarModal() {
             document.getElementById('form-keluar').reset();
             document.getElementById('keluar-tgl').value = new Date().toISOString().split('T')[0];
             
             const select = document.getElementById('keluar-barang-select');
             select.innerHTML = '<option value="">-- Pilih Barang --</option>';
-            
             const uniqueBarang = [...new Set(appData.masuk.map(i => i.barang))];
             uniqueBarang.forEach(b => {
                 let opt = document.createElement('option');
@@ -642,88 +872,7 @@
         function autofillKeluar() {
             const barangName = document.getElementById('keluar-barang-select').value;
             const item = appData.masuk.find(i => i.barang === barangName);
-            if(item) {
-                document.getElementById('keluar-satuan').value = item.satuan || 'Pcs';
-            } else {
-                document.getElementById('keluar-satuan').value = 'Pcs';
-            }
-        }
-
-        function openRealisasiModal(sppId) {
-            document.getElementById('realisasi-spp-id').value = sppId;
-            document.getElementById('realisasi-tgl').value = new Date().toISOString().split('T')[0];
-            document.getElementById('realisasi-qty').value = 1;
-            document.getElementById('modal-realisasi').classList.remove('hidden');
-        }
-
-        function saveSpp(e) {
-            e.preventDefault();
-            const idVal = document.getElementById('spp-edit-id').value;
-            const newSpp = {
-                id: idVal ? parseInt(idVal) : Date.now(),
-                no: document.getElementById('spp-no').value,
-                tgl: document.getElementById('spp-tgl').value,
-                pengaju: document.getElementById('spp-pengaju').value,
-                barang: document.getElementById('spp-barang').value,
-                spesifikasi: document.getElementById('spp-spesifikasi').value,
-                qty: parseInt(document.getElementById('spp-qty').value),
-                satuan: document.getElementById('spp-satuan').value,
-                ket: document.getElementById('spp-ket').value,
-                realisasiList: []
-            };
-
-            if(idVal) {
-                const idx = appData.spp.findIndex(s => s.id === parseInt(idVal));
-                if(idx !== -1) {
-                    newSpp.realisasiList = appData.spp[idx].realisasiList || [];
-                    appData.spp[idx] = newSpp;
-                }
-            } else {
-                appData.spp.push(newSpp);
-            }
-
-            saveData();
-            closeModal('modal-spp');
-        }
-
-        function saveRealisasi(e) {
-            e.preventDefault();
-            const sppId = parseInt(document.getElementById('realisasi-spp-id').value);
-            const tgl = document.getElementById('realisasi-tgl').value;
-            const qty = parseInt(document.getElementById('realisasi-qty').value);
-
-            const spp = appData.spp.find(s => s.id === sppId);
-            if(spp) {
-                if(!spp.realisasiList) spp.realisasiList = [];
-                spp.realisasiList.push({ tgl, qty });
-                saveData();
-                closeModal('modal-realisasi');
-            }
-        }
-
-        function saveMasuk(e) {
-            e.preventDefault();
-            const idVal = document.getElementById('masuk-edit-id').value;
-            const newMasuk = {
-                id: idVal ? parseInt(idVal) : Date.now(),
-                tgl: document.getElementById('masuk-tgl').value,
-                vendor: document.getElementById('masuk-vendor').value,
-                barang: document.getElementById('masuk-barang').value,
-                spesifikasi: document.getElementById('masuk-spesifikasi').value,
-                qty: parseInt(document.getElementById('masuk-qty').value),
-                satuan: document.getElementById('masuk-satuan').value,
-                harga: parseInt(document.getElementById('masuk-harga').value)
-            };
-
-            if(idVal) {
-                const idx = appData.masuk.findIndex(m => m.id === parseInt(idVal));
-                if(idx !== -1) appData.masuk[idx] = newMasuk;
-            } else {
-                appData.masuk.push(newMasuk);
-            }
-
-            saveData();
-            closeModal('modal-masuk');
+            if(item) document.getElementById('keluar-satuan').value = item.satuan || 'Pcs';
         }
 
         function saveKeluar(e) {
@@ -731,7 +880,6 @@
             const barangName = document.getElementById('keluar-barang-select').value;
             const qtyOut = parseInt(document.getElementById('keluar-qty').value);
 
-            // Validasi stok cukup
             let totalMasuk = appData.masuk.filter(i => i.barang === barangName).reduce((a, b) => a + b.qty, 0);
             let totalKeluar = appData.keluar.filter(i => i.barang === barangName).reduce((a, b) => a + b.qty, 0);
             let saldo = totalMasuk - totalKeluar;
@@ -783,7 +931,6 @@
             if(spp.realisasiList && spp.realisasiList.length > 0) {
                 return spp.realisasiList.reduce((acc, r) => acc + r.qty, 0);
             }
-            // Auto match dari barang masuk jika tidak ada manual realisasi
             return appData.masuk
                 .filter(m => m.barang.toLowerCase() === spp.barang.toLowerCase())
                 .reduce((acc, m) => acc + m.qty, 0);
@@ -824,7 +971,6 @@
             document.getElementById('dash-total-jenis').innerText = uniqueJenis.length + " Jenis";
             document.getElementById('dash-saldo-total').innerText = "Saldo: " + totalSaldo + " Qty →";
 
-            // Render Dashboard Table (Ringkasan Kekurangan)
             const tbody = document.getElementById('dash-table-body');
             tbody.innerHTML = '';
             if(appData.spp.length === 0) {
@@ -890,12 +1036,13 @@
                     <td class="p-3 text-slate-500">${s.spesifikasi || '-'}</td>
                     <td class="p-3 text-center font-medium">${s.qty}</td>
                     <td class="p-3 text-slate-600">${s.satuan}</td>
-                    <td class="p-3 text-slate-600">${tglReal}</td>
+                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal(${s.id})" title="Klik untuk kelola realisasi bertahap">${tglReal} <i class="fa-solid fa-list text-[10px] text-blue-500"></i></td>
                     <td class="p-3 text-center text-emerald-600 font-medium">${realized}</td>
                     <td class="p-3 text-center text-amber-600 font-medium">${sisa}</td>
                     <td class="p-3 text-slate-600">${s.ket || '-'}</td>
-                    <td class="p-3 text-center flex items-center justify-center gap-2">
+                    <td class="p-3 text-center flex items-center justify-center gap-1">
                         <button onclick="openRealisasiModal(${s.id})" title="Tambah Realisasi" class="text-emerald-600 hover:text-emerald-800 p-1"><i class="fa-solid fa-plus-circle"></i></button>
+                        <button onclick="openSppModal(${s.id})" title="Edit SPP" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
                         <button onclick="deleteSpp(${s.id})" title="Hapus SPP" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 `;
@@ -959,6 +1106,7 @@
                     <th class="p-3">Spesifikasi</th>
                     <th class="p-3 text-center">Qty Masuk</th>
                     <th class="p-3">Satuan</th>
+                    <th class="p-3 text-center">Harsat (Rp)</th>
                     <th class="p-3 text-center">Total Harga (Rp)</th>
                     <th class="p-3 text-center">Aksi</th>
                 `;
@@ -969,7 +1117,7 @@
                 );
 
                 if(filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400 italic">Tidak ada data barang masuk.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400 italic">Tidak ada data barang masuk.</td></tr>`;
                     return;
                 }
 
@@ -983,8 +1131,10 @@
                         <td class="p-3 text-slate-500">${m.spesifikasi || '-'}</td>
                         <td class="p-3 text-center font-medium text-emerald-600">${m.qty}</td>
                         <td class="p-3 text-slate-600">${m.satuan}</td>
-                        <td class="p-3 text-center">Rp ${m.harga.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-center">
+                        <td class="p-3 text-center">Rp ${(m.harsat || 0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center font-bold">Rp ${(m.harga || 0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center flex items-center justify-center gap-1">
+                            <button onclick="openMasukModal(${m.id})" title="Edit" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteMasuk(${m.id})" title="Hapus" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     `;
@@ -1001,7 +1151,6 @@
             tbodyStok.innerHTML = '';
             tbodyKeluar.innerHTML = '';
 
-            // Kartu Stok
             const uniqueMap = {};
             appData.masuk.forEach(m => {
                 if(!uniqueMap[m.barang]) {
@@ -1046,7 +1195,6 @@
                 });
             }
 
-            // Riwayat Keluar
             const filteredKeluar = appData.keluar.filter(k => 
                 k.barang.toLowerCase().includes(keyword) || 
                 k.pengambil.toLowerCase().includes(keyword)
@@ -1102,7 +1250,7 @@
                 title.innerText = "Rincian Total Barang Masuk";
                 head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px]"><th class="p-3">Tanggal</th><th class="p-3">Vendor</th><th class="p-3">Barang</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Harga</th></tr>`;
                 appData.masuk.forEach(m => {
-                    body.innerHTML += `<tr class="border-b"><td class="p-3">${m.tgl}</td><td class="p-3">${m.vendor}</td><td class="p-3">${m.barang}</td><td class="p-3 text-center">${m.qty} ${m.satuan}</td><td class="p-3 text-center">Rp ${m.harga.toLocaleString('id-ID')}</td></tr>`;
+                    body.innerHTML += `<tr class="border-b"><td class="p-3">${m.tgl}</td><td class="p-3">${m.vendor}</td><td class="p-3">${m.barang}</td><td class="p-3 text-center">${m.qty} ${m.satuan}</td><td class="p-3 text-center">Rp ${(m.harga || 0).toLocaleString('id-ID')}</td></tr>`;
                 });
             } else if(type === 'stok') {
                 title.innerText = "Rincian Item di Gudang";
@@ -1124,7 +1272,6 @@
         }
 
         function updateCharts() {
-            // Bar Chart
             const ctxBar = document.getElementById('barChart').getContext('2d');
             if(barChartInstance) barChartInstance.destroy();
 
@@ -1144,7 +1291,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
 
-            // Pie Chart
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChartInstance) pieChartInstance.destroy();
 
@@ -1166,6 +1312,60 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
+        }
+
+        // Export to Excel (.xlsx) using SheetJS
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            // Sheet SPP
+            const sppWsData = appData.spp.map((s, idx) => ({
+                No: idx + 1,
+                "No SPP": s.no,
+                "Tanggal SPP": s.tgl,
+                "Pengaju": s.pengaju,
+                "Nama Barang": s.barang,
+                "Spesifikasi": s.spesifikasi,
+                "Qty": s.qty,
+                "Satuan": s.satuan,
+                "Total Realisasi": calculateRealized(s),
+                "Sisa Kekurangan": Math.max(0, s.qty - calculateRealized(s)),
+                "Keterangan": s.ket
+            }));
+            const wsSpp = XLSX.utils.json_to_sheet(sppWsData);
+            XLSX.utils.book_append_sheet(wb, wsSpp, "Data SPP");
+
+            // Sheet Barang Masuk
+            const masukWsData = appData.masuk.map((m, idx) => ({
+                No: idx + 1,
+                "Tanggal Masuk": m.tgl,
+                "Vendor": m.vendor,
+                "Nama Barang": m.barang,
+                "Spesifikasi": m.spesifikasi,
+                "Qty": m.qty,
+                "Satuan": m.satuan,
+                "Harga Satuan": m.harsat || 0,
+                "Total Harga": m.harga || 0
+            }));
+            const wsMasuk = XLSX.utils.json_to_sheet(masukWsData);
+            XLSX.utils.book_append_sheet(wb, wsMasuk, "Barang Masuk");
+
+            // Sheet Pengeluaran / Keluar
+            const keluarWsData = appData.keluar.map((k, idx) => ({
+                No: idx + 1,
+                "Tanggal Out": k.tgl,
+                "Pengambil": k.pengambil,
+                "Nama Barang": k.barang,
+                "Spesifikasi": k.spesifikasi,
+                "Qty Keluar": k.qty,
+                "Satuan": k.satuan,
+                "Petugas": k.petugas,
+                "Keterangan": k.ket
+            }));
+            const wsKeluar = XLSX.utils.json_to_sheet(keluarWsData);
+            XLSX.utils.book_append_sheet(wb, wsKeluar, "Stok Keluar");
+
+            XLSX.writeFile(wb, "LogistikPro_Report.xlsx");
         }
 
         function exportDataJSON() {
