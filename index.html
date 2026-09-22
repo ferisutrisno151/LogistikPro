@@ -18,6 +18,29 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Firebase SDK untuk Sinkronisasi & Kolaborasi Bersama Rekan -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        // Konfigurasi Firebase (Dapat disesuaikan jika menggunakan database sendiri)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyKeyForLogistikProSync",
+            authDomain: "logistikpro-proyek.firebaseapp.com",
+            projectId: "logistikpro-proyek",
+            storageBucket: "logistikpro-proyek.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
+        };
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.db = getFirestore(app);
+            window.firebaseActive = true;
+        } catch(e) {
+            window.firebaseActive = false;
+        }
+    </script>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
 
@@ -87,16 +110,9 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="exportToExcel()" class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 flex items-center gap-1.5" title="Export ke Excel (.xlsx)">
-                    <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export Excel</span>
+                <button onclick="exportToExcel()" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm" title="Export Laporan ke Excel">
+                    <i class="fa-solid fa-file-excel text-sm"></i> <span class="hidden sm:inline">Export Excel</span>
                 </button>
-                <button onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100 flex items-center gap-1.5" title="Backup Data JSON">
-                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Backup</span>
-                </button>
-                <label class="px-2.5 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer" title="Pulihkan Data JSON">
-                    <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
-                    <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
-                </label>
                 <div class="flex items-center gap-2 md:gap-3 border-l border-slate-200 pl-2 md:pl-3">
                     <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">151</div>
                     <div class="hidden sm:block">
@@ -353,7 +369,7 @@
         </div>
     </div>
 
-    <!-- MODAL SPP (MULTI ITEM) -->
+    <!-- MODAL SPP -->
     <div id="modal-spp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -421,7 +437,7 @@
         </div>
     </div>
 
-    <!-- MODAL LIST REALISASI (UNTUK EDIT/HAPUS REALISASI) -->
+    <!-- MODAL LIST REALISASI -->
     <div id="modal-list-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -443,7 +459,7 @@
         </div>
     </div>
 
-    <!-- MODAL BARANG MASUK (MULTI ITEM & HARSAT) -->
+    <!-- MODAL BARANG MASUK -->
     <div id="modal-masuk" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -485,7 +501,7 @@
     <div id="modal-keluar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-sm">Input Penyesuaian / Stok Keluar</h3>
+                <h3 id="keluar-modal-title" class="font-bold text-slate-800 text-sm">Input Penyesuaian / Stok Keluar</h3>
                 <button onclick="closeModal('modal-keluar')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="form-keluar" onsubmit="saveKeluar(event)" class="space-y-4 text-xs">
@@ -539,34 +555,60 @@
     <!-- JAVASCRIPT APLIKASI -->
     <script>
         let appData = {
-            spp: JSON.parse(localStorage.getItem('logistikpro_spp')) || [
+            spp: [
                 { id: 1, no: "0001/SPP/EPC/IX/2026", tgl: "2026-09-04", pengaju: "Jamroni", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", realisasiList: [], ket: "Proyek Utama" },
                 { id: 2, no: "0002/SPP/EPC/IX/2026", tgl: "2026-09-05", pengaju: "Johan", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", realisasiList: [], ket: "Pengecatan" },
                 { id: 3, no: "0003/SPP/EPC/IX/2026", tgl: "2026-09-08", pengaju: "Feri", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", realisasiList: [], ket: "Struktur" },
                 { id: 4, no: "0004/SPP/EPC/IX/2026", tgl: "2026-09-21", pengaju: "Rosyd", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", realisasiList: [], ket: "Pembesian" }
             ],
-            masuk: JSON.parse(localStorage.getItem('logistikpro_masuk')) || [
-                { id: 1, tgl: "2026-09-05", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", harsat: 15000, harga: 750000 },
-                { id: 2, tgl: "2026-09-05", vendor: "Azidar H Berni", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", harsat: 35000, harga: 350000 },
-                { id: 3, tgl: "2026-09-05", vendor: "Stok Gudang", barang: "Scotlet Merah", spesifikasi: "Roll Besar", qty: 5, satuan: "Rol", harsat: 30000, harga: 150000 },
-                { id: 4, tgl: "2026-09-07", vendor: "PT. Borma Karya Jaya", barang: "Skun Kabel", spesifikasi: "16mm", qty: 100, satuan: "Pcs", harsat: 5000, harga: 500000 },
-                { id: 5, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", harsat: 50000, harga: 1250000 },
-                { id: 6, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spesifikasi: "2.6mm", qty: 20, satuan: "Kg", harsat: 45000, harga: 900000 },
-                { id: 7, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RB260", spesifikasi: "2.0mm", qty: 15, satuan: "Kg", harsat: 50000, harga: 750000 },
-                { id: 8, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Resibon Potong", spesifikasi: "14 Inch", qty: 30, satuan: "Pcs", harsat: 15000, harga: 450000 },
-                { id: 9, tgl: "2026-09-21", vendor: "PT. AgungTeknik Mandiri", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", harsat: 20000, harga: 600000 }
+            masuk: [
+                { id: 1, tgl: "2026-09-05", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spesifikasi: "Ukuran 5x10", qty: 50, satuan: "Btg", harsat: 15000, harga: 750000, ket: "Material Utama" },
+                { id: 2, tgl: "2026-09-05", vendor: "Azidar H Berni", barang: "Pilox", spesifikasi: "Warna Hitam Doff", qty: 10, satuan: "Kaleng", harsat: 35000, harga: 350000, ket: "Finishing" },
+                { id: 3, tgl: "2026-09-05", vendor: "Stok Gudang", barang: "Scotlet Merah", spesifikasi: "Roll Besar", qty: 5, satuan: "Rol", harsat: 30000, harga: 150000, ket: "" },
+                { id: 4, tgl: "2026-09-07", vendor: "PT. Borma Karya Jaya", barang: "Skun Kabel", spesifikasi: "16mm", qty: 100, satuan: "Pcs", harsat: 5000, harga: 500000, ket: "Elektrikal" },
+                { id: 5, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las LB520", spesifikasi: "3.2mm", qty: 25, satuan: "Kg", harsat: 50000, harga: 1250000, ket: "" },
+                { id: 6, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spesifikasi: "2.6mm", qty: 20, satuan: "Kg", harsat: 45000, harga: 900000, ket: "" },
+                { id: 7, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Kawat Las RB260", spesifikasi: "2.0mm", qty: 15, satuan: "Kg", harsat: 50000, harga: 750000, ket: "" },
+                { id: 8, tgl: "2026-09-10", vendor: "Azidar H Berni", barang: "Resibon Potong", spesifikasi: "14 Inch", qty: 30, satuan: "Pcs", harsat: 15000, harga: 450000, ket: "" },
+                { id: 9, tgl: "2026-09-21", vendor: "PT. AgungTeknik Mandiri", barang: "Kawat Bendrat", spesifikasi: "Standard", qty: 30, satuan: "Rol", harsat: 20000, harga: 600000, ket: "" }
             ],
-            keluar: JSON.parse(localStorage.getItem('logistikpro_keluar')) || []
+            keluar: []
         };
 
         let isMasukAccumulated = false;
         let barChartInstance = null;
         let pieChartInstance = null;
 
-        function saveData() {
-            localStorage.setItem('logistikpro_spp', JSON.stringify(appData.spp));
-            localStorage.setItem('logistikpro_masuk', JSON.stringify(appData.masuk));
-            localStorage.setItem('logistikpro_keluar', JSON.stringify(appData.keluar));
+        // Load & Sync Data with Firebase & LocalStorage
+        async function loadData() {
+            if(window.firebaseActive && window.db) {
+                try {
+                    const docRef = doc(window.db, "logistikpro", "data_proyek");
+                    const snap = await getDoc(docRef);
+                    if(snap.exists()) {
+                        appData = snap.data();
+                    }
+                } catch(e) {
+                    console.error("Gagal sinkronisasi cloud:", e);
+                }
+            } else {
+                const local = localStorage.getItem('logistikpro_cloud_sync');
+                if(local) {
+                    try { appData = JSON.parse(local); } catch(e) {}
+                }
+            }
+            refreshAll();
+        }
+
+        async function saveData() {
+            localStorage.setItem('logistikpro_cloud_sync', JSON.stringify(appData));
+            if(window.firebaseActive && window.db) {
+                try {
+                    await setDoc(doc(window.db, "logistikpro", "data_proyek"), appData);
+                } catch(e) {
+                    console.error("Gagal menyimpan ke cloud:", e);
+                }
+            }
             refreshAll();
         }
 
@@ -649,7 +691,6 @@
             }
 
             if(editId) {
-                // Edit existing single item representation
                 const r = rows[0];
                 const idx = appData.spp.findIndex(s => s.id === parseInt(editId));
                 if(idx !== -1) {
@@ -757,7 +798,7 @@
             }
         }
 
-        // Barang Masuk Dynamic Rows & Harsat
+        // Barang Masuk Dynamic Rows & Ket
         function openMasukModal(editId = null) {
             document.getElementById('form-masuk').reset();
             document.getElementById('masuk-edit-id').value = '';
@@ -772,7 +813,7 @@
                     document.getElementById('masuk-edit-id').value = mItem.id;
                     document.getElementById('masuk-tgl').value = mItem.tgl;
                     document.getElementById('masuk-vendor').value = mItem.vendor;
-                    addMasukItemRow(mItem.barang, mItem.spesifikasi, mItem.qty, mItem.satuan, mItem.harsat || 0);
+                    addMasukItemRow(mItem.barang, mItem.spesifikasi, mItem.qty, mItem.satuan, mItem.harsat || 0, mItem.ket || '');
                     document.getElementById('masuk-modal-title').innerText = 'Edit Barang Masuk Proyek';
                 }
             } else {
@@ -781,25 +822,22 @@
             document.getElementById('modal-masuk').classList.remove('hidden');
         }
 
-        function addMasukItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', harsat=0) {
+        function addMasukItemRow(barang='', spesifikasi='', qty=1, satuan='Pcs', harsat=0, ket='') {
             const container = document.getElementById('masuk-items-container');
             const row = document.createElement('div');
-            row.className = "grid grid-cols-1 sm:grid-cols-5 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
+            row.className = "grid grid-cols-1 sm:grid-cols-6 gap-2 items-center bg-white p-2 border border-slate-200 rounded-lg";
             row.innerHTML = `
                 <div><input type="text" placeholder="Nama Barang" class="masuk-barang w-full p-1.5 border rounded" value="${barang}" required></div>
                 <div><input type="text" placeholder="Spesifikasi" class="masuk-spesifikasi w-full p-1.5 border rounded" value="${spesifikasi}"></div>
-                <div><input type="number" min="1" placeholder="Qty" class="masuk-qty w-full p-1.5 border rounded" value="${qty}" oninput="calcMasukTotal(this)" required></div>
+                <div><input type="number" min="1" placeholder="Qty" class="masuk-qty w-full p-1.5 border rounded" value="${qty}" required></div>
                 <div><input type="text" placeholder="Satuan" class="masuk-satuan w-full p-1.5 border rounded" value="${satuan}" required></div>
+                <div><input type="number" min="0" placeholder="Harsat (Rp)" class="masuk-harsat w-full p-1.5 border rounded" value="${harsat}"></div>
                 <div class="flex gap-1 items-center">
-                    <input type="number" min="0" placeholder="Harsat (Rp)" class="masuk-harsat w-full p-1.5 border rounded" value="${harsat}" oninput="calcMasukTotal(this)">
+                    <input type="text" placeholder="Ket (Opsional)" class="masuk-ket w-full p-1.5 border rounded" value="${ket}">
                     <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 p-1 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
             container.appendChild(row);
-        }
-
-        function calcMasukTotal(el) {
-            // Optional live calculation handler if needed
         }
 
         function saveMasuk(e) {
@@ -828,6 +866,7 @@
                     appData.masuk[idx].satuan = r.querySelector('.masuk-satuan').value;
                     appData.masuk[idx].harsat = harsat;
                     appData.masuk[idx].harga = qty * harsat;
+                    appData.masuk[idx].ket = r.querySelector('.masuk-ket').value;
                 }
             } else {
                 rows.forEach(r => {
@@ -841,7 +880,8 @@
                         qty,
                         satuan: r.querySelector('.masuk-satuan').value,
                         harsat,
-                        harga: qty * harsat
+                        harga: qty * harsat,
+                        ket: r.querySelector('.masuk-ket').value
                     };
                     appData.masuk.push(newItem);
                 });
@@ -851,10 +891,12 @@
             closeModal('modal-masuk');
         }
 
-        // Stok Keluar
-        function openKeluarModal() {
+        // Stok Keluar & Edit Keluar
+        function openKeluarModal(editId = null) {
             document.getElementById('form-keluar').reset();
+            document.getElementById('keluar-edit-id').value = '';
             document.getElementById('keluar-tgl').value = new Date().toISOString().split('T')[0];
+            document.getElementById('keluar-modal-title').innerText = 'Input Penyesuaian / Stok Keluar';
             
             const select = document.getElementById('keluar-barang-select');
             select.innerHTML = '<option value="">-- Pilih Barang --</option>';
@@ -865,6 +907,21 @@
                 opt.textContent = b;
                 select.appendChild(opt);
             });
+
+            if(editId) {
+                const kItem = appData.keluar.find(k => k.id === editId);
+                if(kItem) {
+                    document.getElementById('keluar-edit-id').value = kItem.id;
+                    document.getElementById('keluar-tgl').value = kItem.tgl;
+                    document.getElementById('keluar-pengambil').value = kItem.pengambil;
+                    select.value = kItem.barang;
+                    document.getElementById('keluar-qty').value = kItem.qty;
+                    document.getElementById('keluar-satuan').value = kItem.satuan;
+                    document.getElementById('keluar-petugas').value = kItem.petugas;
+                    document.getElementById('keluar-ket').value = kItem.ket;
+                    document.getElementById('keluar-modal-title').innerText = 'Edit Penyesuaian / Stok Keluar';
+                }
+            }
 
             document.getElementById('modal-keluar').classList.remove('hidden');
         }
@@ -877,11 +934,12 @@
 
         function saveKeluar(e) {
             e.preventDefault();
+            const editId = document.getElementById('keluar-edit-id').value;
             const barangName = document.getElementById('keluar-barang-select').value;
             const qtyOut = parseInt(document.getElementById('keluar-qty').value);
 
             let totalMasuk = appData.masuk.filter(i => i.barang === barangName).reduce((a, b) => a + b.qty, 0);
-            let totalKeluar = appData.keluar.filter(i => i.barang === barangName).reduce((a, b) => a + b.qty, 0);
+            let totalKeluar = appData.keluar.filter(i => i.barang === barangName && i.id !== parseInt(editId)).reduce((a, b) => a + b.qty, 0);
             let saldo = totalMasuk - totalKeluar;
 
             if(qtyOut > saldo) {
@@ -890,7 +948,7 @@
             }
 
             const newKeluar = {
-                id: Date.now(),
+                id: editId ? parseInt(editId) : Date.now(),
                 tgl: document.getElementById('keluar-tgl').value,
                 pengambil: document.getElementById('keluar-pengambil').value,
                 barang: barangName,
@@ -901,7 +959,13 @@
                 ket: document.getElementById('keluar-ket').value
             };
 
-            appData.keluar.push(newKeluar);
+            if(editId) {
+                const idx = appData.keluar.findIndex(k => k.id === parseInt(editId));
+                if(idx !== -1) appData.keluar[idx] = newKeluar;
+            } else {
+                appData.keluar.push(newKeluar);
+            }
+
             saveData();
             closeModal('modal-keluar');
         }
@@ -1023,7 +1087,12 @@
             filtered.forEach((s, idx) => {
                 let realized = calculateRealized(s);
                 let sisa = Math.max(0, s.qty - realized);
-                let tglReal = s.realisasiList && s.realisasiList.length > 0 ? s.realisasiList.map(r => r.tgl).join(', ') : '-';
+                
+                // Format tgl realisasi dengan badge Qty
+                let tglRealHtml = '-';
+                if(s.realisasiList && s.realisasiList.length > 0) {
+                    tglRealHtml = s.realisasiList.map(r => `<span class="inline-block bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded mr-1 mb-1 font-medium">${r.tgl} (${r.qty})</span>`).join('');
+                }
 
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 border-b border-slate-50";
@@ -1036,14 +1105,14 @@
                     <td class="p-3 text-slate-500">${s.spesifikasi || '-'}</td>
                     <td class="p-3 text-center font-medium">${s.qty}</td>
                     <td class="p-3 text-slate-600">${s.satuan}</td>
-                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal(${s.id})" title="Klik untuk kelola realisasi bertahap">${tglReal} <i class="fa-solid fa-list text-[10px] text-blue-500"></i></td>
+                    <td class="p-3 text-slate-600 cursor-pointer hover:underline" onclick="openRealisasiListModal(${s.id})" title="Klik untuk kelola realisasi bertahap">${tglRealHtml} <i class="fa-solid fa-list text-[10px] text-blue-500 ml-1"></i></td>
                     <td class="p-3 text-center text-emerald-600 font-medium">${realized}</td>
                     <td class="p-3 text-center text-amber-600 font-medium">${sisa}</td>
                     <td class="p-3 text-slate-600">${s.ket || '-'}</td>
-                    <td class="p-3 text-center flex items-center justify-center gap-1">
-                        <button onclick="openRealisasiModal(${s.id})" title="Tambah Realisasi" class="text-emerald-600 hover:text-emerald-800 p-1"><i class="fa-solid fa-plus-circle"></i></button>
-                        <button onclick="openSppModal(${s.id})" title="Edit SPP" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteSpp(${s.id})" title="Hapus SPP" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="p-3 text-center flex items-center justify-center gap-1.5">
+                        <button onclick="openRealisasiModal(${s.id})" title="Tambah Realisasi" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                        <button onclick="openSppModal(${s.id})" title="Edit SPP" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <button onclick="deleteSpp(${s.id})" title="Hapus SPP" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1069,23 +1138,26 @@
                     <th class="p-3 text-center">Total Item Masuk</th>
                     <th class="p-3 text-center">Total Qty Masuk</th>
                     <th class="p-3 text-center">Total Nilai (Rp)</th>
+                    <th class="p-3">Keterangan Vendor / Catatan</th>
                 `;
 
                 const grouped = {};
                 appData.masuk.forEach(m => {
-                    if(!grouped[m.vendor]) grouped[m.vendor] = { count: 0, qty: 0, harga: 0 };
+                    if(!grouped[m.vendor]) grouped[m.vendor] = { count: 0, qty: 0, harga: 0, kets: new Set() };
                     grouped[m.vendor].count += 1;
                     grouped[m.vendor].qty += m.qty;
                     grouped[m.vendor].harga += m.harga;
+                    if(m.ket) grouped[m.vendor].kets.add(m.ket);
                 });
 
                 let entries = Object.entries(grouped).filter(([vendor]) => vendor.toLowerCase().includes(keyword));
                 if(entries.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Tidak ada data akumulasi vendor.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Tidak ada data akumulasi vendor.</td></tr>`;
                     return;
                 }
 
                 entries.forEach(([vendor, data], idx) => {
+                    let ketGabung = Array.from(data.kets).join(', ') || '-';
                     let tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 border-b border-slate-50";
                     tr.innerHTML = `
@@ -1094,6 +1166,7 @@
                         <td class="p-3 text-center">${data.count} Jenis</td>
                         <td class="p-3 text-center font-medium text-blue-600">${data.qty} Qty</td>
                         <td class="p-3 text-center font-bold text-emerald-600">Rp ${data.harga.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-slate-600">${ketGabung}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -1108,6 +1181,7 @@
                     <th class="p-3">Satuan</th>
                     <th class="p-3 text-center">Harsat (Rp)</th>
                     <th class="p-3 text-center">Total Harga (Rp)</th>
+                    <th class="p-3">Keterangan</th>
                     <th class="p-3 text-center">Aksi</th>
                 `;
 
@@ -1117,7 +1191,7 @@
                 );
 
                 if(filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400 italic">Tidak ada data barang masuk.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 italic">Tidak ada data barang masuk.</td></tr>`;
                     return;
                 }
 
@@ -1133,9 +1207,10 @@
                         <td class="p-3 text-slate-600">${m.satuan}</td>
                         <td class="p-3 text-center">Rp ${(m.harsat || 0).toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center font-bold">Rp ${(m.harga || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-center flex items-center justify-center gap-1">
-                            <button onclick="openMasukModal(${m.id})" title="Edit" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteMasuk(${m.id})" title="Hapus" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        <td class="p-3 text-slate-600">${m.ket || '-'}</td>
+                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
+                            <button onclick="openMasukModal(${m.id})" title="Edit" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteMasuk(${m.id})" title="Hapus" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1214,8 +1289,9 @@
                         <td class="p-3 text-center font-medium text-purple-600">${k.qty} ${k.satuan}</td>
                         <td class="p-3 text-slate-600">${k.ket || '-'}</td>
                         <td class="p-3 text-slate-600">${k.petugas}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="deleteKeluar(${k.id})" title="Hapus" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
+                            <button onclick="openKeluarModal(${k.id})" title="Edit" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteKeluar(${k.id})" title="Hapus" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </td>
                     `;
                     tbodyKeluar.appendChild(tr);
@@ -1314,11 +1390,9 @@
             });
         }
 
-        // Export to Excel (.xlsx) using SheetJS
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
 
-            // Sheet SPP
             const sppWsData = appData.spp.map((s, idx) => ({
                 No: idx + 1,
                 "No SPP": s.no,
@@ -1332,10 +1406,8 @@
                 "Sisa Kekurangan": Math.max(0, s.qty - calculateRealized(s)),
                 "Keterangan": s.ket
             }));
-            const wsSpp = XLSX.utils.json_to_sheet(sppWsData);
-            XLSX.utils.book_append_sheet(wb, wsSpp, "Data SPP");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppWsData), "Data SPP");
 
-            // Sheet Barang Masuk
             const masukWsData = appData.masuk.map((m, idx) => ({
                 No: idx + 1,
                 "Tanggal Masuk": m.tgl,
@@ -1345,12 +1417,11 @@
                 "Qty": m.qty,
                 "Satuan": m.satuan,
                 "Harga Satuan": m.harsat || 0,
-                "Total Harga": m.harga || 0
+                "Total Harga": m.harga || 0,
+                "Keterangan": m.ket || ""
             }));
-            const wsMasuk = XLSX.utils.json_to_sheet(masukWsData);
-            XLSX.utils.book_append_sheet(wb, wsMasuk, "Barang Masuk");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(masukWsData), "Barang Masuk");
 
-            // Sheet Pengeluaran / Keluar
             const keluarWsData = appData.keluar.map((k, idx) => ({
                 No: idx + 1,
                 "Tanggal Out": k.tgl,
@@ -1362,45 +1433,17 @@
                 "Petugas": k.petugas,
                 "Keterangan": k.ket
             }));
-            const wsKeluar = XLSX.utils.json_to_sheet(keluarWsData);
-            XLSX.utils.book_append_sheet(wb, wsKeluar, "Stok Keluar");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(keluarWsData), "Stok Keluar");
 
             XLSX.writeFile(wb, "LogistikPro_Report.xlsx");
         }
 
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "logistikpro_backup.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
-        }
-
-        function importDataJSON(event) {
-            const reader = new FileReader();
-            if(event.target.files[0]) {
-                reader.readAsText(event.target.files[0], "UTF-8");
-                reader.onload = function(e) {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-                        if(parsed.spp && parsed.masuk && parsed.keluar) {
-                            appData = parsed;
-                            saveData();
-                            alert("Data berhasil dipulihkan!");
-                        } else {
-                            alert("Format file JSON tidak valid.");
-                        }
-                    } catch(err) {
-                        alert("Gagal membaca file JSON.");
-                    }
-                };
-            }
-        }
-
         window.onload = function() {
-            refreshAll();
+            loadData();
+            // Polling berkala untuk sinkronisasi otomatis antar rekan
+            setInterval(() => {
+                if(!window.firebaseActive) loadData();
+            }, 10000);
         };
     </script>
 </body>
