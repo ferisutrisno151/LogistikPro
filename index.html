@@ -18,10 +18,10 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Firebase SDK untuk Kolaborasi & Sinkronisasi Real-Time Bersama Rekan -->
+    <!-- Firebase SDK untuk Kolaborasi Real-Time Bersama Rekan -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyDummyKeyForLogistikProSync",
@@ -36,6 +36,19 @@
             const app = initializeApp(firebaseConfig);
             window.db = getFirestore(app);
             window.firebaseActive = true;
+            
+            // Real-time listener untuk update otomatis antar rekan kerja
+            const docRef = doc(window.db, "logistikpro", "data_proyek");
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const cloudData = docSnap.data();
+                    if(cloudData && JSON.stringify(cloudData) !== JSON.stringify(appData)) {
+                        appData = cloudData;
+                        localStorage.setItem('logistikpro_persistent_data', JSON.stringify(appData));
+                        refreshAll();
+                    }
+                }
+            });
         } catch(e) {
             window.firebaseActive = false;
         }
@@ -578,34 +591,27 @@
         let barChartInstance = null;
         let pieChartInstance = null;
 
-        // Load & Sync Data with Firebase & LocalStorage
-        async function loadData() {
-            if(window.firebaseActive && window.db) {
+        // Muat data persisten dari LocalStorage saat pertama kali load
+        function loadInitialData() {
+            const saved = localStorage.getItem('logistikpro_persistent_data');
+            if(saved) {
                 try {
-                    const docRef = doc(window.db, "logistikpro", "data_proyek");
-                    const snap = await getDoc(docRef);
-                    if(snap.exists()) {
-                        appData = snap.data();
-                    }
-                } catch(e) {
-                    console.error("Gagal sinkronisasi cloud:", e);
-                }
-            } else {
-                const local = localStorage.getItem('logistikpro_cloud_sync');
-                if(local) {
-                    try { appData = JSON.parse(local); } catch(e) {}
-                }
+                    appData = JSON.parse(saved);
+                } catch(e) {}
             }
-            refreshAll();
         }
 
         async function saveData() {
-            localStorage.setItem('logistikpro_cloud_sync', JSON.stringify(appData));
+            // Simpan permanen ke localStorage agar tidak hilang saat refresh
+            localStorage.setItem('logistikpro_persistent_data', JSON.stringify(appData));
+            
+            // Simpan ke Firebase Firestore agar tersinkronisasi dan dapat diedit bersama rekan
             if(window.firebaseActive && window.db) {
                 try {
+                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
                     await setDoc(doc(window.db, "logistikpro", "data_proyek"), appData);
                 } catch(e) {
-                    console.error("Gagal menyimpan ke cloud:", e);
+                    console.error("Gagal sinkronisasi cloud:", e);
                 }
             }
             refreshAll();
@@ -722,7 +728,7 @@
             closeModal('modal-spp');
         }
 
-        // Realisasi Pembelian Bertahap (Mendukung Multi-Simpan Berulang Kali)
+        // Realisasi Pembelian Bertahap (Mendukung Simpan Berulang Kali & Edit)
         function openRealisasiModal(sppId, realisasiIdx = null) {
             document.getElementById('realisasi-spp-id').value = sppId;
             document.getElementById('realisasi-index').value = realisasiIdx !== null ? realisasiIdx : '';
@@ -1437,11 +1443,8 @@
         }
 
         window.onload = function() {
-            loadData();
-            // Sinkronisasi otomatis real-time antar rekan kerja setiap 5 detik
-            setInterval(() => {
-                loadData();
-            }, 5000);
+            loadInitialData();
+            refreshAll();
         };
     </script>
 </body>
