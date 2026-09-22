@@ -498,11 +498,6 @@
             </form>
         </div>
     </div>
-    window.onload = () => {
-    renderAll();
-    loadDataFromServer();
-    updateDashboard(); // <--- Tambahkan baris ini jika belum ada
-};
 
     <script>
         // URL Google Apps Script Web App
@@ -913,7 +908,7 @@
                 <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
                 <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
                 <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga" class="item-harga ..."></div>
+                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
                 <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
                 <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
             `;
@@ -1013,7 +1008,7 @@
             document.getElementById('modal-keluar').classList.add('flex');
         }
 
-        function addKeluarItemRow(barang="", spek="Standar", qty="", satuan="", ket="") {
+        function addKeluarItemRow(barang="", spek="", qty="", satuan="", ket="") {
             const container = document.getElementById('keluar-items-container');
             const row = document.createElement('div');
             row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
@@ -1381,80 +1376,6 @@
             renderAll(); 
             loadDataFromServer(); 
         };
-       f// 2. Hitung total Barang Masuk (Qty & Rupiah) & Jenis Barang
-        function updateDashboard() {
-    let totalSppQty = 0;
-    let totalKekuranganQty = 0;
-    let totalMasukQty = 0;
-    let totalMasukRp = 0;
-    let jenisBarangSet = new Set();
-
-    // 1. Hitung total SPP & Kekurangan Realisasi
-    if (typeof sppData !== 'undefined' && Array.isArray(sppData)) {
-        sppData.forEach(spp => {
-            if (spp.items) {
-                spp.items.forEach(item => {
-                    const q = parseFloat(item.qty) || 0;
-                    const r = parseFloat(item.totalRealisasi) || 0;
-                    totalSppQty += q;
-                    totalKekuranganQty += Math.max(0, q - r);
-                });
-            }
-        });
-    }
-
-    // 2. Hitung total Barang Masuk (Qty & Rupiah) & Jenis Barang
-    if (typeof masukData !== 'undefined' && Array.isArray(masukData)) {
-        masukData.forEach(entry => {
-            if (entry.items) {
-                entry.items.forEach(item => {
-                    const q = parseFloat(item.qty) || 0;
-                    const h = parseFloat(item.harga) || 0;
-                    totalMasukQty += q;
-                    totalMasukRp += q * h;
-                    if (item.barang) jenisBarangSet.add(item.barang.trim().toLowerCase());
-                });
-            }
-        });
-    }
-
-    // 3. Hitung Total Barang Keluar untuk Saldo Gudang
-    let totalKeluarQty = 0;
-    if (typeof keluarData !== 'undefined' && Array.isArray(keluarData)) {
-        keluarData.forEach(entry => {
-            if (entry.items) {
-                entry.items.forEach(item => {
-                    totalKeluarQty += parseFloat(item.qty) || 0;
-                });
-            }
-        });
-    }
-
-    const saldoGudang = totalMasukQty - totalKeluarQty;
-
-    // 4. Masukkan hasil perhitungan ke elemen ID HTML Dashboard
-    const elSpp = document.getElementById('dash-total-spp');
-    if (elSpp) elSpp.innerHTML = `${totalSppQty.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-
-    const elKurang = document.getElementById('dash-total-kurang');
-    if (elKurang) elKurang.innerHTML = `${totalKekuranganQty.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-
-    const elMasuk = document.getElementById('dash-val-masuk');
-    if (elMasuk) elMasuk.innerHTML = `Rp ${totalMasukRp.toLocaleString('id-ID')} <span class="text-sm font-normal text-slate-500">(${totalMasukQty.toLocaleString('id-ID')} Qty)</span>`;
-
-    const elJenis = document.getElementById('dash-total-jenis');
-    if (elJenis) {
-        elJenis.innerText = jenisBarangSet.size + ' Jenis';
-    }
-
-    const elSaldo = document.getElementById('dash-saldo-qty');
-    if (elSaldo) elSaldo.innerText = 'Saldo: ' + saldoGudang.toLocaleString('id-ID') + ' Qty';
-        }
-        function loadDataFromServer() {
-    // ... proses ambil data ...
-    // Setelah data berhasil dimasukkan ke variabel sppData, masukData, dll:
-    updateDashboard();
-}
     </script>
 </body>
 </html>
