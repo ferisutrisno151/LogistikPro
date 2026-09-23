@@ -107,7 +107,8 @@
         </header>
 
         <div class="p-4 md:p-8 space-y-6">
-
+           
+            <!-- Panel SPP -->
             <div id="tab-dashboard" class="tab-content active space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                     <div onclick="showCardDetail('spp')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-blue-500">
@@ -122,7 +123,8 @@
                             </div>
                         </div>
                     </div>
-
+                    
+                    <!-- Panel Kekurangan Realisasi -->
                     <div onclick="showCardDetail('kurang')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-amber-500">
                         <div class="flex justify-between items-start">
                             <div>
@@ -136,6 +138,7 @@
                         </div>
                     </div>
 
+                    <!-- Panel Barang Masuk -->
                     <div onclick="showCardDetail('masuk')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-emerald-500">
                         <div class="flex justify-between items-start">
                             <div>
@@ -148,7 +151,8 @@
                             </div>
                         </div>
                     </div>
-
+                    
+                 <!-- Panel Stok Gudang -->
                     <div onclick="showCardDetail('stok')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-purple-500">
                         <div class="flex justify-between items-start">
                             <div>
@@ -162,8 +166,9 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+               <!-- CHARTS SECTION -->
+               <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -174,6 +179,8 @@
                             <canvas id="barChart"></canvas>
                         </div>
                     </div>
+
+                   <!-- Chart Donat Proporsi Stok Gudang -->
                     <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
                             <i class="fa-solid fa-chart-pie text-purple-600"></i> Proporsi Stok Gudang
@@ -183,7 +190,8 @@
                         </div>
                     </div>
                 </div>
-
+                
+              <!-- TABEL RINGKASAN KEKURANGAN SPP -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -212,7 +220,8 @@
                     </div>
                 </div>
             </div>
-
+            
+           <!-- ==================== TAB 2: SPP & REALISASI ==================== -->
             <div id="tab-spp" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <button onclick="openSppModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
@@ -221,6 +230,7 @@
                     <input type="text" id="search-spp" onkeyup="filterTable('search-spp', 'spp-table-body')" placeholder="Cari No SPP / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
                 </div>
 
+                <!-- TABEL SPP -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
@@ -246,7 +256,8 @@
                     </div>
                 </div>
             </div>
-
+            
+           <!-- ==================== TAB 3: BARANG MASUK ==================== -->
             <div id="tab-barang-masuk" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <div class="flex items-center gap-2">
@@ -272,7 +283,8 @@
                     </div>
                 </div>
             </div>
-
+            
+              <!-- ==================== TAB 4: STOK BARANG & RIWAYAT ==================== -->
             <div id="tab-stok-barang" class="tab-content space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <button onclick="openKeluarModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20">
@@ -280,7 +292,8 @@
                     </button>
                     <input type="text" id="search-stok" onkeyup="filterTable('search-stok', 'stok-table-body')" placeholder="Cari item..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
                 </div>
-
+                
+               <!-- TABEL STOK BARANG -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Kartu Stok Barang Logistik</h3>
@@ -304,7 +317,8 @@
                         </table>
                     </div>
                 </div>
-
+                
+                 <!-- RIWAYAT PENGELUARAN BARANG HARIAN (RIIL) -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/50">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Riwayat Pengeluaran Barang Harian (Riil)</h3>
@@ -1284,12 +1298,12 @@
                 `;
             });
 
-            const totalSppQty = sppData.reduce((a, b) => a + b.qty, 0);
-            const totalRealisasiQty = sppData.reduce((a, b) => a + b.totalRealisasi, 0);
+            const totalSppQty = spp.reduce((a, b) => a + b.qty, 0);
+            const totalRealisasiQty = spp.reduce((a, b) => a + b.totalRealisasi, 0);
             const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
 
-            const totalMasukQty = masukData.reduce((a, b) => a + b.qty, 0);
-            const totalMasukRp = masukData.reduce((a, b) => a + b.total, 0);
+            const totalMasukQty = masuk.reduce((a, b) => a + b.qty, 0);
+            const totalMasukRp = masuk.reduce((a, b) => a + b.total, 0);
 
             document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
             document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar \u2192`;
@@ -1301,7 +1315,7 @@
 
             const dashTableBody = document.getElementById('dash-table-body');
             dashTableBody.innerHTML = '';
-            sppData.forEach((item, idx) => {
+            spp.forEach((item, idx) => {
                 const sisa = item.qty - item.totalRealisasi;
                 const statusBadge = sisa <= 0 
                     ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS</span>`
