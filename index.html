@@ -1298,15 +1298,15 @@
                 `;
             });
 
-            const totalSppQty = spp.reduce((a, b) => a + b.qty, 0);
-            const totalRealisasiQty = spp.reduce((a, b) => a + b.totalRealisasi, 0);
+            const totalSppQty = sppData.reduce((a, b) => a + b.qty, 0);
+            const totalRealisasiQty = sppData.reduce((a, b) => a + b.totalRealisasi, 0);
             const totalKurangQty = Math.max(0, totalSppQty - totalRealisasiQty);
 
-            const totalMasukQty = masuk.reduce((a, b) => a + b.qty, 0);
-            const totalMasukRp = masuk.reduce((a, b) => a + b.total, 0);
+            const totalMasukQty = masukData.reduce((a, b) => a + b.qty, 0);
+            const totalMasukRp = masukData.reduce((a, b) => a + b.total, 0);
 
             document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-spp-count').innerText = `${spp.length} SPP terdaftar \u2192`;
+            document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar \u2192`;
             document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
             document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
             document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')} \u2192`;
@@ -1315,7 +1315,7 @@
 
             const dashTableBody = document.getElementById('dash-table-body');
             dashTableBody.innerHTML = '';
-            spp.forEach((item, idx) => {
+            sppData.forEach((item, idx) => {
                 const sisa = item.qty - item.totalRealisasi;
                 const statusBadge = sisa <= 0 
                     ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">LUNAS</span>`
@@ -1341,9 +1341,9 @@
         }
 
         function renderCharts() {
-            const sppBarang = spp.map(i => i.barang);
-            const sppPermintaan = spp.map(i => i.qty);
-            const sppRealisasi = spp.map(i => i.totalRealisasi);
+            const sppBarang = sppData.map(i => i.barang);
+            const sppPermintaan = sppData.map(i => i.qty);
+            const sppRealisasi = sppData.map(i => i.totalRealisasi);
 
             if(barChartInstance) barChartInstance.destroy();
             const ctxBar = document.getElementById('barChart').getContext('2d');
