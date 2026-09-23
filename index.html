@@ -580,76 +580,98 @@
             }
         }
 
-                    function exportDataJSON() {
-        try {
-            // 1. Data SPP & Realisasi
-            let sppData = JSON.parse(localStorage.getItem('sppData')) || JSON.parse(localStorage.getItem('spp_data')) || [];
+                   // --- FUNGSI EXPORT DATA KE JSON ---
+function exportDataJSON() {
+    try {
+        // Sesuaikan nama variabel di bawah ini dengan array penampung data utama di kode Anda
+        const allData = {
+            spp: typeof sppData !== 'undefined' ? sppData : [],
+            barangMasuk: typeof barangMasukData !== 'undefined' ? barangMasukData : [],
+            barangKeluar: typeof barangKeluarData !== 'undefined' ? barangKeluarData : [],
+            stok: typeof stokData !== 'undefined' ? stokData : []
+        };
 
-            // 2. Data Barang Masuk
-            let barangMasukData = JSON.parse(localStorage.getItem('masukData')) || JSON.parse(localStorage.getItem('barang_masuk_data')) || [];
+        // Konversi objek JavaScript menjadi string JSON yang rapi
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
+        
+        // Buat elemen anchor virtual untuk memicu download otomatis
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        
+        // Format penamaan file otomatis dengan tanggal hari ini
+        const dateStr = new Date().toISOString().split('T')[0];
+        downloadAnchor.setAttribute("download", `LogistikPro_Backup_${dateStr}.json`);
+        
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        
+        console.log("Export JSON berhasil!");
+    } catch (error) {
+        console.error("Gagal melakukan export JSON:", error);
+        alert("Terjadi kesalahan saat mengeksport data.");
+    }
+}
 
-            // 3. Data Stok Barang (menggunakan key asli: keluarData)
-            let stokBarangData = JSON.parse(localStorage.getItem('keluarData')) || JSON.parse(localStorage.getItem('stok_barang_data')) || [];
+// --- FUNGSI IMPORT DATA DARI JSON ---
+function importDataJSON(event) {
+    const fileReader = new FileReader();
+    if (event.target.files && event.target.files[0]) {
+        fileReader.readAsText(event.target.files[0], "UTF-8");
+        fileReader.onload = function (e) {
+            try {
+                const parsedData = JSON.parse(e.target.result);
+                
+                // Masukkan kembali ke variabel lokal masing-masing jika tersedia
+                if (parsedData.spp && typeof sppData !== 'undefined') sppData = parsedData.spp;
+                if (parsedData.barangMasuk && typeof barangMasukData !== 'undefined') barangMasukData = parsedData.barangMasuk;
+                if (parsedData.barangKeluar && typeof barangKeluarData !== 'undefined') barangKeluarData = parsedData.barangKeluar;
+                if (parsedData.stok && typeof stokData !== 'undefined') stokData = parsedData.stok;
 
-            // Validasi jika semua data kosong
-            if(sppData.length === 0 && barangMasukData.length === 0 && stokBarangData.length === 0) {
-                alert("Tidak ada data untuk diexport!");
-                return;
+                // Simpan ke localStorage (jika aplikasi Anda menggunakannya)
+                localStorage.setItem('logistikPro_data', JSON.stringify(parsedData));
+
+                alert("Data berhasil diimpor! Halaman akan dimuat ulang.");
+                location.reload(); // Refresh halaman untuk memperbarui tampilan tabel & dashboard
+            } catch (error) {
+                console.error("Gagal memparsing file JSON:", error);
+                alert("File JSON tidak valid atau rusak.");
             }
-
-            // Membuat Workbook Excel baru dengan 3 Sheet terpisah
-            let wb = XLSX.utils.book_new();
-            
-            if(sppData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppData), "SPP & Realisasi");
-            }
-            
-            if(barangMasukData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasukData), "Barang Masuk");
-            }
-
-            if(stokBarangData.length > 0) {
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokBarangData), "Stok Barang");
-            }
-
-            // Proses unduh file Excel
-            XLSX.writeFile(wb, "LogistikPro_Data_Lengkap.xlsx");
-            alert("Data SPP, Barang Masuk, dan Stok Barang berhasil diexport ke Excel!");
-
-        } catch (error) {
-            console.error("Detail Error:", error);
-            alert("Terjadi kesalahan saat mengexport data: " + error.message);
-        }
+        };
+    }
+}
+        // --- FUNGSI EXPORT TABEL KE EXCEL (CSV) ---
+function exportToExcel(filename = 'Data_LogistikPro.csv', tableId) {
+    let csv = [];
+    const table = document.getElementById(tableId);
+    
+    if (!table) {
+        alert("Tabel data tidak ditemukan!");
+        return;
     }
 
-
-
-
-       function importDataJSON(event) {
-            const fileReader = new FileReader();
-            if (event.target.files && event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0], "UTF-8");
-                fileReader.onload = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-                        if (parsed.sppData && parsed.masukData && parsed.keluarData) {
-                            if(confirm("Impor data akan menggantikan data saat ini. Lanjutkan?")) {
-                                sppData = parsed.sppData;
-                                masukData = parsed.masukData;
-                                keluarData = parsed.keluarData;
-                                saveData();
-                                alert("Data berhasil diimpor!");
-                            }
-                        } else {
-                            alert("Format file JSON tidak valid untuk aplikasi LogistikPro.");
-                        }
-                    } catch (error) {
-                        alert("Gagal membaca file JSON: " + error.message);
-                    }
-                    event.target.value = '';
-                };
-            }
+    const rows = table.querySelectorAll("tr");
+    
+    for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td, th");
+        
+        for (let j = 0; j < cols.length; j++) {
+            // Bersihkan teks dari tanda kutip ganda atau spasi berlebih
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").replace(/(\s\s)/gm, "");
+            row.push('"' + data + '"');
         }
+        csv.push(row.join(","));
+    }
+
+    // Download file CSV yang bisa langsung dibuka di Excel
+    const csvFile = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const downloadLink = document.createElement("a");
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.setAttribute("download", filename);
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+}
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
