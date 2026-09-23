@@ -1306,7 +1306,7 @@
             const totalMasukRp = masuk.reduce((a, b) => a + b.total, 0);
 
             document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar \u2192`;
+            document.getElementById('dash-spp-count').innerText = `${spp.length} SPP terdaftar \u2192`;
             document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
             document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
             document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')} \u2192`;
@@ -1341,9 +1341,9 @@
         }
 
         function renderCharts() {
-            const sppBarang = sppData.map(i => i.barang);
-            const sppPermintaan = sppData.map(i => i.qty);
-            const sppRealisasi = sppData.map(i => i.totalRealisasi);
+            const sppBarang = spp.map(i => i.barang);
+            const sppPermintaan = spp.map(i => i.qty);
+            const sppRealisasi = spp.map(i => i.totalRealisasi);
 
             if(barChartInstance) barChartInstance.destroy();
             const ctxBar = document.getElementById('barChart').getContext('2d');
@@ -1365,7 +1365,7 @@
             });
 
             const masukMap = {};
-            masukData.forEach(m => { masukMap[m.barang] = (masukMap[m.barang] || 0) + m.qty; });
+            masuk.forEach(m => { masukMap[m.barang] = (masukMap[m.barang] || 0) + m.qty; });
 
             if(pieChartInstance) pieChartInstance.destroy();
             const ctxPie = document.getElementById('pieChart').getContext('2d');
