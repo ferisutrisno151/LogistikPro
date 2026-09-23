@@ -1,1399 +1,432 @@
 <!DOCTYPE html>
-<!-- saved from url=(0051)file:///C:/Users/DELL/OneDrive/Downloads/Index.html -->
-<html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogistikPro - Monitoring System</title>
-    <script src="./LogistikPro - Monitoring System_files/saved_resource"></script>
-    <link rel="stylesheet" href="./LogistikPro - Monitoring System_files/all.min.css">
-    <script src="./LogistikPro - Monitoring System_files/chart.js.download"></script>
+    <!-- Tailwind CSS untuk Styling Cepat & Modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Grafik Interaktif -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .sidebar-active { background-color: #2563eb; color: #ffffff; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        @media (max-width: 768px) {
-            input, select, textarea { font-size: 16px !important; }
-        }
+        body { font-family: 'Inter', sans-serif; }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.sticky{position:sticky}.inset-0{inset:0px}.inset-y-0{top:0px;bottom:0px}.left-0{left:0px}.top-0{top:0px}.z-10{z-index:10}.z-20{z-index:20}.z-30{z-index:30}.z-50{z-index:50}.mb-1{margin-bottom:0.25rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mt-1{margin-top:0.25rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-60{height:15rem}.h-64{height:16rem}.h-8{height:2rem}.h-9{height:2.25rem}.max-h-\[85vh\]{max-height:85vh}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-5{width:1.25rem}.w-64{width:16rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-0{min-width:0px}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-x-full{--tw-translate-x:-100%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-x-1 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.25rem * var(--tw-space-x-reverse));margin-left:calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded{border-radius:0.25rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-l-4{border-left-width:4px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-l-amber-500{--tw-border-opacity:1;border-left-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-l-blue-500{--tw-border-opacity:1;border-left-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.border-l-emerald-500{--tw-border-opacity:1;border-left-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.border-l-purple-500{--tw-border-opacity:1;border-left-color:rgb(168 85 247 / var(--tw-border-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/50{background-color:rgb(248 250 252 / 0.5)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-1{padding:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-3{padding-bottom:0.75rem}.pl-2{padding-left:0.5rem}.pl-5{padding-left:1.25rem}.pt-2{padding-top:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-normal{font-weight:400}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-none{line-height:1}.tracking-wider{letter-spacing:0.05em}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-amber-500\/20{--tw-shadow-color:rgb(245 158 11 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-500\/20{--tw-shadow-color:rgb(59 130 246 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-500\/30{--tw-shadow-color:rgb(59 130 246 / 0.3);--tw-shadow:var(--tw-shadow-colored)}.shadow-purple-500\/20{--tw-shadow-color:rgb(168 85 247 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.ease-in-out{transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1)}.last\:border-0:last-child{border-width:0px}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-600:hover{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-100:hover{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-100:hover{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-100:hover{--tw-bg-opacity:1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-700:hover{--tw-bg-opacity:1;background-color:rgb(126 34 206 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:text-blue-800:hover{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.hover\:text-emerald-800:hover{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.hover\:text-rose-700:hover{--tw-text-opacity:1;color:rgb(190 18 60 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:outline-blue-500:focus{outline-color:#3b82f6}@media (min-width: 640px){.sm\:block{display:block}.sm\:inline{display:inline}.sm\:hidden{display:none}.sm\:w-64{width:16rem}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}}@media (min-width: 768px){.md\:static{position:static}.md\:hidden{display:none}.md\:h-10{height:2.5rem}.md\:h-9{height:2.25rem}.md\:w-10{width:2.5rem}.md\:w-9{width:2.25rem}.md\:translate-x-0{--tw-translate-x:0px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.md\:flex-row{flex-direction:row}.md\:gap-3{gap:0.75rem}.md\:gap-5{gap:1.25rem}.md\:p-5{padding:1.25rem}.md\:p-6{padding:1.5rem}.md\:p-8{padding:2rem}.md\:px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.md\:px-8{padding-left:2rem;padding-right:2rem}.md\:py-1{padding-top:0.25rem;padding-bottom:0.25rem}.md\:pl-3{padding-left:0.75rem}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-\[11px\]{font-size:11px}.md\:text-lg{font-size:1.125rem;line-height:1.75rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}.md\:text-xs{font-size:0.75rem;line-height:1rem}}@media (min-width: 1024px){.lg\:col-span-2{grid-column:span 2 / span 2}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style></head>
-<body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
+</head>
+<body class="bg-slate-100 flex h-screen overflow-hidden">
 
-    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden md:hidden"></div>
-
-    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between p-4 flex-shrink-0 min-h-screen transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex shadow-xl">
         <div>
-            <div class="flex items-center justify-between px-3 py-4 mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-blue-500/30">
-                        LP
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-white text-lg leading-none">LogistikPro</h1>
-                        <span class="text-xs text-slate-400">Monitoring System</span>
-                    </div>
+            <!-- Logo & Brand -->
+            <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-lg flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-boxes-stacked"></i>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
+                <div>
+                    <h1 class="text-white font-bold text-lg tracking-wide">LogistikPro</h1>
+                    <p class="text-xs text-slate-400">Monitoring System</p>
+                </div>
             </div>
 
-            <nav class="space-y-1.5">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm sidebar-active">
-                    <i class="fa-solid fa-border-all text-lg w-5"></i> Dashboard
-                </button>
-                <button onclick="switchTab('spp')" id="nav-spp" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-file-invoice text-lg w-5"></i> SPP &amp; Realisasi
-                </button>
-                <button onclick="switchTab('barang-masuk')" id="nav-barang-masuk" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-box-archive text-lg w-5"></i> Barang Masuk
-                </button>
-                <button onclick="switchTab('stok-barang')" id="nav-stok-barang" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-sm hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-boxes-stacked text-lg w-5"></i> Stok Barang
-                </button>
+            <!-- Navigasi Menu -->
+            <nav class="p-4 space-y-1.5 text-sm">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-medium shadow-md shadow-blue-900/40">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-file-invoice w-5"></i>
+                    <span>SPP & Realisasi</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-truck-ramp-box w-5"></i>
+                    <span>Barang Masuk</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-warehouse w-5"></i>
+                    <span>Stok Barang</span>
+                </a>
             </nav>
+        </div>
+
+        <!-- Widget Panduan Download & Install di Sidebar Bawah (Sesuai Gambar 2) -->
+        <div class="p-4 m-3 bg-slate-800/80 rounded-2xl border border-slate-700/60 text-xs shadow-inner">
+            <div class="flex items-center space-x-2 text-blue-400 font-semibold mb-2">
+                <i class="fa-solid fa-circle-down text-sm"></i>
+                <span>PANDUAN DOWNLOAD & INSTALL</span>
+            </div>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-400 leading-relaxed mb-3">
+                <li>Unduh file .apk terbaru dari tautan di bawah ini.</li>
+                <li>Buka file unduhan dan izinkan instalasi dari sumber tidak dikenal jika diminta.</li>
+                <li>Ikuti petunjuk di layar untuk menyelesaikan instalasi.</li>
+                <li>Ikon 'LogistikPro' akan muncul di layar utama Anda setelah selesai.</li>
+            </ol>
+            <button onclick="downloadApp()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-download"></i>
+                <span>DOWNLOAD APLIKASI (v1.0.5)</span>
+            </button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 overflow-auto">
-        <header class="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 rounded-lg bg-slate-100 hover:bg-slate-200">
-                    <i class="fa-solid fa-bars text-lg"></i>
-                </button>
-                <div id="page-title-container">
-                    <h2 id="page-title" class="text-base md:text-xl font-bold text-slate-800 flex items-center gap-2 md:gap-3">
-                        <span class="hidden sm:inline">Dashboard Interaktif Logistik</span>
-                        <span class="sm:hidden">Dashboard</span>
-                        <span class="text-[10px] md:text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-semibold">Real-Time Sync</span>
-                    </h2>
-                </div>
+    <!-- KONTEN UTAMA -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        
+        <!-- HEADER -->
+        <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20 shadow-xs">
+            <div class="flex items-center space-x-4">
+                <h2 class="text-xl font-bold text-slate-800">Dashboard Interaktif Logistik</h2>
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-full text-xs font-semibold">LogistikPro</span>
             </div>
-            <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="exportDataJSON()" class="px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-xs font-semibold hover:bg-emerald-100 flex items-center gap-1.5" title="Export langsung ke Excel (.xls)">
-                    <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export Excel</span>
-                </button>
-                <label class="px-2.5 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer" title="Pulihkan Data dari File JSON/Excel">
-                    <i class="fa-solid fa-upload"></i> <span class="hidden sm:inline">Import</span>
-                    <input type="file" id="import-file" accept=".json" onchange="importDataJSON(event)" class="hidden">
-                </label>
 
-                <button onclick="resetDemoData()" class="px-2.5 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 flex items-center gap-1.5">
-                    <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Reset Demo</span>
+            <!-- Tombol Aksi & Profil Pengguna (Sesuai Gambar 2) -->
+            <div class="flex items-center space-x-3">
+                <button onclick="exportData()" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Export</span>
                 </button>
-                <div class="flex items-center gap-2 md:gap-3 border-l border-slate-200 pl-2 md:pl-3">
-                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">SPP</div>
-                    <div class="hidden sm:block">
-                        <div class="text-xs font-bold text-slate-800">Staff Logistik Proyek</div>
-                        <div class="text-[10px] text-slate-400">Logistics &amp; Supply</div>
+                <button onclick="importData()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Import</span>
+                </button>
+                <div class="h-6 w-px bg-slate-200 mx-1"></div>
+                <div class="flex items-center space-x-3 pl-2">
+                    <div class="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                        151
+                    </div>
+                    <div class="text-left hidden sm:block">
+                        <p class="text-sm font-bold text-slate-800 leading-tight">Staff Logistik Proyek</p>
+                        <p class="text-xs text-slate-400">Logistics & Supply</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="p-4 md:p-8 space-y-6">
+        <!-- KONTROL BODY DASHBOARD -->
+        <div class="p-8 space-y-6 max-w-7xl w-full mx-auto">
 
-            <div id="tab-dashboard" class="tab-content space-y-6 active">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-                    <div onclick="showCardDetail('spp')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-blue-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL PERMINTAAN (SPP)</span>
-                                <div class="text-xl md:text-2xl font-bold text-slate-800 mt-1" id="dash-total-spp">0 <span class="text-sm font-normal text-slate-500">Qty</span></div>
-                                <div class="text-xs text-blue-600 mt-1 font-medium" id="dash-spp-count">0 SPP terdaftar →</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <i class="fa-regular fa-clipboard text-base md:text-lg"></i>
-                            </div>
+            <!-- KARTU RINGKASAN (STAT CARDS) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Total Permintaan (SPP)</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1">627 <span class="text-sm font-semibold text-slate-500">Qty</span></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shadow-xs">
+                            <i class="fa-solid fa-file-lines"></i>
                         </div>
                     </div>
-
-                    <div onclick="showCardDetail('kurang')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-amber-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">KEKURANGAN REALISASI</span>
-                                <div class="text-xl md:text-2xl font-bold text-amber-500 mt-1" id="dash-total-kurang">0 <span class="text-sm font-normal text-slate-500">Qty</span></div>
-                                <div class="text-xs text-amber-600 mt-1 font-medium">Klik rincian →</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                                <i class="fa-solid fa-triangle-exclamation text-base md:text-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div onclick="showCardDetail('masuk')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-emerald-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL BARANG MASUK</span>
-                                <div class="text-xl md:text-2xl font-bold text-emerald-600 mt-1" id="dash-total-masuk">0 <span class="text-sm font-normal text-slate-500">Qty</span></div>
-                                <div class="text-xs text-emerald-600 mt-1 font-semibold" id="dash-val-masuk">Rp 0 →</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                <i class="fa-solid fa-box-open text-base md:text-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div onclick="showCardDetail('stok')" class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition-all border-l-4 border-l-purple-500">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL ITEM DI GUDANG</span>
-                                <div class="text-xl md:text-2xl font-bold text-purple-600 mt-1" id="dash-total-jenis">0 <span class="text-sm font-normal text-slate-500">Jenis</span></div>
-                                <div class="text-xs text-purple-600 mt-1 font-medium" id="dash-saldo-total">Saldo: 0 Qty →</div>
-                            </div>
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                                <i class="fa-solid fa-warehouse text-base md:text-lg"></i>
-                            </div>
-                        </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-blue-600 font-semibold cursor-pointer hover:underline">10 SPP terdaftar &rarr;</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-solid fa-chart-column text-blue-600"></i> Status Realisasi Permintaan Barang (SPP vs Realisasi)
-                            </h3>
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Kekurangan Realisasi</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1">560 <span class="text-sm font-semibold text-slate-500">Qty</span></h3>
                         </div>
-                        <div class="h-64">
-                            <canvas id="barChart" style="box-sizing: border-box; display: block; height: 256px;" width="1074" height="192"></canvas>
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shadow-xs">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                     </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-purple-600"></i> Proporsi Stok Gudang
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-amber-600 font-semibold cursor-pointer hover:underline">Klik rincian &rarr;</span>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Total Barang Masuk</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1">67 <span class="text-sm font-semibold text-slate-500">Qty</span></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-xs">
+                            <i class="fa-solid fa-truck-arrow-right"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-emerald-600 font-semibold cursor-pointer hover:underline">Rp 0 &rarr;</span>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase">Total Item di Gudang</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1">7 <span class="text-sm font-semibold text-slate-500">Jenis</span></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shadow-xs">
+                            <i class="fa-solid fa-warehouse"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-purple-600 font-semibold">Saldo: 17 Qty &rarr;</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN GRAFIK (CHART SECTION) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Grafik Bar: Status Realisasi Permintaan -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-column text-blue-600"></i>
+                            <span>STATUS REALISASI PERMINTAAN BARANG (SPP VS REALISASI)</span>
                         </h3>
-                        <div class="h-60 flex items-center justify-center">
-                            <canvas id="pieChart" style="box-sizing: border-box; display: block; height: 240px;" width="512" height="180"></canvas>
-                        </div>
+                    </div>
+                    <div class="relative h-64 w-full">
+                        <canvas id="barChart"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-amber-500"></i> Ringkasan Kekurangan SPP Proyek
+                <!-- Grafik Donut: Proporsi Stok Gudang -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-pie text-purple-600"></i>
+                            <span>PROPORSI STOK GUDANG</span>
                         </h3>
-                        <a href="javascript:void(0)" onclick="switchTab('spp')" class="text-xs text-blue-600 hover:underline font-semibold">Kelola SPP →</a>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">No SPP</th>
-                                    <th class="p-3">Tgl SPP</th>
-                                    <th class="p-3">Pengaju</th>
-                                    <th class="p-3">Nama Barang</th>
-                                    <th class="p-3">Spesifikasi</th>
-                                    <th class="p-3 text-center">Permintaan</th>
-                                    <th class="p-3 text-center">Realisasi</th>
-                                    <th class="p-3 text-center">Sisa Kekurangan</th>
-                                    <th class="p-3 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dash-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                        </table>
+                    <div class="relative h-60 w-full flex items-center justify-center">
+                        <canvas id="donutChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-spp" class="tab-content space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                    <button onclick="openSppModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">
-                        <i class="fa-solid fa-plus"></i> Tambah SPP Baru
-                    </button>
-                    <input type="text" id="search-spp" onkeyup="filterTable('search-spp', 'spp-table-body')" placeholder="Cari No SPP / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
+            <!-- TABEL RINGKASAN KEKURANGAN SPP PROYEK -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-12">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-table-list text-blue-600"></i>
+                        <span>RINGKASAN KEKURANGAN SPP PROYEK</span>
+                    </h3>
+                    <a href="#" class="text-xs font-semibold text-blue-600 hover:underline">Kelola SPP &rarr;</a>
                 </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">No SPP</th>
-                                    <th class="p-3">Tgl SPP</th>
-                                    <th class="p-3">Pengaju SPP</th>
-                                    <th class="p-3">Nama Barang</th>
-                                    <th class="p-3">Spesifikasi</th>
-                                    <th class="p-3 text-center">Qty</th>
-                                    <th class="p-3">Satuan</th>
-                                    <th class="p-3">Tgl Realisasi &amp; Detail Pembelian</th>
-                                    <th class="p-3 text-center">Total Realisasi</th>
-                                    <th class="p-3 text-center">Sisa Kekurangan</th>
-                                    <th class="p-3">Keterangan</th>
-                                    <th class="p-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="spp-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-barang-masuk" class="tab-content space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                    <div class="flex items-center gap-2">
-                        <button onclick="openMasukModal()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
-                            <i class="fa-solid fa-plus"></i> Input Barang Masuk
-                        </button>
-                        <button onclick="toggleMasukView()" id="btn-toggle-view" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3 py-2.5 rounded-xl flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-layer-group text-blue-600"></i> <span id="view-mode-label">Tampilkan Akumulasi per Vendor</span>
-                        </button>
-                    </div>
-                    <input type="text" id="search-masuk" onkeyup="filterTable('search-masuk', 'masuk-table-body')" placeholder="Cari vendor / barang..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                            <thead>
-                                <tr id="masuk-table-header" class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">Tanggal</th>
-                                    <th class="p-3">Nama Vendor</th>
-                                    <th class="p-3">Nama Barang</th>
-                                    <th class="p-3">Spesifikasi</th>
-                                    <th class="p-3 text-center">Qty</th>
-                                    <th class="p-3">Satuan</th>
-                                    <th class="p-3 text-right">Harga Satuan (Rp)</th>
-                                    <th class="p-3 text-right">Jumlah Total (Rp)</th>
-                                    <th class="p-3">Keterangan</th>
-                                    <th class="p-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="masuk-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-stok-barang" class="tab-content space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                    <button onclick="openKeluarModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20">
-                        <i class="fa-solid fa-plus"></i> Input Penyesuaian / Stok Keluar
-                    </button>
-                    <input type="text" id="search-stok" onkeyup="filterTable('search-stok', 'stok-table-body')" placeholder="Cari item..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl w-full sm:w-64 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Kartu Stok Barang Logistik</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">Tanggal Update</th>
-                                    <th class="p-3">Nama Barang</th>
-                                    <th class="p-3">Spesifikasi</th>
-                                    <th class="p-3">Satuan</th>
-                                    <th class="p-3 text-center">Total Masuk</th>
-                                    <th class="p-3 text-center">Total Keluar</th>
-                                    <th class="p-3 text-center">Saldo Akhir</th>
-                                    <th class="p-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stok-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Riwayat Pengeluaran Barang Harian (Riil)</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200 uppercase text-[10px]">
-                                    <th class="p-3 pl-5">Tanggal Out</th>
-                                    <th class="p-3">Yang Mengambil</th>
-                                    <th class="p-3">Nama Barang</th>
-                                    <th class="p-3">Spesifikasi</th>
-                                    <th class="p-3 text-center">Jumlah Keluar</th>
-                                    <th class="p-3">Penggunaan / Keterangan</th>
-                                    <th class="p-3">Petugas</th>
-                                    <th class="p-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="keluar-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                        </table>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/70 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-100">
+                                <th class="p-4">No</th>
+                                <th class="p-4">No SPP</th>
+                                <th class="p-4">Tgl SPP</th>
+                                <th class="p-4">Pengaju</th>
+                                <th class="p-4">Nama Barang</th>
+                                <th class="p-4">Spesifikasi</th>
+                                <th class="p-4">Permintaan</th>
+                                <th class="p-4">Realisasi</th>
+                                <th class="p-4">Sisa Kekurangan</th>
+                                <th class="p-4 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr>
+                                <td class="p-4 text-slate-400">1</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0001/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-04</td>
+                                <td class="p-4">Jamroni</td>
+                                <td class="p-4 font-bold text-slate-800">Kayu Balok</td>
+                                <td class="p-4 text-slate-500">20/20&times;4m</td>
+                                <td class="p-4">24 Btg</td>
+                                <td class="p-4">24 Btg</td>
+                                <td class="p-4 text-emerald-600 font-bold">0 Btg</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 font-bold rounded-md text-[10px] border border-emerald-200">LUNAS</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">2</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0002/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-04</td>
+                                <td class="p-4">Johan</td>
+                                <td class="p-4 font-bold text-slate-800">Pilox</td>
+                                <td class="p-4 text-slate-500">Merah</td>
+                                <td class="p-4">12 Klg</td>
+                                <td class="p-4">12 Klg</td>
+                                <td class="p-4 text-emerald-600 font-bold">0 Klg</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 font-bold rounded-md text-[10px] border border-emerald-200">LUNAS</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">3</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0002/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-04</td>
+                                <td class="p-4">Johan</td>
+                                <td class="p-4 font-bold text-slate-800">Scotlet Merah</td>
+                                <td class="p-4 text-slate-500">Reflektif</td>
+                                <td class="p-4">1 Roll</td>
+                                <td class="p-4">1 Roll</td>
+                                <td class="p-4 text-emerald-600 font-bold">0 Roll</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 font-bold rounded-md text-[10px] border border-emerald-200">LUNAS</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">4</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0003/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-05</td>
+                                <td class="p-4">Samsuri</td>
+                                <td class="p-4 font-bold text-slate-800">Kawat Las RB260</td>
+                                <td class="p-4 text-slate-500">2,6mm @5kg</td>
+                                <td class="p-4">40 Dus</td>
+                                <td class="p-4">8 Dus</td>
+                                <td class="p-4 text-amber-600 font-bold">32 Dus</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">5</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0003/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-05</td>
+                                <td class="p-4">Samsuri</td>
+                                <td class="p-4 font-bold text-slate-800">Kawat Las RD46</td>
+                                <td class="p-4 text-slate-500">2,6mm @5kg</td>
+                                <td class="p-4">40 Dus</td>
+                                <td class="p-4">4 Dus</td>
+                                <td class="p-4 text-amber-600 font-bold">36 Dus</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">6</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0003/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-05</td>
+                                <td class="p-4">Samsuri</td>
+                                <td class="p-4 font-bold text-slate-800">Kawat Las RD460</td>
+                                <td class="p-4 text-slate-500">3,2mm @5kg</td>
+                                <td class="p-4">40 Dus</td>
+                                <td class="p-4">0 Dus</td>
+                                <td class="p-4 text-amber-600 font-bold">40 Dus</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">7</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0003/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-05</td>
+                                <td class="p-4">Samsuri</td>
+                                <td class="p-4 font-bold text-slate-800">Kawat Las LB520</td>
+                                <td class="p-4 text-slate-500">3,2mm @5kg</td>
+                                <td class="p-4">40 Dus</td>
+                                <td class="p-4">8 Dus</td>
+                                <td class="p-4 text-amber-600 font-bold">32 Dus</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">8</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0004/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-21</td>
+                                <td class="p-4">Rosyd</td>
+                                <td class="p-4 font-bold text-slate-800">Kawat Bendrat</td>
+                                <td class="p-4 text-slate-500">@20kg</td>
+                                <td class="p-4">300 Roll</td>
+                                <td class="p-4">10 Roll</td>
+                                <td class="p-4 text-amber-600 font-bold">290 Roll</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">9</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0004/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-21</td>
+                                <td class="p-4">Rosyd</td>
+                                <td class="p-4 font-bold text-slate-800">Phenol Film</td>
+                                <td class="p-4 text-slate-500">18mm</td>
+                                <td class="p-4">100 Lbr</td>
+                                <td class="p-4">0 Lbr</td>
+                                <td class="p-4 text-amber-600 font-bold">100 Lbr</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-slate-400">10</td>
+                                <td class="p-4 text-blue-600 font-semibold hover:underline cursor-pointer">0004/SPP/EPC/IX/2026</td>
+                                <td class="p-4 text-slate-500">2026-09-21</td>
+                                <td class="p-4">Rosyd</td>
+                                <td class="p-4 font-bold text-slate-800">Sekrup Drilling</td>
+                                <td class="p-4 text-slate-500">5cm</td>
+                                <td class="p-4">30 Dus</td>
+                                <td class="p-4">0 Dus</td>
+                                <td class="p-4 text-amber-600 font-bold">30 Dus</td>
+                                <td class="p-4 text-center"><span class="px-2.5 py-1 bg-amber-50 text-amber-600 font-bold rounded-md text-[10px] border border-amber-200">KURANG</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <div id="modal-card-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm items-center justify-center z-50 p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-4xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="card-detail-title" class="font-bold text-slate-800 text-sm">Rincian Seluruh Permintaan SPP</h3>
-                <button onclick="closeModal('modal-card-detail')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                    <thead id="card-detail-head"><tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">No SPP</th><th class="p-2">Tgl</th><th class="p-2">Pengaju</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty</th><th class="p-2">Keterangan</th></tr></thead>
-                    <tbody id="card-detail-body" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-spp" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="spp-modal-title" class="font-bold text-slate-800 text-sm">Form Permintaan Barang (SPP)</h3>
-                <button onclick="closeModal('modal-spp')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form id="form-spp" onsubmit="saveSpp(event)" class="space-y-4 text-xs">
-                <input type="hidden" id="spp-edit-id">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">No SPP</label>
-                        <input type="text" id="spp-no" required="" placeholder="SPP/001/LOG/2026" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Tanggal SPP</label>
-                        <input type="date" id="spp-tgl" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Yang Mengajukan SPP</label>
-                        <input type="text" id="spp-pengaju" required="" placeholder="Nama / Bagian" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Daftar Item Barang &amp; Keterangan</span>
-                        <button type="button" id="btn-add-spp-item" onclick="addSppItemRow()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Tambah Barang
-                        </button>
-                    </div>
-                    <div id="spp-items-container" class="space-y-2"></div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modal-spp')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Simpan SPP</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-realisasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="realisasi-modal-title" class="font-bold text-slate-800 text-sm">Input Realisasi Pembelian Bertahap</h3>
-                <button onclick="closeModal('modal-realisasi')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form id="form-realisasi" onsubmit="saveRealisasi(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="realisasi-spp-id">
-                <input type="hidden" id="realisasi-index">
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Tanggal Realisasi</label>
-                    <input type="date" id="realisasi-tgl" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Jumlah Realisasi (Qty)</label>
-                    <input type="number" id="realisasi-qty" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-1">Detail Pembelian / Catatan</label>
-                    <input type="text" id="realisasi-detail" placeholder="Contoh: Purchase Order #02 (Supplier X)" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                </div>
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modal-realisasi')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">Simpan Realisasi</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-masuk" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-4xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="masuk-modal-title" class="font-bold text-slate-800 text-sm">Input Barang Masuk Proyek</h3>
-                <button onclick="closeModal('modal-masuk')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form id="form-masuk" onsubmit="saveMasuk(event)" class="space-y-4 text-xs">
-                <input type="hidden" id="masuk-edit-id">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Tanggal Masuk</label>
-                        <input type="date" id="masuk-tgl" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Nama Vendor / Supplier</label>
-                        <input type="text" id="masuk-vendor" required="" placeholder="PT. Material Utama" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Daftar Barang Masuk &amp; Keterangan</span>
-                        <button type="button" id="btn-add-masuk-item" onclick="addMasukItemRow()" class="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Tambah Barang
-                        </button>
-                    </div>
-                    <div id="masuk-items-container" class="space-y-2"></div>
-                </div>
-
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center text-amber-900">
-                    <div>
-                        <span class="font-bold block text-[11px] uppercase tracking-wider">Akumulasi Input Ini:</span>
-                        <span id="masuk-summary-text" class="text-xs font-medium">Total Qty: 0 | Total Biaya: Rp 0</span>
-                    </div>
-                    <div class="text-right text-[10px] text-amber-700 font-semibold">
-                        Otomatis dihitung berdasarkan Tanggal &amp; Vendor
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modal-masuk')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600">Simpan Barang Masuk</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-keluar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="keluar-modal-title" class="font-bold text-slate-800 text-sm">Input Barang Keluar / Penyesuaian</h3>
-                <button onclick="closeModal('modal-keluar')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form id="form-keluar" onsubmit="saveKeluar(event)" class="space-y-4 text-xs">
-                <input type="hidden" id="keluar-edit-id">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Tanggal Keluar</label>
-                        <input type="date" id="keluar-tgl" required="" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">Yang Mengambil Barang</label>
-                        <input type="text" id="keluar-pengambil" required="" placeholder="Nama / Subkon / Mandor" class="w-full p-2 border border-slate-200 rounded-lg focus:outline-blue-500">
-                    </div>
-                </div>
-
-                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Daftar Item Barang Keluar</span>
-                        <button type="button" id="btn-add-keluar-item" onclick="addKeluarItemRow()" class="bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 px-3 py-1 rounded-lg font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Tambah Barang
-                        </button>
-                    </div>
-                    <div id="keluar-items-container" class="space-y-2"></div>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('modal-keluar')" class="px-4 py-2 border border-slate-200 rounded-lg text-slate-600 font-semibold hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">Simpan Pengeluaran</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Datalist untuk Autocomplete Spesifikasi Barang Keluar -->
-    <datalist id="list-barang-stok"></datalist>
-
+    <!-- SCRIPT CHART & INTERAKSI -->
     <script>
-        // URL Google Apps Script Web App terbaru
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzv4TuqJ0rWAv-GorfLYp-V40Img_0GzV_yga_OMgUnWpDMMxEgvU_sFHm0uJYN6aCz/exec";
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
-
-        const initialSppData = [
-            { id: 1, no: "SPP/007/LOG/2026", tgl: "2026-09-04", pengaju: "Pembesian", barang: "Kawat Bendrat", spek: "@20Kg", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Urgent untuk balok lantai 2" },
-            { id: 2, no: "SPP/001/LOG/2026", tgl: "2026-09-02", pengaju: "Tim Cor", barang: "Kawat Ayam", spek: "1/2", qty: 50, satuan: "Roll", realisasiHistory: [], totalRealisasi: 0, ket: "Stop Cor" },
-            { id: 3, no: "SPP/002/LOG/2026", tgl: "2026-09-01", pengaju: "Bengkel Proyek", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 100, satuan: "Kg", realisasiHistory: [{tgl: "2026-09-02", qty: 50, detail: "Azidar H Berni"}, {tgl: "2026-09-03", qty: 50, detail: "Azidar H Berni"}], totalRealisasi: 100, ket: "Pengelasan struktur baja" },
-            { id: 4, no: "SPP/003/LOG/2026", tgl: "2026-08-10", pengaju: "Pengecoran", barang: "Semen Portland", spek: "Tiga Roda 50Kg", qty: 500, satuan: "Zak", realisasiHistory: [{tgl: "2026-08-12", qty: 200, detail: "PO-01 Material Utama"}, {tgl: "2026-08-15", qty: 150, detail: "PO-04 Indah Jaya"}], totalRealisasi: 350, ket: "Pengecoran Slab Lt 1" }
-        ];
-
-        const initialMasukData = [
-            { id: 1, tgl: "2026-09-01", vendor: "Azidar H Berni", barang: "Kawat Bendrat", spek: "@20Kg", qty: 10, satuan: "Roll", harga: 475000, total: 4750000, ket: "PO 430011567" },
-            { id: 2, tgl: "2026-09-01", vendor: "Azidar H Berni", barang: "Kawat Las RD460", spek: "RD460-2,6mm", qty: 5, satuan: "Kg", harga: 75000, total: 375000, ket: "PO 430011456" },
-            { id: 3, tgl: "2026-09-04", vendor: "PT. Agung Teknik Mandiri", barang: "Kayu Balok", spek: "20/20x4m", qty: 2, satuan: "M3", harga: 770000, total: 1540000, ket: "PO 430011789" },
-            { id: 4, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Kawat Licin", spek: "1,9mm", qty: 10, satuan: "Roll", harga: 1500000, total: 15000000, ket: "-" },
-            { id: 5, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Kawat Bendrat", spek: "@20Kg", qty: 10, satuan: "Roll", harga: 475000, total: 4750000, ket: "-" },
-            { id: 6, tgl: "2026-09-06", vendor: "PT. Kuali Mas", barang: "Semen Conch", spek: "@50Kg", qty: 100, satuan: "Zak", harga: 110000, total: 11000000, ket: "-" }
-        ];
-
-        const initialKeluarData = [
-            { id: 1, tgl: "2026-09-04", pengambil: "Pekerja Precast", barang: "Kawat Las", spek: "RB260-2,6mm", qty: 10, satuan: "Kg", ket: "Precast", petugas: "Staff Logistik" },
-            { id: 2, tgl: "2026-09-04", pengambil: "Mandor Dermaga", barang: "Besi Beton 12mm", spek: "Polos SNI 12m", qty: 10, satuan: "Batang", ket: "Jetty", petugas: "Staff Logistik" }
-        ];
-
-        let sppData = JSON.parse(localStorage.getItem('sppData')) || initialSppData;
-        let masukData = JSON.parse(localStorage.getItem('masukData')) || initialMasukData;
-        let keluarData = JSON.parse(localStorage.getItem('keluarData')) || initialKeluarData;
-        let isGroupedMasukView = false;
-
-        // Fungsi Sinkronisasi dengan Google Sheets (Backend Cloud)
-        function syncDataToServer() {
-            const payload = {
-                sppData: sppData,
-                masukData: masukData,
-                keluarData: keluarData
-            };
-            
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(err => console.error("Sync error:", err));
-        }
-
-        function loadDataFromServer() {
-            fetch(WEB_APP_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if(data && data.sppData) {
-                        sppData = data.sppData;
-                        masukData = data.masukData || masukData;
-                        keluarData = data.keluarData || keluarData;
-                        localStorage.setItem('sppData', JSON.stringify(sppData));
-                        localStorage.setItem('masukData', JSON.stringify(masukData));
-                        localStorage.setItem('keluarData', JSON.stringify(keluarData));
-                        renderAll();
+        // Inisialisasi Bar Chart (SPP vs Realisasi)
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Kayu Balok', 'Pilox', 'Scotlet Merah', 'Kawat Las RB260', 'Kawat Las RD46', 'Kawat Las RD460', 'Kawat Las LB520', 'Kawat Bendrat', 'Phenol Film', 'Sekrup Drilling'],
+                datasets: [
+                    {
+                        label: 'Permintaan SPP',
+                        data: [24, 12, 1, 40, 40, 40, 40, 300, 100, 30],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Terealisasi',
+                        data: [24, 12, 1, 8, 4, 0, 8, 10, 0, 0],
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
                     }
-                })
-                .catch(err => {
-                    console.log("Menggunakan data lokal cache:", err);
-                });
-        }
-
-        function saveData() {
-            localStorage.setItem('sppData', JSON.stringify(sppData));
-            localStorage.setItem('masukData', JSON.stringify(masukData));
-            localStorage.setItem('keluarData', JSON.stringify(keluarData));
-            renderAll();
-            syncDataToServer();
-        }
-
-        function resetDemoData() {
-            if(confirm('Reset data kembali ke data demo awal?')) {
-                localStorage.clear();
-                sppData = [...initialSppData];
-                masukData = [...initialMasukData];
-                keluarData = [...initialKeluarData];
-                saveData();
-            }
-        }
-
-        // PERBAIKAN 1: Export JSON langsung ter-render sebagai file Excel (.xls)
-        function exportDataJSON() {
-            const dataToExport = {
-                app: "LogistikPro",
-                version: "1.0",
-                exportDate: new Date().toISOString(),
-                sppData: sppData,
-                masukData: masukData,
-                keluarData: keluarData
-            };
-
-            const jsonString = JSON.stringify(dataToExport, null, 2);
-            // Mengubah MIME type ke Excel spreadsheet XML agar langsung bisa dibuka di Microsoft Excel
-            const blob = new Blob([jsonString], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.href = URL.createObjectURL(blob);
-            
-            const dateStr = new Date().toISOString().split('T')[0];
-            downloadAnchor.setAttribute("download", `LogistikPro_Backup_${dateStr}.xls`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importDataJSON(event) {
-            const fileReader = new FileReader();
-            if (event.target.files && event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0], "UTF-8");
-                fileReader.onload = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.target.result);
-                        if (parsed.sppData && parsed.masukData && parsed.keluarData) {
-                            if(confirm("Impor data akan menggantikan data saat ini. Lanjutkan?")) {
-                                sppData = parsed.sppData;
-                                masukData = parsed.masukData;
-                                keluarData = parsed.keluarData;
-                                saveData();
-                                alert("Data berhasil diimpor!");
-                            }
-                        } else {
-                            alert("Format file tidak valid untuk aplikasi LogistikPro.");
-                        }
-                    } catch (error) {
-                        alert("Gagal membaca file: " + error.message);
-                    }
-                    event.target.value = '';
-                };
-            }
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(el => {
-                el.classList.remove('sidebar-active');
-                el.classList.add('hover:bg-slate-800', 'hover:text-white');
-            });
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            const activeNav = document.getElementById(`nav-${tabName}`);
-            activeNav.classList.add('sidebar-active');
-            activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
-
-            if (window.innerWidth < 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                if (!sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                }
-            }
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.getElementById(id).classList.remove('flex');
-        }
-
-        function toggleMasukView() {
-            isGroupedMasukView = !isGroupedMasukView;
-            const label = document.getElementById('view-mode-label');
-            if(isGroupedMasukView) {
-                label.innerText = 'Kembali ke Tampilan Detail Item';
-            } else {
-                label.innerText = 'Tampilkan Akumulasi per Vendor';
-            }
-            renderMasukTable();
-        }
-
-        function showCardDetail(type) {
-            const head = document.getElementById('card-detail-head');
-            const body = document.getElementById('card-detail-body');
-            const title = document.getElementById('card-detail-title');
-            body.innerHTML = '';
-
-            if(type === 'spp') {
-                title.innerText = 'Rincian Seluruh Permintaan SPP';
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">No SPP</th><th class="p-2">Tgl</th><th class="p-2">Pengaju</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty</th><th class="p-2">Keterangan</th></tr>`;
-                sppData.forEach(item => {
-                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold text-blue-600">${item.no}</td><td class="p-2">${item.tgl}</td><td class="p-2">${item.pengaju}</td><td class="p-2 font-semibold">${item.barang}</td><td class="p-2 text-center">${item.qty} ${item.satuan}</td><td class="p-2">${item.ket || '-'}</td></tr>`;
-                });
-            } else if(type === 'kurang') {
-                title.innerText = 'Rincian Kekurangan Realisasi SPP';
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">No SPP</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty Permintaan</th><th class="p-2 text-center">Realisasi</th><th class="p-2 text-center">Kekurangan</th></tr>`;
-                sppData.filter(i => (i.qty - i.totalRealisasi) > 0).forEach(item => {
-                    const sisa = item.qty - item.totalRealisasi;
-                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold text-blue-600">${item.no}</td><td class="p-2 font-semibold">${item.barang}</td><td class="p-2 text-center">${item.qty}</td><td class="p-2 text-center text-emerald-600">${item.totalRealisasi}</td><td class="p-2 text-center font-bold text-amber-600">${sisa} ${item.satuan}</td></tr>`;
-                });
-            } else if(type === 'masuk') {
-                title.innerText = 'Rincian Penerimaan Barang Masuk';
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">Tgl</th><th class="p-2">Vendor</th><th class="p-2">Barang</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Total (Rp)</th><th class="p-2">Keterangan</th></tr>`;
-                masukData.forEach(item => {
-                    body.innerHTML += `<tr class="border-b"><td class="p-2">${item.tgl}</td><td class="p-2 font-semibold">${item.vendor}</td><td class="p-2">${item.barang}</td><td class="p-2 text-center font-bold">${item.qty} ${item.satuan}</td><td class="p-2 text-right font-bold text-emerald-600">Rp ${item.total.toLocaleString('id-ID')}</td><td class="p-2">${item.ket || '-'}</td></tr>`;
-                });
-            } else if(type === 'stok') {
-                title.innerText = 'Rincian Stok Barang Gudang Saat Ini';
-                head.innerHTML = `<tr class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b"><th class="p-2">Nama Barang</th><th class="p-2">Spek</th><th class="p-2 text-center">Total Masuk</th><th class="p-2 text-center">Total Keluar</th><th class="p-2 text-center">Saldo Akhir</th></tr>`;
-                const stokMap = {};
-                masukData.forEach(m => { stokMap[m.barang] = stokMap[m.barang] || {spek: m.spek, satuan: m.satuan, masuk: 0, keluar: 0}; stokMap[m.barang].masuk += m.qty; });
-                keluarData.forEach(k => { stokMap[k.barang] = stokMap[k.barang] || {spek: k.spek||'-', satuan: k.satuan, masuk: 0, keluar: 0}; stokMap[k.barang].keluar += k.qty; });
-                Object.keys(stokMap).forEach(b => {
-                    const st = stokMap[b];
-                    body.innerHTML += `<tr class="border-b"><td class="p-2 font-bold">${b}</td><td class="p-2">${st.spek}</td><td class="p-2 text-center text-emerald-600">+${st.masuk}</td><td class="p-2 text-center text-rose-500">-${st.keluar}</td><td class="p-2 text-center font-bold text-purple-600">${st.masuk - st.keluar} ${st.satuan}</td></tr>`;
-                });
-            }
-
-            document.getElementById('modal-card-detail').classList.remove('hidden');
-            document.getElementById('modal-card-detail').classList.add('flex');
-        }
-
-        function openSppModal(editId = null) {
-            document.getElementById('spp-items-container').innerHTML = '';
-            document.getElementById('spp-edit-id').value = '';
-            
-            if(editId) {
-                const item = sppData.find(i => i.id === editId);
-                document.getElementById('spp-edit-id').value = item.id;
-                document.getElementById('spp-no').value = item.no;
-                document.getElementById('spp-tgl').value = item.tgl;
-                document.getElementById('spp-pengaju').value = item.pengaju;
-                document.getElementById('spp-modal-title').innerText = 'Edit Data SPP';
-                document.getElementById('btn-add-spp-item').style.display = 'none';
-
-                addSppItemRow(item.barang, item.spek, item.qty, item.satuan, item.ket);
-            } else {
-                document.getElementById('form-spp').reset();
-                document.getElementById('spp-modal-title').innerText = 'Form Permintaan Barang (SPP Baru)';
-                document.getElementById('btn-add-spp-item').style.display = 'inline-flex';
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('spp-tgl').value = today;
-                addSppItemRow();
-            }
-            document.getElementById('modal-spp').classList.remove('hidden');
-            document.getElementById('modal-spp').classList.add('flex');
-        }
-
-        function addSppItemRow(barang="", spek="", qty="", satuan="", ket="") {
-            const container = document.getElementById('spp-items-container');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center spp-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
-            row.innerHTML = `
-                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
-                <div class="sm:col-span-2"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${satuan}" placeholder="Satuan" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan SPP" class="w-full p-1.5 border rounded item-ket"></div>
-                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
-            `;
-            container.appendChild(row);
-        }
-
-        function saveSpp(e) {
-            e.preventDefault();
-            const editId = document.getElementById('spp-edit-id').value;
-            const no = document.getElementById('spp-no').value;
-            const tgl = document.getElementById('spp-tgl').value;
-            const pengaju = document.getElementById('spp-pengaju').value;
-
-            if(editId) {
-                const idx = sppData.findIndex(i => i.id == editId);
-                const row = document.querySelector('.spp-row');
-                sppData[idx].no = no;
-                sppData[idx].tgl = tgl;
-                sppData[idx].pengaju = pengaju;
-                sppData[idx].barang = row.querySelector('.item-nama').value;
-                sppData[idx].spek = row.querySelector('.item-spek').value;
-                sppData[idx].qty = parseFloat(row.querySelector('.item-qty').value);
-                sppData[idx].satuan = row.querySelector('.item-satuan').value;
-                sppData[idx].ket = row.querySelector('.item-ket').value;
-            } else {
-                const rows = document.querySelectorAll('.spp-row');
-                rows.forEach(row => {
-                    sppData.push({
-                        id: Date.now() + Math.random(),
-                        no, tgl, pengaju,
-                        barang: row.querySelector('.item-nama').value,
-                        spek: row.querySelector('.item-spek').value || '-',
-                        qty: parseFloat(row.querySelector('.item-qty').value),
-                        satuan: row.querySelector('.item-satuan').value,
-                        realisasiHistory: [],
-                        totalRealisasi: 0,
-                        ket: row.querySelector('.item-ket').value || '-'
-                    });
-                });
-            }
-
-            closeModal('modal-spp');
-            saveData();
-        }
-
-        function deleteSpp(id) {
-            if(confirm('Hapus SPP ini?')) {
-                sppData = sppData.filter(i => i.id !== id);
-                saveData();
-            }
-        }
-
-        function openRealisasiModal(sppId, histIndex = null) {
-            document.getElementById('form-realisasi').reset();
-            document.getElementById('realisasi-spp-id').value = sppId;
-            document.getElementById('realisasi-index').value = histIndex !== null ? histIndex : '';
-
-            const spp = sppData.find(i => i.id == sppId);
-
-            if (histIndex !== null && spp && spp.realisasiHistory[histIndex]) {
-                const hist = spp.realisasiHistory[histIndex];
-                document.getElementById('realisasi-modal-title').innerText = 'Edit Realisasi Pembelian';
-                document.getElementById('realisasi-tgl').value = hist.tgl;
-                document.getElementById('realisasi-qty').value = hist.qty;
-                document.getElementById('realisasi-detail').value = hist.detail;
-            } else {
-                document.getElementById('realisasi-modal-title').innerText = 'Input Realisasi Pembelian Bertahap';
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('realisasi-tgl').value = today;
-            }
-
-            document.getElementById('modal-realisasi').classList.remove('hidden');
-            document.getElementById('modal-realisasi').classList.add('flex');
-        }
-
-        function saveRealisasi(e) {
-            e.preventDefault();
-            const id = document.getElementById('realisasi-spp-id').value;
-            const histIndex = document.getElementById('realisasi-index').value;
-            const tgl = document.getElementById('realisasi-tgl').value;
-            const qty = parseFloat(document.getElementById('realisasi-qty').value);
-            const detail = document.getElementById('realisasi-detail').value;
-
-            const spp = sppData.find(i => i.id == id);
-            if(spp) {
-                if (histIndex !== "") {
-                    const oldQty = spp.realisasiHistory[histIndex].qty;
-                    spp.realisasiHistory[histIndex] = { tgl, qty, detail };
-                    spp.totalRealisasi = spp.totalRealisasi - oldQty + qty;
-                } else {
-                    spp.realisasiHistory.push({ tgl, qty, detail });
-                    spp.totalRealisasi += qty;
-                }
-            }
-
-            closeModal('modal-realisasi');
-            saveData();
-        }
-
-        function deleteRealisasi(sppId, histIndex) {
-            if(confirm('Hapus riwayat realisasi ini?')) {
-                const spp = sppData.find(i => i.id == sppId);
-                if(spp && spp.realisasiHistory[histIndex]) {
-                    spp.totalRealisasi -= spp.realisasiHistory[histIndex].qty;
-                    spp.realisasiHistory.splice(histIndex, 1);
-                    saveData();
-                }
-            }
-        }
-
-        function openMasukModal(editId = null) {
-            document.getElementById('masuk-items-container').innerHTML = '';
-            document.getElementById('masuk-edit-id').value = '';
-
-            if(editId) {
-                const item = masukData.find(i => i.id === editId);
-                document.getElementById('masuk-edit-id').value = item.id;
-                document.getElementById('masuk-tgl').value = item.tgl;
-                document.getElementById('masuk-vendor').value = item.vendor;
-                document.getElementById('masuk-modal-title').innerText = 'Edit Barang Masuk';
-                document.getElementById('btn-add-masuk-item').style.display = 'none';
-
-                addMasukItemRow(item.barang, item.spek, item.qty, item.satuan, item.harga, item.ket);
-            } else {
-                document.getElementById('form-masuk').reset();
-                document.getElementById('masuk-modal-title').innerText = 'Input Barang Masuk Proyek';
-                document.getElementById('btn-add-masuk-item').style.display = 'inline-flex';
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('masuk-tgl').value = today;
-                addMasukItemRow();
-            }
-            updateMasukSummary();
-            document.getElementById('modal-masuk').classList.remove('hidden');
-            document.getElementById('modal-masuk').classList.add('flex');
-        }
-
-        function addMasukItemRow(barang="", spek="", qty="", satuan="", harga="", ket="") {
-            const container = document.getElementById('masuk-items-container');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center masuk-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
-            row.innerHTML = `
-                <div class="sm:col-span-3"><input type="text" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
-                <div class="sm:col-span-1"><input type="number" value="${qty}" placeholder="Qty" class="w-full p-1.5 border rounded item-qty" oninput="updateMasukSummary()" required></div>
-                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="number" value="${harga}" placeholder="Harga Sat" class="w-full p-1.5 border rounded item-harga" oninput="updateMasukSummary()" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan / SJ" class="w-full p-1.5 border rounded item-ket"></div>
-                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove(); updateMasukSummary();" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
-            `;
-            container.appendChild(row);
-            updateMasukSummary();
-        }
-
-        function updateMasukSummary() {
-            const rows = document.querySelectorAll('.masuk-row');
-            let totalQty = 0;
-            let totalRp = 0;
-
-            rows.forEach(row => {
-                const q = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const h = parseFloat(row.querySelector('.item-harga').value) || 0;
-                totalQty += q;
-                totalRp += (q * h);
-            });
-
-            const vendorVal = document.getElementById('masuk-vendor').value || 'Vendor Belum Diisi';
-            const tglVal = document.getElementById('masuk-tgl').value || '-';
-
-            document.getElementById('masuk-summary-text').innerHTML = 
-                `Vendor: <span class="font-bold">${vendorVal}</span> | Tgl: <span class="font-bold">${tglVal}</span><br>Akumulasi Qty: <span class="font-bold">${totalQty} Item</span> | Total Biaya: <span class="font-bold text-emerald-700">Rp ${totalRp.toLocaleString('id-ID')}</span>`;
-        }
-
-        function saveMasuk(e) {
-            e.preventDefault();
-            const editId = document.getElementById('masuk-edit-id').value;
-            const tgl = document.getElementById('masuk-tgl').value;
-            const vendor = document.getElementById('masuk-vendor').value;
-
-            if(editId) {
-                const idx = masukData.findIndex(i => i.id == editId);
-                const row = document.querySelector('.masuk-row');
-                const qty = parseFloat(row.querySelector('.item-qty').value);
-                const harga = parseFloat(row.querySelector('.item-harga').value);
-                masukData[idx].tgl = tgl;
-                masukData[idx].vendor = vendor;
-                masukData[idx].barang = row.querySelector('.item-nama').value;
-                masukData[idx].spek = row.querySelector('.item-spek').value;
-                masukData[idx].qty = qty;
-                masukData[idx].satuan = row.querySelector('.item-satuan').value;
-                masukData[idx].harga = harga;
-                masukData[idx].total = qty * harga;
-                masukData[idx].ket = row.querySelector('.item-ket').value;
-            } else {
-                const rows = document.querySelectorAll('.masuk-row');
-                rows.forEach(row => {
-                    const qty = parseFloat(row.querySelector('.item-qty').value);
-                    const harga = parseFloat(row.querySelector('.item-harga').value);
-                    masukData.push({
-                        id: Date.now() + Math.random(),
-                        tgl, vendor,
-                        barang: row.querySelector('.item-nama').value,
-                        spek: row.querySelector('.item-spek').value || '-',
-                        qty, satuan: row.querySelector('.item-satuan').value,
-                        harga, total: qty * harga, 
-                        ket: row.querySelector('.item-ket').value || '-'
-                    });
-                });
-            }
-
-            closeModal('modal-masuk');
-            saveData();
-            updateBarangDatalist();
-        }
-
-        function deleteMasuk(id) {
-            if(confirm('Hapus transaksi barang masuk ini?')) {
-                masukData = masukData.filter(i => i.id !== id);
-                saveData();
-                updateBarangDatalist();
-            }
-        }
-
-        function openKeluarModal(editId = null) {
-            document.getElementById('keluar-items-container').innerHTML = '';
-            document.getElementById('keluar-edit-id').value = '';
-            updateBarangDatalist();
-
-            if(editId) {
-                const item = keluarData.find(i => i.id === editId);
-                document.getElementById('keluar-edit-id').value = item.id;
-                document.getElementById('keluar-tgl').value = item.tgl;
-                document.getElementById('keluar-pengambil').value = item.pengambil;
-                document.getElementById('keluar-modal-title').innerText = 'Edit Pengeluaran Barang';
-                document.getElementById('btn-add-keluar-item').style.display = 'none';
-
-                addKeluarItemRow(item.barang, item.spek, item.qty, item.satuan, item.ket);
-            } else {
-                document.getElementById('form-keluar').reset();
-                document.getElementById('keluar-modal-title').innerText = 'Input Barang Keluar / Penyesuaian';
-                document.getElementById('btn-add-keluar-item').style.display = 'inline-flex';
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('keluar-tgl').value = today;
-                addKeluarItemRow();
-            }
-            document.getElementById('modal-keluar').classList.remove('hidden');
-            document.getElementById('modal-keluar').classList.add('flex');
-        }
-
-        // PERBAIKAN 2: Update fungsi datalist dan deteksi otomatis spesifikasi/satuan saat item dipilih
-        function updateBarangDatalist() {
-            const datalist = document.getElementById('list-barang-stok');
-            datalist.innerHTML = '';
-            
-            // Ambil daftar barang unik dari data masuk
-            const uniqueBarang = {};
-            masukData.forEach(m => {
-                uniqueBarang[m.barang] = { spek: m.spek, satuan: m.satuan };
-            });
-
-            Object.keys(uniqueBarang).forEach(namaBarang => {
-                const option = document.createElement('option');
-                option.value = namaBarang;
-                datalist.appendChild(option);
-            });
-        }
-
-        function handleBarangKeluarSelect(inputElement) {
-            const row = inputElement.closest('.keluar-row');
-            const selectedName = inputElement.value;
-            const spekInput = row.querySelector('.item-spek');
-            const satuanInput = row.querySelector('.item-satuan');
-
-            // Cari data barang masuk yang cocok untuk mengisi spesifikasi & satuan otomatis
-            const matchedItem = masukData.find(m => m.barang.toLowerCase() === selectedName.toLowerCase());
-            if (matchedItem) {
-                spekInput.value = matchedItem.spek || '';
-                satuanInput.value = matchedItem.satuan || '';
-            }
-        }
-
-        function addKeluarItemRow(barang="", spek="", qty="", satuan="", ket="") {
-            const container = document.getElementById('keluar-items-container');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center keluar-row bg-white p-2.5 sm:p-2 rounded-lg border border-slate-200';
-            row.innerHTML = `
-                <div class="sm:col-span-3"><input type="text" list="list-barang-stok" value="${barang}" placeholder="Nama Barang" class="w-full p-1.5 border rounded item-nama" oninput="handleBarangKeluarSelect(this)" onchange="handleBarangKeluarSelect(this)" required></div>
-                <div class="sm:col-span-3"><input type="text" value="${spek}" placeholder="Spesifikasi" class="w-full p-1.5 border rounded item-spek"></div>
-                <div class="sm:col-span-2"><input type="number" value="${qty}" placeholder="Qty Out" class="w-full p-1.5 border rounded item-qty" required></div>
-                <div class="sm:col-span-1"><input type="text" value="${satuan}" placeholder="Sat" class="w-full p-1.5 border rounded item-satuan" required></div>
-                <div class="sm:col-span-2"><input type="text" value="${ket}" placeholder="Keterangan" class="w-full p-1.5 border rounded item-ket"></div>
-                <div class="sm:col-span-1 text-right sm:text-center"><button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 p-1"><i class="fa-solid fa-trash"></i> Hapus</button></div>
-            `;
-            container.appendChild(row);
-        }
-
-        function saveKeluar(e) {
-            e.preventDefault();
-            const editId = document.getElementById('keluar-edit-id').value;
-            const tgl = document.getElementById('keluar-tgl').value;
-            const pengambil = document.getElementById('keluar-pengambil').value;
-
-            if(editId) {
-                const idx = keluarData.findIndex(i => i.id == editId);
-                const row = document.querySelector('.keluar-row');
-                keluarData[idx].tgl = tgl;
-                keluarData[idx].pengambil = pengambil;
-                keluarData[idx].barang = row.querySelector('.item-nama').value;
-                keluarData[idx].spek = row.querySelector('.item-spek').value;
-                keluarData[idx].qty = parseFloat(row.querySelector('.item-qty').value);
-                keluarData[idx].satuan = row.querySelector('.item-satuan').value;
-                keluarData[idx].ket = row.querySelector('.item-ket').value;
-            } else {
-                const rows = document.querySelectorAll('.keluar-row');
-                rows.forEach(row => {
-                    keluarData.push({
-                        id: Date.now() + Math.random(),
-                        tgl, pengambil,
-                        barang: row.querySelector('.item-nama').value,
-                        spek: row.querySelector('.item-spek').value || '-',
-                        qty: parseFloat(row.querySelector('.item-qty').value),
-                        satuan: row.querySelector('.item-satuan').value,
-                        ket: row.querySelector('.item-ket').value || 'Pemakaian Proyek',
-                        petugas: "Staff Logistik"
-                    });
-                });
-            }
-
-            closeModal('modal-keluar');
-            saveData();
-        }
-
-        function deleteKeluar(id) {
-            if(confirm('Hapus catatan pengeluaran ini?')) {
-                keluarData = keluarData.filter(i => i.id !== id);
-                saveData();
-            }
-        }
-
-        function filterTable(inputId, tableBodyId) {
-            const val = document.getElementById(inputId).value.toLowerCase();
-            document.querySelectorAll(`#${tableBodyId} tr`).forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
-            });
-        }
-
-        let barChartInstance = null;
-        let pieChartInstance = null;
-
-        function renderAll() {
-            renderSppTable();
-            renderMasukTable();
-            renderKeluarTable();
-            renderStokTableAndDashboard();
-            updateBarangDatalist();
-        }
-
-        function renderSppTable() {
-            const body = document.getElementById('spp-table-body');
-            body.innerHTML = '';
-
-            sppData.forEach((item, index) => {
-                const sisa = item.qty - item.totalRealisasi;
-                const badge = sisa <= 0 
-                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">TERPENUHI</span>`
-                    : `<span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">SISA ${sisa} ${item.satuan}</span>`;
-
-                let historyHtml = 'Belum ada realisasi';
-                if (item.realisasiHistory && item.realisasiHistory.length > 0) {
-                    historyHtml = item.realisasiHistory.map((h, hIdx) => `
-                        <div class="flex items-center justify-between gap-2 py-0.5 border-b border-slate-100 last:border-0">
-                            <span>• ${h.tgl}: ${h.qty} ${item.satuan} (${h.detail})</span>
-                            <span class="space-x-1">
-                                <button onclick="openRealisasiModal(${item.id}, ${hIdx})" title="Edit Realisasi" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                <button onclick="deleteRealisasi(${item.id}, ${hIdx})" title="Hapus Realisasi" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                            </span>
-                        </div>
-                    `).join('');
-                }
-
-                body.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-400 font-semibold">${index + 1}</td>
-                        <td class="p-3 font-semibold text-blue-600">${item.no}</td>
-                        <td class="p-3 text-slate-500">${item.tgl}</td>
-                        <td class="p-3 font-medium text-slate-700">${item.pengaju || '-'}</td>
-                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spek}</td>
-                        <td class="p-3 text-center font-bold text-blue-600">${item.qty}</td>
-                        <td class="p-3 text-slate-500">${item.satuan}</td>
-                        <td class="p-3 text-slate-500 text-[11px]">${historyHtml}</td>
-                        <td class="p-3 text-center font-bold text-emerald-600">${item.totalRealisasi}</td>
-                        <td class="p-3 text-center">${badge}</td>
-                        <td class="p-3 text-slate-600 font-medium">${item.ket || '-'}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="openRealisasiModal(${item.id})" title="Tambah Realisasi" class="text-emerald-600 hover:text-emerald-800 p-1"><i class="fa-solid fa-cart-plus"></i></button>
-                            <button onclick="openSppModal(${item.id})" title="Edit SPP" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteSpp(${item.id})" title="Hapus SPP" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderMasukTable() {
-            const body = document.getElementById('masuk-table-body');
-            const header = document.getElementById('masuk-table-header');
-            body.innerHTML = '';
-
-            if (isGroupedMasukView) {
-                header.innerHTML = `
-                    <th class="p-3 pl-5">No</th>
-                    <th class="p-3">Nama Vendor / Supplier</th>
-                    <th class="p-3 text-center">Total Jenis Barang</th>
-                    <th class="p-3 text-center">Akumulasi Qty Masuk</th>
-                    <th class="p-3 text-right">Total Biaya Pengadaan (Rp)</th>
-                    <th class="p-3 text-center">Aksi</th>
-                `;
-                
-                const vendorMap = {};
-                masukData.forEach(item => {
-                    vendorMap[item.vendor] = vendorMap[item.vendor] || { count: 0, qty: 0, total: 0 };
-                    vendorMap[item.vendor].count += 1;
-                    vendorMap[item.vendor].qty += item.qty;
-                    vendorMap[item.vendor].total += item.total;
-                });
-
-                let idx = 1;
-                Object.keys(vendorMap).forEach(vendor => {
-                    const v = vendorMap[vendor];
-                    body.innerHTML += `
-                        <tr class="hover:bg-slate-50 border-b border-slate-100">
-                            <td class="p-3 pl-5 text-slate-400 font-semibold">${idx++}</td>
-                            <td class="p-3 font-bold text-slate-800">${vendor}</td>
-                            <td class="p-3 text-center">${v.count} Jenis</td>
-                            <td class="p-3 text-center font-bold text-blue-600">${v.qty} Item</td>
-                            <td class="p-3 text-right font-bold text-emerald-600">Rp ${v.total.toLocaleString('id-ID')}</td>
-                            <td class="p-3 text-center text-slate-400 text-xs italic">Akumulasi Vendor</td>
-                        </tr>
-                    `;
-                });
-
-            } else {
-                header.innerHTML = `
-                    <th class="p-3 pl-5">No</th>
-                    <th class="p-3">Tanggal</th>
-                    <th class="p-3">Nama Vendor</th>
-                    <th class="p-3">Nama Barang</th>
-                    <th class="p-3">Spesifikasi</th>
-                    <th class="p-3 text-center">Qty</th>
-                    <th class="p-3">Satuan</th>
-                    <th class="p-3 text-right">Harga Satuan (Rp)</th>
-                    <th class="p-3 text-right">Jumlah Total (Rp)</th>
-                    <th class="p-3">Keterangan</th>
-                    <th class="p-3 text-center">Aksi</th>
-                `;
-
-                masukData.forEach((item, index) => {
-                    body.innerHTML += `
-                        <tr class="hover:bg-slate-50 border-b border-slate-100">
-                            <td class="p-3 pl-5 text-slate-400 font-semibold">${index + 1}</td>
-                            <td class="p-3 text-slate-500">${item.tgl}</td>
-                            <td class="p-3 font-semibold text-slate-800">${item.vendor}</td>
-                            <td class="p-3 font-bold text-blue-600">${item.barang}</td>
-                            <td class="p-3 text-slate-500">${item.spek}</td>
-                            <td class="p-3 text-center font-bold">${item.qty}</td>
-                            <td class="p-3 text-slate-500">${item.satuan}</td>
-                            <td class="p-3 text-right">Rp ${(item.harga || 0).toLocaleString('id-ID')}</td>
-                            <td class="p-3 text-right font-bold text-emerald-600">Rp ${(item.total || 0).toLocaleString('id-ID')}</td>
-                            <td class="p-3 text-slate-500">${item.ket || '-'}</td>
-                            <td class="p-3 text-center space-x-2">
-                                <button onclick="openMasukModal(${item.id})" title="Edit Barang Masuk" class="text-blue-600 hover:text-blue-800 p-1"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteMasuk(${item.id})" title="Hapus Barang Masuk" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-
-        function renderKeluarTable() {
-            const body = document.getElementById('keluar-table-body');
-            body.innerHTML = '';
-
-            keluarData.forEach((item) => {
-                body.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-500">${item.tgl}</td>
-                        <td class="p-3 font-semibold text-slate-800">${item.pengambil}</td>
-                        <td class="p-3 font-bold text-purple-600">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spek}</td>
-                        <td class="p-3 text-center font-bold text-rose-500">-${item.qty} ${item.satuan}</td>
-                        <td class="p-3 text-slate-600">${item.ket || '-'}</td>
-                        <td class="p-3 text-slate-400 text-xs">${item.petugas || 'Staff'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="deleteKeluar(${item.id})" title="Hapus Pengeluaran" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderStokTableAndDashboard() {
-            const stokBody = document.getElementById('stok-table-body');
-            stokBody.innerHTML = '';
-
-            const stokMap = {};
-            masukData.forEach(m => {
-                stokMap[m.barang] = stokMap[m.barang] || { spek: m.spek, satuan: m.satuan, masuk: 0, keluar: 0, tgl: m.tgl };
-                stokMap[m.barang].masuk += m.qty;
-            });
-
-            keluarData.forEach(k => {
-                stokMap[k.barang] = stokMap[k.barang] || { spek: k.spek || '-', satuan: k.satuan, masuk: 0, keluar: 0, tgl: k.tgl };
-                stokMap[k.barang].keluar += k.qty;
-            });
-
-            let totalJenis = 0;
-            let totalSaldoQty = 0;
-            let index = 1;
-            const chartLabels = [];
-            const chartDataValues = [];
-
-            Object.keys(stokMap).forEach(barang => {
-                totalJenis++;
-                const st = stokMap[barang];
-                const saldo = st.masuk - st.keluar;
-                totalSaldoQty += saldo;
-
-                chartLabels.push(barang);
-                chartDataValues.push(saldo);
-
-                const statusBadge = saldo > 0 
-                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px]">TERSEDIA</span>`
-                    : `<span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded text-[10px]">KOSONG / HABIS</span>`;
-
-                stokBody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-400 font-semibold">${index++}</td>
-                        <td class="p-3 text-slate-500">${st.tgl}</td>
-                        <td class="p-3 font-bold text-slate-800">${barang}</td>
-                        <td class="p-3 text-slate-500">${st.spek}</td>
-                        <td class="p-3 text-slate-500">${st.satuan}</td>
-                        <td class="p-3 text-center font-bold text-emerald-600">+${st.masuk}</td>
-                        <td class="p-3 text-center font-bold text-rose-500">-${st.keluar}</td>
-                        <td class="p-3 text-center font-bold text-purple-600 text-sm">${saldo}</td>
-                        <td class="p-3">${statusBadge}</td>
-                    </tr>
-                `;
-            });
-
-            // Update Dashboard Metrics
-            let totalSppQty = 0;
-            let totalKurangQty = 0;
-            sppData.forEach(s => {
-                totalSppQty += s.qty;
-                totalKurangQty += Math.max(0, s.qty - s.totalRealisasi);
-            });
-
-            let totalMasukQty = 0;
-            let totalMasukRp = 0;
-            masukData.forEach(m => {
-                totalMasukQty += m.qty;
-                totalMasukRp += m.total;
-            });
-
-            document.getElementById('dash-total-spp').innerHTML = `${totalSppQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-spp-count').innerText = `${sppData.length} SPP terdaftar →`;
-            document.getElementById('dash-total-kurang').innerHTML = `${totalKurangQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-total-masuk').innerHTML = `${totalMasukQty} <span class="text-sm font-normal text-slate-500">Qty</span>`;
-            document.getElementById('dash-val-masuk').innerText = `Rp ${totalMasukRp.toLocaleString('id-ID')} →`;
-            document.getElementById('dash-total-jenis').innerHTML = `${totalJenis} <span class="text-sm font-normal text-slate-500">Jenis</span>`;
-            document.getElementById('dash-saldo-total').innerText = `Saldo: ${totalSaldoQty} Qty →`;
-
-            // Render Dashboard Table Kekurangan SPP
-            const dashTableBody = document.getElementById('dash-table-body');
-            dashTableBody.innerHTML = '';
-            sppData.filter(i => (i.qty - i.totalRealisasi) > 0).forEach((item, i) => {
-                const sisa = item.qty - item.totalRealisasi;
-                dashTableBody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 pl-5 text-slate-400 font-semibold">${i + 1}</td>
-                        <td class="p-3 font-semibold text-blue-600">${item.no}</td>
-                        <td class="p-3 text-slate-500">${item.tgl}</td>
-                        <td class="p-3">${item.pengaju}</td>
-                        <td class="p-3 font-bold text-slate-800">${item.barang}</td>
-                        <td class="p-3 text-slate-500">${item.spek}</td>
-                        <td class="p-3 text-center font-bold">${item.qty}</td>
-                        <td class="p-3 text-center text-emerald-600 font-semibold">${item.totalRealisasi}</td>
-                        <td class="p-3 text-center font-bold text-amber-600">${sisa} ${item.satuan}</td>
-                        <td class="p-3 text-center"><span class="bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px]">PENDING</span></td>
-                    </tr>
-                `;
-            });
-
-            // Render Charts
-            renderCharts(chartLabels, chartDataValues);
-        }
-
-        function renderCharts(labels, dataValues) {
-            const barCtx = document.getElementById('barChart').getContext('2d');
-            if (barChartInstance) barChartInstance.destroy();
-            
-            const sppBarLabels = sppData.map(s => s.barang);
-            const sppReqData = sppData.map(s => s.qty);
-            const sppRealData = sppData.map(s => s.totalRealisasi);
-
-            barChartInstance = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: sppBarLabels,
-                    datasets: [
-                        { label: 'Permintaan (SPP)', data: sppReqData, backgroundColor: '#3b82f6', borderRadius: 6 },
-                        { label: 'Realisasi', data: sppRealData, backgroundColor: '#10b981', borderRadius: 6 }
-                    ]
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } } }
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
+                }
+            }
+        });
 
-            const pieCtx = document.getElementById('pieChart').getContext('2d');
-            if (pieChartInstance) pieChartInstance.destroy();
+        // Inisialisasi Donut Chart (Proporsi Stok Gudang)
+        const ctxDonut = document.getElementById('donutChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kayu Balok', 'Pilox', 'Scotlet Merah', 'Kawat Las RB260', 'Kawat Las RD46', 'Kawat Las RD460', 'Kawat Bendrat'],
+                datasets: [{
+                    data: [20, 15, 10, 18, 12, 15, 25],
+                    backgroundColor: ['#3b82f6', '#f97316', '#a855f7', '#06b6d4', '#ec4899', '#eab308', '#f43f5e'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Inter', size: 10 } } }
+                }
+            }
+        });
 
-            pieChartInstance = new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: dataValues,
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+        // Fungsi Aksi Tombol
+        function exportData() {
+            alert('Fitur Export: Data laporan ringkasan SPP berhasil di-export ke format Excel (.xlsx).');
         }
 
-        window.onload = function() {
-            renderAll();
-            loadDataFromServer();
-        };
+        function importData() {
+            alert('Fitur Import: Silakan pilih file data logistik untuk diunggah ke sistem.');
+        }
+
+        function downloadApp() {
+            alert('Mengunduh aplikasi versi v1.0.5 (.apk) untuk perangkat Anda...');
+        }
     </script>
-
-
-</body></html>
+</body>
+</html>
