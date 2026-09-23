@@ -580,7 +580,7 @@
             }
         }
 
-                    function exportDataJSON() {
+                  function exportDataJSON() {
         try {
             // 1. Data SPP & Realisasi
             let sppData = JSON.parse(localStorage.getItem('sppData')) || JSON.parse(localStorage.getItem('spp_data')) || [];
@@ -621,11 +621,7 @@
             alert("Terjadi kesalahan saat mengexport data: " + error.message);
         }
     }
-
-
-
-
-       function importDataJSON(event) {
+function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
