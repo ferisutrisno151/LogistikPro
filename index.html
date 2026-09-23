@@ -27,7 +27,7 @@
             <div class="flex items-center justify-between px-3 py-4 mb-6">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-blue-500/30">
-                        LogPro
+                        151
                     </div>
                     <div>
                         <h1 class="font-bold text-white text-lg leading-none">LogistikPro</h1>
@@ -1311,49 +1311,7 @@
                         <td class="p-3 text-center">${statusBadge}</td>
                     </tr>
                 `;
-            });
-
-            renderCharts();
-        }
-
-        function renderCharts() {
-            const sppBarang = sppData.map(i => i.barang);
-            const sppPermintaan = sppData.map(i => i.qty);
-            const sppRealisasi = sppData.map(i => i.totalRealisasi);
-
-            if(barChartInstance) barChartInstance.destroy();
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            barChartInstance = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: sppBarang,
-                    datasets: [
-                        { label: 'Permintaan SPP', data: sppPermintaan, backgroundColor: '#3b82f6', borderRadius: 4 },
-                        { label: 'Terealisasi', data: sppRealisasi, backgroundColor: '#10b981', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } } },
-                    scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
-                }
-            });
-
-            const masukMap = {};
-            masuk.forEach(m => { masukMap[m.barang] = (masukMap[m.barang] || 0) + m.qty; });
-
-            if(pieChartInstance) pieChartInstance.destroy();
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            pieChartInstance = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(masukMap),
-                    datasets: [{
-                        data: Object.values(masukMap),
-                        backgroundColor: ['#06b6d4', '#f59e0b', '#a855f7', '#ec4899', '#3b82f6']
-                    }]
-                },
+            })
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
