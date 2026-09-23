@@ -17,6 +17,7 @@
             input, select, textarea { font-size: 16px !important; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-100 min-h-screen flex flex-col md:flex-row">
 
@@ -69,7 +70,7 @@
             <!-- Tombol download diperbarui menjadi direct link href dengan atribut download -->
             <a href="https://files.catbox.moe/k74n34.apk" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2">
     <i class="fa-solid fa-download"></i> DOWNLOAD APLIKASI (v1.0.5)
-</a>
+            </a>
         </div>
     </aside>
 
@@ -580,7 +581,7 @@
             }
         }
 
-                    function exportDataJSON() {
+                                                function exportDataJSON() {
         try {
             // 1. Data SPP & Realisasi
             let sppData = JSON.parse(localStorage.getItem('sppData')) || JSON.parse(localStorage.getItem('spp_data')) || [];
@@ -624,8 +625,7 @@
 
 
 
-
-       function importDataJSON(event) {
+          function importDataJSON(event) {
             const fileReader = new FileReader();
             if (event.target.files && event.target.files[0]) {
                 fileReader.readAsText(event.target.files[0], "UTF-8");
