@@ -1531,68 +1531,102 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         async function exportExcelAll() {
     try {
-        if (!db || (!db.spp && !db.barangMasuk)) {
+        if (!db) {
             alert("Data aplikasi belum siap untuk diexport.");
             return;
         }
 
         let wb = XLSX.utils.book_new();
         
-        // Tab 1: SPP & Realisasi (Format disesuaikan persis seperti Gambar ke-2)
+        // 1. TAB: Data SPP (Sesuai Gambar 1)
         let sppRows = [];
-        let indexSpp = 1;
+        let idxSpp = 1;
         (db.spp || []).forEach(s => {
             (s.items || []).forEach(i => {
                 let realTotal = 0;
                 (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                sppRows.push({ 
-                    "No": indexSpp++,
-                    "No SPP": s.nospp || "", 
-                    "Tanggal": s.tglSpp || "", 
-                    "Pengaju": s.pengaju || "", 
-                    "Nama Barang": i.namabarang || i.namaBarang || "", 
-                    "Spesifikasi": i.spesifikasi || "", 
-                    "Qty": Number(i.qty) || 0, 
+                let status = realTotal >= Number(i.qty) ? "Terpenuhi" : "Kurang";
+                sppRows.push({
+                    "No": idxSpp++,
+                    "No SPP": s.nospp || "",
+                    "Tanggal SPP": s.tglSpp || "",
+                    "Pengaju": s.pengaju || "",
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Qty": Number(i.qty) || 0,
                     "Satuan": i.satuan || "",
-                    "Realisasi": realTotal 
+                    "Total Reali": realTotal,
+                    "Status": status,
+                    "Keterangan": i.keterangan || ""
                 });
             });
         });
         if (sppRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP & Realisasi");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "Data SPP");
         }
 
-        // Tab 2: Barang Masuk
-        let barangMasuk = [];
-        let indexBm = 1;
+        // 2. TAB: Barang Masuk (Sesuai Gambar 2)
+        let bmRows = [];
+        let idxBm = 1;
         (db.barangMasuk || []).forEach(bm => {
             (bm.items || []).forEach(i => {
-                barangMasuk.push({ 
-                    "No": indexBm++,
-                    "Tanggal": bm.tanggal || "", 
-                    "Vendor": bm.vendor || "", 
-                    "Nama Barang": i.namabarang || i.namaBarang || "", 
+                bmRows.push({
+                    "No": idxBm++,
+                    "Tanggal": bm.tanggal || "",
+                    "Nama Vendor": bm.vendor || "",
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
                     "Spesifikasi": i.spesifikasi || "",
                     "Qty": Number(i.qty) || 0,
-                    "Satuan": i.satuan || ""
+                    "Satuan": i.satuan || "",
+                    "Harga Sat (Rp)": Number(i.hargasatuan) || Number(i.hargaSatuan) || 0,
+                    "Total Harga": (Number(i.qty) || 0) * (Number(i.hargasatuan) || Number(i.hargaSatuan) || 0),
+                    "Keterangan": i.keterangan || ""
                 });
             });
         });
-        if (barangMasuk.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
+        if (bmRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
         }
 
-        // Tab 3: Stok Gudang
+        // 3. TAB: Stok Keluar (Sesuai Gambar 3)
+        let skRows = [];
+        let idxSk = 1;
+        (db.stokKeluar || db.keluar || []).forEach(sk => {
+            (sk.items || []).forEach(i => {
+                skRows.push({
+                    "No": idxSk++,
+                    "Tanggal": sk.tanggal || "",
+                    "Nama Penerima": sk.penerima || sk.namapenerima || "",
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Jumlah": Number(i.qty) || 0,
+                    "Satuan": i.satuan || "",
+                    "Keterangan": i.keterangan || ""
+                });
+            });
+        });
+        if (skRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(skRows), "Stok Keluar");
+        }
+
+        // 4. TAB: Kartu Stok (Sesuai Gambar 4)
+        let kartuStokRows = [];
         let summaryData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : [];
-        let stokRows = summaryData.map((st, i) => ({ 
-            "NO": i + 1, 
-            "Barang": st.namabarang || st.namaBarang || "", 
-            "Spesifikasi": st.spesifikasi || "", 
-            "Satuan": st.satuan || "", 
-            "Stok Gudang": Number(st.saldo) || 0 
-        }));
-        if (stokRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
+        summaryData.forEach((st, index) => {
+            kartuStokRows.push({
+                "No": index + 1,
+                "Tanggal Update": st.tanggal || new Date().toISOString().slice(0, 10),
+                "Nama Barang": st.namabarang || st.namaBarang || "",
+                "Spesifikasi": st.spesifikasi || "",
+                "Satuan": st.satuan || "",
+                "Total Masuk": Number(st.totalMasuk) || 0,
+                "Total Keluar": Number(st.totalKeluar) || 0,
+                "Saldo Akhir": Number(st.saldo) || 0,
+                "Status": (Number(st.saldo) || 0) > 0 ? "Tersedia" : "Habis"
+            });
+        });
+        if (kartuStokRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kartuStokRows), "Kartu Stok");
         }
 
         if (wb.SheetNames.length === 0) {
@@ -1602,7 +1636,7 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         let filename = "LogistikPro_Report_" + new Date().toISOString().slice(0, 10) + ".xlsx";
 
-        // Eksekusi unduhan file Excel
+        // Proses Unduh File Excel
         let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         let blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         
