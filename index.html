@@ -1091,8 +1091,7 @@
             filtered.forEach(s => {
                 s.items.forEach((item, itemIdx) => {
                     let reqQty = Number(item.qty) || 0, realTotal = 0;
-                    let realDetails = (item.realisasi && item.realisasi.length > 0) ? item.realisasi.map((r, rIdx) => `<div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-100 last:border-none"><span>${r.tanggal}: <strong>${r.jumlah} ${item.satuan}</strong></span><span class="flex gap-1 ml-2"><button onclick="editRealisasi('${s.id}', ${itemIdx}, ${rIdx})" class="text-blue-500 hover:text-blue-700 p-0.5" title="Edit Realisasi"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button><button onclick="hapusRealisasi('${s.id}', ${itemIdx}, ${rIdx})" class="text-rose-500 hover:text-rose-700 p-0.5" title="Hapus Realisasi"><svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></span></div>`).join('') : '<span class="text-slate-400 italic">Belum ada</span>';
-
+                    (item.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
                     let realDetails = (item.realisasi || []).map(r => `${r.tanggal}: <b>${r.qty}</b>`).join('<br>') || '<span class="text-slate-400">Belum ada</span>';
                     let statusBadge = realTotal >= reqQty ? `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">SELESAI</span>` : (realTotal > 0 ? `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">SEBAGIAN</span>` : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200">MENUNGGU</span>`);
 
@@ -1151,43 +1150,7 @@
                 await saveDataToFirestore('spp', spp.id, spp);
                 closeModal('modalRealisasi');
             }
-            function editRealisasi(sppId, itemIdx, realIdx) {
-    let spp = db.spp.find(s => s.id === sppId);
-    if (!spp || !spp.items[itemIdx] || !spp.items[itemIdx].realisasi[realIdx]) return;
-    
-    let targetReal = spp.items[itemIdx].realisasi[realIdx];
-    
-    // Menggunakan prompt sederhana untuk mengubah tanggal dan jumlah
-    let newTgl = prompt("Edit Tanggal Realisasi (YYYY-MM-DD):", targetReal.tanggal);
-    if (newTgl === null) return;
-    
-    let newQty = prompt("Edit Jumlah Realisasi:", targetReal.jumlah);
-    if (newQty === null) return;
-    
-    // Perbarui data
-    spp.items[itemIdx].realisasi[realIdx].tanggal = newTgl;
-    spp.items[itemIdx].realisasi[realIdx].jumlah = Number(newQty);
-    
-    // Simpan ke database (Firebase / Local) dan render ulang tabel
-    saveDataToFirestore('spp', spp.id, spp);
-    renderSppTable();
-}
-
-function hapusRealisasi(sppId, itemIdx, realIdx) {
-    if (!confirm("Apakah Anda yakin ingin menghapus tanggal realisasi ini?")) return;
-    
-    let spp = db.spp.find(s => s.id === sppId);
-    if (!spp || !spp.items[itemIdx]) return;
-    
-    // Hapus data realisasi berdasarkan index-nya
-    spp.items[itemIdx].realisasi.splice(realIdx, 1);
-    
-    // Simpan perubahan dan render ulang tabel
-    saveDataToFirestore('spp', spp.id, spp);
-    renderSppTable();
-}
-
-   }
+        }
 
         // --- BARANG MASUK ---
         function openBarangMasukModal(editId = null) {
