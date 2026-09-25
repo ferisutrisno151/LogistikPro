@@ -1752,6 +1752,125 @@ async function exportExcelAll() {
 
         if (wb.SheetNames.length === 0) {
             alert("Tidak ada data untuk diexport.");
+async function exportExcelAll() {
+    try {
+        if (!db) {
+            alert("Data aplikasi belum siap untuk diexport.");
+            return;
+        }
+
+        let wb = XLSX.utils.book_new();
+        
+        // 1. TAB: Data SPP (Memperbaiki No SPP & Keterangan)
+        let sppRows = [];
+        let idxSpp = 1;
+        (db.spp || []).forEach(s => {
+            let noSppVal = s.nospp || s.noSpp || s.no_spp || "";
+            let tglSppVal = s.tglSpp || s.tanggal || "";
+            let pengajuVal = s.pengaju || s.namaPengaju || "";
+
+            (s.items || []).forEach(i => {
+                let realTotal = 0;
+                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                let qtySpp = Number(i.qty) || 0;
+                let statusVal = realTotal >= qtySpp ? "Terpenuhi" : "Kurang";
+
+                sppRows.push({
+                    "No": idxSpp++,
+                    "No SPP": noSppVal,
+                    "Tanggal SPP": tglSppVal,
+                    "Pengaju": pengajuVal,
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Qty": qtySpp,
+                    "Satuan": i.satuan || "",
+                    "Total Reali": realTotal,
+                    "Status": statusVal,
+                    "Keterangan": i.keterangan || s.keterangan || ""
+                });
+            });
+        });
+        if (sppRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "Data SPP");
+        }
+
+        // 2. TAB: Barang Masuk
+        let bmRows = [];
+        let idxBm = 1;
+        (db.barangMasuk || []).forEach(bm => {
+            let tglBm = bm.tanggal || bm.tgl || "";
+            let vendorBm = bm.vendor || bm.namavendor || "";
+
+            (bm.items || []).forEach(i => {
+                let qtyBm = Number(i.qty) || 0;
+                let hargaSat = Number(i.hargasatuan) || Number(i.hargaSatuan) || 0;
+
+                bmRows.push({
+                    "No": idxBm++,
+                    "Tanggal": tglBm,
+                    "Nama Vendor": vendorBm,
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Qty": qtyBm,
+                    "Satuan": i.satuan || "",
+                    "Harga Sat (Rp)": hargaSat,
+                    "Total Harga": qtyBm * hargaSat,
+                    "Keterangan": i.keterangan || bm.keterangan || ""
+                });
+            });
+        });
+        if (bmRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
+        }
+
+        // 3. TAB: Stok Keluar (Melacak seluruh variasi nama array di database)
+        let skRows = [];
+        let idxSk = 1;
+        let dataStokKeluar = db.stokKeluar || db.keluar || db.stok_keluar || [];
+        dataStokKeluar.forEach(sk => {
+            let tglSk = sk.tanggal || sk.tgl || "";
+            let penerimaSk = sk.penerima || sk.namapenerima || sk.namaPenerima || "";
+
+            (sk.items || []).forEach(i => {
+                skRows.push({
+                    "No": idxSk++,
+                    "Tanggal": tglSk,
+                    "Nama Penerima": penerimaSk,
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Jumlah": Number(i.qty) || Number(i.jumlah) || 0,
+                    "Satuan": i.satuan || "",
+                    "Keterangan": i.keterangan || sk.keterangan || ""
+                });
+            });
+        });
+        if (skRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(skRows), "Stok Keluar");
+        }
+
+        // 4. TAB: Kartu Stok
+        let kartuStokRows = [];
+        let summaryData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : [];
+        summaryData.forEach((st, index) => {
+            let saldoAkhir = Number(st.saldo) || 0;
+            kartuStokRows.push({
+                "No": index + 1,
+                "Tanggal Update": st.tanggal || new Date().toISOString().slice(0, 10),
+                "Nama Barang": st.namabarang || st.namaBarang || "",
+                "Spesifikasi": st.spesifikasi || "",
+                "Satuan": st.satuan || "",
+                "Total Masuk": Number(st.totalMasuk) || 0,
+                "Total Keluar": Number(st.totalKeluar) || 0,
+                "Saldo Akhir": saldoAkhir,
+                "Status": saldoAkhir > 0 ? "Tersedia" : "Habis"
+            });
+        });
+        if (kartuStokRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kartuStokRows), "Kartu Stok");
+        }
+
+        if (wb.SheetNames.length === 0) {
+            alert("Tidak ada data untuk diexport.");
             return;
         }
 
@@ -1780,6 +1899,7 @@ async function exportExcelAll() {
         alert("Gagal melakukan export Excel: " + error.message);
     }
 }
+
 
 
         function importExcelData(event) {
