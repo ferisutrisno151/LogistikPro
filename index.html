@@ -18,7 +18,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-        // Konfigurasi Firebase Proyek Anda
         const firebaseConfig = {
             apiKey: "AIzaSyCrkKsIfbRws3VSfnWSToWFeVJtOsP6lxA",
             authDomain: "logistikpro-b40a1.firebaseapp.com",
@@ -28,11 +27,9 @@
             appId: "1:158733839743:web:a6147aac03ea10a75bfe4a"
         };
 
-        // Inisialisasi Firebase & Firestore
         const app = initializeApp(firebaseConfig);
         const firestoreDb = getFirestore(app);
 
-        // Ekspor fungsi agar bisa diakses secara global oleh skrip aplikasi di bawah
         window.fbFirestore = { firestoreDb, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot };
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
@@ -61,7 +58,6 @@
                 </div>
             </div>
 
-            <!-- Header Action Icons -->
             <div class="flex items-center space-x-2">
                 <button onclick="shareLink()" title="Bagikan Tautan" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-xl text-sm font-medium flex items-center space-x-1 border border-emerald-200">
                     <i class="fa-solid fa-share-nodes"></i>
@@ -212,6 +208,35 @@
                     <div class="relative flex-1 min-h-[280px] flex items-center justify-center">
                         <canvas id="stokDonutChart"></canvas>
                     </div>
+                </div>
+            </div>
+
+            <!-- TABEL RINGKASAN KEKURANGAN SPP DI BAWAH CHART -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                        <span>RINGKASAN KEKURANGAN REALISASI SPP</span>
+                    </h3>
+                    <span class="text-xs text-slate-500">Data sinkron otomatis real-time</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse no-wrap-table">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
+                                <th class="p-3 border-r border-slate-200">No</th>
+                                <th class="p-3 border-r border-slate-200">No SPP</th>
+                                <th class="p-3 border-r border-slate-200">Tanggal SPP</th>
+                                <th class="p-3 border-r border-slate-200">Pengaju</th>
+                                <th class="p-3 border-r border-slate-200">Nama Barang</th>
+                                <th class="p-3 border-r border-slate-200">Spesifikasi</th>
+                                <th class="p-3 border-r border-slate-200">Diminta</th>
+                                <th class="p-3 border-r border-slate-200">Realisasi</th>
+                                <th class="p-3">Kekurangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashKekuranganTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -566,12 +591,10 @@
         let sppRealisasiChartInstance = null;
         let stokDonutChartInstance = null;
 
-        // Menunggu modul Firebase siap terhubung
         window.addEventListener('firebase-ready', () => {
             initFirestoreRealtimeSync();
         });
 
-        // Fallback jika dimuat offline atau menunggu sebentar
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (!window.fbFirestore) {
@@ -582,11 +605,9 @@
             switchTab('dashboard');
         });
 
-        // Sinkronisasi Real-time dengan Firebase Firestore
         function initFirestoreRealtimeSync() {
-            const { firestoreDb, collection, onSnapshot, getDocs } = window.fbFirestore;
+            const { firestoreDb, collection, onSnapshot } = window.fbFirestore;
 
-            // Mendengarkan perubahan koleksi 'spp' secara real-time
             onSnapshot(collection(firestoreDb, 'spp'), (snapshot) => {
                 db.spp = [];
                 snapshot.forEach((docSnap) => {
@@ -595,7 +616,6 @@
                 refreshAll();
             }, (error) => { console.error("Error sync spp:", error); });
 
-            // Mendengarkan perubahan koleksi 'barangMasuk' secara real-time
             onSnapshot(collection(firestoreDb, 'barangMasuk'), (snapshot) => {
                 db.barangMasuk = [];
                 snapshot.forEach((docSnap) => {
@@ -604,7 +624,6 @@
                 refreshAll();
             }, (error) => { console.error("Error sync barangMasuk:", error); });
 
-            // Mendengarkan perubahan koleksi 'stokKeluar' secara real-time
             onSnapshot(collection(firestoreDb, 'stokKeluar'), (snapshot) => {
                 db.stokKeluar = [];
                 snapshot.forEach((docSnap) => {
@@ -614,7 +633,6 @@
             }, (error) => { console.error("Error sync stokKeluar:", error); });
         }
 
-        // Fungsi Simpan ke Firestore
         async function saveDataToFirestore(collectionName, docId, dataObj) {
             if (window.fbFirestore) {
                 const { firestoreDb, doc, setDoc } = window.fbFirestore;
@@ -628,7 +646,6 @@
             }
         }
 
-        // Fungsi Hapus dari Firestore
         async function deleteDataFromFirestore(collectionName, docId) {
             if (window.fbFirestore) {
                 const { firestoreDb, doc, deleteDoc } = window.fbFirestore;
@@ -640,7 +657,6 @@
             }
         }
 
-        // Cadangan LocalStorage
         function saveDataLocal() {
             localStorage.setItem('logistikpro_db', JSON.stringify(db));
         }
@@ -719,7 +735,7 @@
             document.getElementById('listSatuan').innerHTML = Array.from(satuans).map(s => `<option value="${s}">`).join('');
         }
 
-        // --- DASHBOARD & CHARTS ---
+        // --- DASHBOARD, CHARTS & KEKURANGAN TABLE ---
         function renderDashboard() {
             let totalSppQty = 0, totalSppCount = db.spp.length, totalKurangQty = 0, totalMasukQty = 0, totalMasukRp = 0;
             db.spp.forEach(s => {
@@ -754,11 +770,55 @@
             document.getElementById('dashTotalSaldoStok').innerText = 'Saldo: ' + totalSaldoStok.toLocaleString('id-ID') + ' Qty';
 
             renderCharts(stokList);
+            renderDashboardKekuranganTable();
+        }
+
+        function renderDashboardKekuranganTable() {
+            const tbody = document.getElementById('dashKekuranganTableBody');
+            tbody.innerHTML = '';
+            let rows = [];
+
+            // Urutkan SPP terbaru di atas (berdasarkan tglSpp atau id)
+            let sortedSpp = [...db.spp].reverse();
+
+            sortedSpp.forEach(s => {
+                (s.items || []).forEach(i => {
+                    let req = Number(i.qty) || 0;
+                    let real = 0;
+                    (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
+                    let kurang = req - real;
+                    if (kurang > 0) {
+                        rows.push(`
+                            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                                <td class="p-3 border-r border-slate-200 font-medium text-slate-500">#</td>
+                                <td class="p-3 border-r border-slate-200 font-semibold text-slate-900">${s.noSpp}</td>
+                                <td class="p-3 border-r border-slate-200 text-slate-600">${s.tglSpp}</td>
+                                <td class="p-3 border-r border-slate-200">${s.pengaju}</td>
+                                <td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${i.namaBarang}</td>
+                                <td class="p-3 border-r border-slate-200 text-slate-600">${i.spesifikasi || '-'}</td>
+                                <td class="p-3 border-r border-slate-200 font-bold">${req} ${i.satuan}</td>
+                                <td class="p-3 border-r border-slate-200 text-emerald-600 font-bold">${real} ${i.satuan}</td>
+                                <td class="p-3 font-bold text-amber-600">${kurang} ${i.satuan}</td>
+                            </tr>
+                        `);
+                    }
+                });
+            });
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Semua SPP telah terealisasi penuh (Tidak ada kekurangan).</td></tr>`;
+            } else {
+                // Perbaiki nomor urut agar item terbaru ada di urutan atas
+                let finalRows = rows.map((r, idx) => r.replace('class="p-3 border-r border-slate-200 font-medium text-slate-500">#</td>', `class="p-3 border-r border-slate-200 font-medium text-slate-500">${idx + 1}</td>`));
+                tbody.innerHTML = finalRows.join('');
+            }
         }
 
         function renderCharts(stokList) {
             let labelsSpp = [], dataSppReq = [], dataSppReal = [];
-            db.spp.forEach(s => {
+            // Urutan chart juga dibalik agar update terbaru di awal
+            let sortedSpp = [...db.spp].reverse();
+            sortedSpp.forEach(s => {
                 let reqSum = 0; (s.items || []).forEach(i => reqSum += Number(i.qty) || 0);
                 let realSum = 0; (s.realisasi || []).forEach(r => realSum += Number(r.qty) || 0);
                 labelsSpp.push(s.noSpp); dataSppReq.push(reqSum); dataSppReal.push(realSum);
@@ -799,13 +859,13 @@
                 title = 'Rincian Keseluruhan SPP';
                 headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">No SPP</th><th class="p-3 border-r">Tanggal</th><th class="p-3 border-r">Pengaju</th><th class="p-3 border-r">Item Barang</th><th class="p-3">Qty</th></tr>`;
                 let rows = [];
-                db.spp.forEach(s => (s.items || []).forEach(i => rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium">${s.noSpp}</td><td class="p-3 border-r">${s.tglSpp}</td><td class="p-3 border-r">${s.pengaju}</td><td class="p-3 border-r">${i.namaBarang} (${i.spesifikasi})</td><td class="p-3 font-bold">${i.qty} ${i.satuan}</td></tr>`)));
+                [...db.spp].reverse().forEach(s => (s.items || []).forEach(i => rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium">${s.noSpp}</td><td class="p-3 border-r">${s.tglSpp}</td><td class="p-3 border-r">${s.pengaju}</td><td class="p-3 border-r">${i.namaBarang} (${i.spesifikasi})</td><td class="p-3 font-bold">${i.qty} ${i.satuan}</td></tr>`)));
                 bodyHtml = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>`;
             } else if (type === 'kekurangan') {
                 title = 'Rincian Kekurangan Realisasi SPP';
                 headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">No SPP</th><th class="p-3 border-r">Nama Barang</th><th class="p-3 border-r">Diminta</th><th class="p-3 border-r">Terealisasi</th><th class="p-3">Kekurangan</th></tr>`;
                 let rows = [];
-                db.spp.forEach(s => (s.items || []).forEach(i => {
+                [...db.spp].reverse().forEach(s => (s.items || []).forEach(i => {
                     let req = Number(i.qty) || 0, real = 0;
                     (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
                     let kurang = req - real;
@@ -816,7 +876,7 @@
                 title = 'Rincian Barang Masuk';
                 headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">Tanggal</th><th class="p-3 border-r">Vendor</th><th class="p-3 border-r">Nama Barang</th><th class="p-3 border-r">Qty</th><th class="p-3">Total Harga</th></tr>`;
                 let rows = [];
-                db.barangMasuk.forEach(bm => (bm.items || []).forEach(i => {
+                [...db.barangMasuk].reverse().forEach(bm => (bm.items || []).forEach(i => {
                     let tot = (Number(i.qty) || 0) * (Number(i.harsat) || 0);
                     rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r">${bm.tanggal}</td><td class="p-3 border-r font-medium">${bm.vendor}</td><td class="p-3 border-r">${i.namaBarang}</td><td class="p-3 border-r">${i.qty} ${i.satuan}</td><td class="p-3 font-bold text-emerald-600">Rp ${tot.toLocaleString('id-ID')}</td></tr>`);
                 }));
@@ -914,7 +974,7 @@
             const keyword = (document.getElementById('searchSppInput').value || '').toLowerCase();
             tbody.innerHTML = '';
 
-            let filtered = db.spp.filter(s => s.noSpp.toLowerCase().includes(keyword) || s.pengaju.toLowerCase().includes(keyword) || (s.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
+            let filtered = [...db.spp].reverse().filter(s => s.noSpp.toLowerCase().includes(keyword) || s.pengaju.toLowerCase().includes(keyword) || (s.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="13" class="p-6 text-center text-slate-400">Tidak ada data SPP.</td></tr>`;
                 return;
@@ -1052,7 +1112,7 @@
             const keyword = (document.getElementById('searchBarangMasukInput').value || '').toLowerCase();
             tbody.innerHTML = '';
 
-            let filtered = db.barangMasuk.filter(bm => bm.vendor.toLowerCase().includes(keyword) || (bm.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
+            let filtered = [...db.barangMasuk].reverse().filter(bm => bm.vendor.toLowerCase().includes(keyword) || (bm.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">Tidak ada data barang masuk.</td></tr>`;
                 return;
@@ -1204,7 +1264,7 @@
 
             const tbodyKeluar = document.getElementById('stokKeluarTableBody');
             tbodyKeluar.innerHTML = '';
-            let filteredKeluar = db.stokKeluar.filter(sk => sk.pengambilan.toLowerCase().includes(keyword) || sk.namaBarang.toLowerCase().includes(keyword));
+            let filteredKeluar = [...db.stokKeluar].reverse().filter(sk => sk.pengambilan.toLowerCase().includes(keyword) || sk.namaBarang.toLowerCase().includes(keyword));
             if (filteredKeluar.length === 0) {
                 tbodyKeluar.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Tidak ada riwayat pengeluaran.</td></tr>`;
             } else {
@@ -1256,7 +1316,6 @@
                 try {
                     let parsed = JSON.parse(e.target.result);
                     if (parsed.spp && parsed.barangMasuk) {
-                        // Unggah data hasil impor ke Firebase
                         if (window.fbFirestore) {
                             for (let s of (parsed.spp || [])) await saveDataToFirestore('spp', s.id || ('spp-' + Math.random()), s);
                             for (let bm of (parsed.barangMasuk || [])) await saveDataToFirestore('barangMasuk', bm.id || ('bm-' + Math.random()), bm);
