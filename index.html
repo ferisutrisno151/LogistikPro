@@ -123,7 +123,7 @@
             </div>
             <a href="#" onclick="openDownloadAppModal(); toggleSidebar();" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-emerald-400 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all border border-emerald-500/30">
                 <i class="fa-solid fa-mobile-screen-button w-5"></i>
-                <span>Panduan Install APK HP</span>
+                <span>Install App ke HP (APK)</span>
             </a>
         </nav>
     </aside>
@@ -601,24 +601,31 @@
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div class="flex items-center space-x-2">
                     <div class="bg-emerald-600 text-white p-2 rounded-xl"><i class="fa-solid fa-mobile-screen-button"></i></div>
-                    <h3 class="font-bold text-slate-900 text-lg">Panduan Install Aplikasi ke HP</h3>
+                    <h3 class="font-bold text-slate-900 text-lg">Install Aplikasi ke HP (PWA / APK)</h3>
                 </div>
                 <button onclick="closeModal('modalDownloadApp')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
             <div class="space-y-4 text-sm text-slate-600">
-                <p>Aplikasi <b>LogistikPro</b> dapat diinstal langsung ke layar utama HP Anda (Android/iPhone) layaknya aplikasi Play Store/App Store tanpa perlu mengunduh file APK manual. Ikuti langkah berikut:</p>
+                <p>Aplikasi <b>LogistikPro</b> dapat langsung dipasang sebagai aplikasi mandiri di HP Android/iPhone Anda:</p>
                 
+                <!-- Tombol Eksekusi Install Otomatis (jika didukung browser) -->
+                <div id="installButtonContainer" class="hidden">
+                    <button id="btnInstallPwa" onclick="triggerPwaInstall()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-download"></i>
+                        <span>KLIK DISINI UNTUK INSTALL APLIKASI KE HP</span>
+                    </button>
+                </div>
+
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                     <h4 class="font-bold text-slate-800 flex items-center space-x-2">
                         <i class="fa-brands fa-android text-emerald-600"></i>
-                        <span>Pengguna Android (Google Chrome):</span>
+                        <span>Pengguna Android (Chrome):</span>
                     </h4>
                     <ol class="list-decimal list-inside space-y-1 text-xs text-slate-700">
-                        <li>Buka tautan/link LogistikPro melalui browser <b>Google Chrome</b> di HP Anda.</li>
-                        <li>Ketuk ikon titik tiga vertikal (<i class="fa-solid fa-ellipsis-vertical"></i>) di sudut kanan atas browser.</li>
-                        <li>Pilih menu <b>"Tambahkan ke Layar Utama"</b> atau <b>"Install Aplikasi"</b>.</li>
-                        <li>Ketuk <b>Install</b> atau <b>Tambahkan</b>. Ikon LogistikPro akan langsung muncul di menu utama HP Anda!</li>
+                        <li>Buka link LogistikPro melalui browser <b>Google Chrome</b>.</li>
+                        <li>Ketuk titik tiga (<i class="fa-solid fa-ellipsis-vertical"></i>) di kanan atas browser.</li>
+                        <li>Pilih <b>"Install Aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b>.</li>
                     </ol>
                 </div>
 
@@ -628,16 +635,15 @@
                         <span>Pengguna iPhone / iOS (Safari):</span>
                     </h4>
                     <ol class="list-decimal list-inside space-y-1 text-xs text-slate-700">
-                        <li>Buka tautan melalui browser <b>Safari</b> di iPhone Anda.</li>
+                        <li>Buka link melalui browser <b>Safari</b>.</li>
                         <li>Ketuk ikon <b>Bagikan (Share)</b> di bagian bawah layar.</li>
-                        <li>Gulir ke bawah dan pilih opsi <b>"Tambahkan ke Layar Utama" (Add to Home Screen)</b>.</li>
-                        <li>Ketuk <b>Tambah</b>. Aplikasi siap digunakan!</li>
+                        <li>Pilih <b>"Tambahkan ke Layar Utama" (Add to Home Screen)</b>.</li>
                     </ol>
                 </div>
             </div>
 
             <div class="flex justify-end pt-2 border-t border-slate-200">
-                <button type="button" onclick="closeModal('modalDownloadApp')" class="px-5 py-2 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm">Tutup Panduan</button>
+                <button type="button" onclick="closeModal('modalDownloadApp')" class="px-5 py-2 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm">Tutup</button>
             </div>
         </div>
     </div>
@@ -652,6 +658,30 @@
 
         let sppRealisasiChartInstance = null;
         let stokDonutChartInstance = null;
+        let deferredPrompt = null;
+
+        // Tangkap event PWA Install Prompt dari browser
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btnContainer = document.getElementById('installButtonContainer');
+            if (btnContainer) btnContainer.classList.remove('hidden');
+        });
+
+        function triggerPwaInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Pengguna menerima instalasi aplikasi');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installButtonContainer').classList.add('hidden');
+                });
+            } else {
+                alert('Aplikasi sudah terpasang atau browser Anda memerlukan instalasi manual melalui menu titik tiga (⋮) di Chrome / Safari.');
+            }
+        }
 
         window.addEventListener('firebase-ready', () => {
             initFirestoreRealtimeSync();
