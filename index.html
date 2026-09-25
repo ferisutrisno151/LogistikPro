@@ -60,22 +60,38 @@
    }
  </style>
     <header class="main-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 focus:outline-none p-1 rounded-lg hover:bg-slate-100">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <div class="flex items-center gap-2">
-    <h1 class="text-xl font-bold text-slate-950 leading-tight">LogistikPro</h1>
-    <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-wide">PRO</span>
-                </div>
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <!-- Bagian Kiri: Tombol Menu Drawer, Judul, & Tombol Export/Import Excel -->
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 focus:outline-none p-1">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold text-slate-900 leading-tight">LogistikPro</h1>
+                <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100 uppercase">PRO</span>
+            </div>
 
+            <!-- Jarak pemisah tipis sebelum tombol aksi -->
+            <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
+
+            <!-- Tombol Export & Import Excel di Pojok Kiri (Dekat Judul) -->
+            <div class="flex items-center gap-2">
                 <!-- Tombol Export Excel -->
-    <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-violet-600 text-white hover:bg-violet-700 p-2 rounded-xl text-sm flex items-center gap-1.5 px-3">
-        <i class="fa-solid fa-file-excel"></i>
-        <span class="hidden sm:inline">Excel</span>
-    </button>
-    </header>
+                <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-sm transition flex items-center gap-1.5 px-2.5 border border-blue-200/60 shadow-xs">
+                    <i class="fa-solid fa-file-excel text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-semibold">Export</span>
+                </button>
+
+                <!-- Tombol Import Excel -->
+                <label title="Import Excel" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg text-sm transition cursor-pointer flex items-center gap-1.5 px-2.5 border border-emerald-200/60 shadow-xs">
+                    <i class="fa-solid fa-file-arrow-down text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-semibold">Import</span>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcelData(event)">
+                </label>
+            </div>
+        </div>
+    </div>
+</header>
 
     <!-- SIDEBAR NAVIGATION DRAWER -->
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity"></div>
@@ -1534,18 +1550,8 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         let filename = "Laporan_LogistikPro_" + new Date().toISOString().split('T')[0] + ".xlsx";
 
-        let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        let blob = new Blob([wbout], { type: "application/octet-stream" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 100);
+        // MenggunakanwriteFile dengan opsi base64 agar langsung memicu unduhan file secara instan tanpa dialog sistem yang rumit
+        XLSX.writeFile(wb, filename);
 
     } catch (error) {
         console.error("Gagal export:", error);
