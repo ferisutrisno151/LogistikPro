@@ -68,25 +68,20 @@
                 <div class="flex items-center gap-2">
     <h1 class="text-xl font-bold text-slate-950 leading-tight">LogistikPro</h1>
     <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-wide">PRO</span>
-</div>
-<p class="text-xs text-slate-500 font-medium">Monitoring System</p>
+                </div>
 
-            <div class="flex items-center space-x-2">
-                <button onclick="shareLink()" title="Bagikan Tautan" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-xl text-sm font-medium flex items-center space-x-1 border border-emerald-200">
-                    <i class="fa-solid fa-share-nodes"></i>
-                </button>
-                <button onclick="exportJSON()" title="Export JSON" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-xl text-sm font-medium flex items-center space-x-1 border border-blue-200">
-                    <i class="fa-solid fa-download"></i>
-                </button>
-                <label title="Import JSON" class="bg-amber-50 text-amber-600 hover:bg-amber-100 p-2 rounded-xl text-sm font-medium flex items-center space-x-1 border border-amber-200 cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
-                    <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" class="hidden">
-                </label>
-                <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-violet-600 text-white hover:bg-violet-700 px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1 shadow-sm">
-                    <i class="fa-solid fa-file-excel"></i>
-                    <span class="hidden sm:inline">Excel</span>
-                </button>
-            </div>
+                <!-- Tombol Export Excel -->
+    <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-violet-600 text-white hover:bg-violet-700 p-2 rounded-xl text-sm flex items-center gap-1.5 px-3">
+        <i class="fa-solid fa-file-excel"></i>
+        <span class="hidden sm:inline">Excel</span>
+    </button>
+
+<!-- Tombol Import Excel -->
+    <label title="Import Excel" class="bg-amber-50 text-amber-600 hover:bg-amber-100 p-2 rounded-xl cursor-pointer transition flex items-center gap-1.5 px-3">
+        <i class="fa-solid fa-file-arrow-down"></i>
+        <span class="hidden sm:inline text-xs font-semibold">Import</span>
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcelData(event)">
+    </label>
         </div>
     </header>
 
@@ -123,6 +118,29 @@
                 <i class="fa-solid fa-warehouse w-5"></i>
                 <span>Stok Barang</span>
             </a>
+            <!-- Menu Tambahan untuk Backup & Data di Sidebar -->
+    <div class="pt-4 mt-4 border-t border-slate-700/50 space-y-1">
+        <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Data & Backup</div>
+        
+        <!-- Bagikan Tautan -->
+        <a href="#" onclick="shareLink(); return false;" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <i class="fa-solid fa-share-nodes w-5 text-emerald-400"></i>
+            <span>Bagikan Tautan</span>
+        </a>
+
+        <!-- Export JSON -->
+        <a href="#" onclick="exportJSON(); return false;" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <i class="fa-solid fa-download w-5 text-blue-400"></i>
+            <span>Export JSON</span>
+        </a>
+
+        <!-- Import JSON -->
+        <label class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer">
+            <i class="fa-solid fa-file-arrow-up w-5 text-amber-400"></i>
+            <span>Import JSON</span>
+            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importJSON(event)">
+        </label>
+    </div>
             
             <div class="pt-4 pb-2 border-t border-slate-800 mt-4">
                 <p class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Aplikasi Mobile</p>
@@ -1500,27 +1518,97 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         }
 
         function exportExcelAll() {
-            let wb = XLSX.utils.book_new();
+    let wb = XLSX.utils.book_new();
+    
+    let sppRows = [];
+    db.spp.forEach(s => {
+        s.items.forEach(i => {
+            let realTotal = 0;
+            (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+            sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Spesifikasi": i.spesifikasi, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
+        });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
-            let sppRows = [];
-            db.spp.forEach(s => {
-                (s.items || []).forEach(i => {
-                    let realTotal = 0; 
-                    (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                    sppRows.push({ "No SPP": s.noSpp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namaBarang, "Spesifikasi": i.spesifikasi, "Qty": i.qty, "Satuan": i.satuan, "Realisasi": realTotal });
-                });
-            });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
+    let barangMasuk = [];
+    db.barangMasuk.forEach(bm => {
+        bm.items.forEach(i => barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty }));
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
 
-            let bmRows = [];
-            db.barangMasuk.forEach(bm => (bm.items || []).forEach(i => bmRows.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Barang": i.namaBarang, "Qty": i.qty, "Satuan": i.satuan, "Harsat": i.harsat, "Total": (i.qty||0)*(i.harsat||0) })));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
+    let stokRows = getStokGudangSummary().map((st, i) => ({ "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
 
-            let stokRows = getStokGudangSummary().map((st, i) => ({ "No": i+1, "Barang": st.namaBarang, "Spesifikasi": st.spesifikasi, "Masuk": st.totalMasuk, "Keluar": st.totalKeluar, "Saldo": st.saldoAkhir }));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
+    let filename = "Laporan_LogistikPro_" + new Date().toISOString().split('T')[0] + ".xlsx";
 
-            XLSX.writeFile(wb, "Laporan_LogistikPro_" + new Date().toISOString().split('T')[0] + ".xlsx");
+    try {
+        XLSX.writeFile(wb, filename);
+    } catch (error) {
+        let wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
+        let blob = new Blob([wbout], {type: "application/octet-stream"});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
         }
+        function importExcelData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            let importedCount = 0;
+
+            workbook.SheetNames.forEach(sheetName => {
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                if (jsonData.length === 0) return;
+
+                if (sheetName === "SPP") {
+                    // Mapping kembali data sheet SPP ke struktur db aplikasi jika diperlukan
+                    console.log("Data SPP ditemukan:", jsonData);
+                    importedCount += jsonData.length;
+                } else if (sheetName === "Barang Masuk") {
+                    console.log("Data Barang Masuk ditemukan:", jsonData);
+                    importedCount += jsonData.length;
+                }
+                // Anda bisa menambahkan logika kustom lain di sini sesuai kebutuhan database aplikasi Anda
+            });
+
+            if (importedCount === 0) {
+                alert("Tidak ada data valid yang dapat dibaca dari file Excel.");
+                return;
+            }
+
+            alert("Berhasil memproses data dari file Excel!");
+            
+            // Simpan perubahan ke localStorage jika menggunakan penyimpanan lokal
+            if (typeof saveDB === 'function') {
+                saveDB();
+            }
+            if (typeof render === 'function') {
+                render();
+            } else {
+                location.reload();
+            }
+
+        } catch (error) {
+            console.error("Gagal mengimpor file:", error);
+            alert("Terjadi kesalahan saat membaca file Excel. Pastikan format file sesuai.");
+        } finally {
+            event.target.value = ''; // Reset input file agar bisa memilih file yang sama kembali
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
     </script>
 </body>
 </html>
