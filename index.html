@@ -60,36 +60,40 @@
    }
  </style>
     <header class="main-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <!-- Bagian Kiri: Tombol Menu Drawer, Judul, & Tombol Export/Import Excel -->
-        <div class="flex items-center gap-3">
+    <div class="max-w-7xl mx-auto px-3 py-3 flex items-center justify-between">
+        
+        <!-- Bagian Kiri: Tombol Drawer, Logo, & Tombol Export/Import Excel yang Renggang -->
+        <div class="flex items-center gap-2">
             <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 focus:outline-none p-1">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
-            <div class="flex items-center gap-2">
-                <h1 class="text-xl font-bold text-slate-900 leading-tight">LogistikPro</h1>
-                <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100 uppercase">PRO</span>
+            <div class="flex items-center gap-1.5 mr-1">
+                <h1 class="text-lg font-bold text-slate-900 leading-tight">LogistikPro</h1>
+                <span class="hidden sm:inline bg-blue-50 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-blue-100 uppercase">PRO</span>
             </div>
 
-            <!-- Jarak pemisah tipis sebelum tombol aksi -->
-            <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
+            <!-- Tombol Export Excel (Biru) di PINGGIR KIRI dengan Jarak Lebih Renggang -->
+            <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2.5 rounded-xl text-sm transition flex items-center gap-1.5 px-3 border border-blue-200/60 shadow-xs ml-1">
+                <i class="fa-solid fa-file-excel text-base"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Export</span>
+            </button>
 
-            <!-- Tombol Export & Import Excel di Pojok Kiri (Dekat Judul) -->
-            <div class="flex items-center gap-2">
-                <!-- Tombol Export Excel -->
-                <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-sm transition flex items-center gap-1.5 px-2.5 border border-blue-200/60 shadow-xs">
-                    <i class="fa-solid fa-file-excel text-sm"></i>
-                    <span class="hidden sm:inline text-xs font-semibold">Export</span>
-                </button>
-
-                <!-- Tombol Import Excel -->
-                <label title="Import Excel" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg text-sm transition cursor-pointer flex items-center gap-1.5 px-2.5 border border-emerald-200/60 shadow-xs">
-                    <i class="fa-solid fa-file-arrow-down text-sm"></i>
-                    <span class="hidden sm:inline text-xs font-semibold">Import</span>
-                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcelData(event)">
-                </label>
-            </div>
+            <!-- Tombol Import Excel (Hijau) dengan Jarak Renggang -->
+            <label title="Import Excel" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2.5 rounded-xl text-sm transition cursor-pointer flex items-center gap-1.5 px-3 border border-emerald-200/60 shadow-xs">
+                <i class="fa-solid fa-file-arrow-down text-base"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Import</span>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcelData(event)">
+            </label>
         </div>
+
+        <!-- Bagian Kanan: Tombol Refresh Cepat untuk APK -->
+        <div class="flex items-center">
+            <button onclick="location.reload();" title="Muat Ulang Aplikasi" class="bg-slate-100 text-slate-700 hover:bg-slate-200 p-2.5 rounded-xl text-sm transition flex items-center gap-1.5 px-3 border border-slate-200 shadow-xs">
+                <i class="fa-solid fa-rotate text-base text-slate-600"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Refresh</span>
+            </button>
+        </div>
+
     </div>
 </header>
 
@@ -1550,14 +1554,25 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         let filename = "Laporan_LogistikPro_" + new Date().toISOString().split('T')[0] + ".xlsx";
 
-        // MenggunakanwriteFile dengan opsi base64 agar langsung memicu unduhan file secara instan tanpa dialog sistem yang rumit
-        XLSX.writeFile(wb, filename);
+        // Metode Base64 Data URI untuk Android WebView (Bypass Dialog Save/Open)
+        let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+        let dataUri = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,' + wbout;
+
+        let a = document.createElement('a');
+        a.href = dataUri;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+        }, 200);
 
     } catch (error) {
         console.error("Gagal export:", error);
         alert("Gagal melakukan export Excel: " + error.message);
     }
 }
+
         function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
