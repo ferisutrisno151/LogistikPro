@@ -12,6 +12,31 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK (Modular Version) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+        // Konfigurasi Firebase Proyek Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrkKsIfbRws3VSfnWSToWFeVJtOsP6lxA",
+            authDomain: "logistikpro-b40a1.firebaseapp.com",
+            projectId: "logistikpro-b40a1",
+            storageBucket: "logistikpro-b40a1.firebasestorage.app",
+            messagingSenderId: "158733839743",
+            appId: "1:158733839743:web:a6147aac03ea10a75bfe4a"
+        };
+
+        // Inisialisasi Firebase & Firestore
+        const app = initializeApp(firebaseConfig);
+        const firestoreDb = getFirestore(app);
+
+        // Ekspor fungsi agar bisa diakses secara global oleh skrip aplikasi di bawah
+        window.fbFirestore = { firestoreDb, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot };
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -31,7 +56,7 @@
                     <div class="bg-blue-600 text-white font-bold px-2.5 py-1 rounded-lg text-sm shadow-xs">LP</div>
                     <div>
                         <h1 class="font-bold text-slate-900 leading-tight text-base">LogistikPro</h1>
-                        <span class="text-xs text-slate-500 font-medium">Monitoring System</span>
+                        <span class="text-xs text-slate-500 font-medium">Cloud Real-time System</span>
                     </div>
                 </div>
             </div>
@@ -90,20 +115,6 @@
                 <span>Stok Barang</span>
             </a>
         </nav>
-
-        <div class="p-4 border-t border-slate-800">
-            <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/50">
-                <div class="flex items-center space-x-2 text-blue-400 font-semibold text-xs mb-1">
-                    <i class="fa-solid fa-circle-down"></i>
-                    <span>PANDUAN & DOWNLOAD APK</span>
-                </div>
-                <p class="text-[11px] text-slate-400 mb-3">Unduh versi aplikasi mobile untuk akses offline yang lebih cepat.</p>
-                <button onclick="alert('Mengunduh aplikasi LogistikPro v1.0.5 APK...')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-sm transition-all">
-                    <i class="fa-solid fa-download"></i>
-                    <span>DOWNLOAD APLIKASI (v1.0.5)</span>
-                </button>
-            </div>
-        </div>
     </aside>
 
     <!-- MAIN CONTAINER -->
@@ -111,9 +122,7 @@
 
         <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="space-y-6">
-            <!-- 4 Interactive Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Card 1: SPP -->
                 <div onclick="openDashboardModal('spp')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-blue-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Permintaan (SPP)</span>
@@ -130,7 +139,6 @@
                     </p>
                 </div>
 
-                <!-- Card 2: Kekurangan Realisasi -->
                 <div onclick="openDashboardModal('kekurangan')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-amber-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kekurangan Realisasi</span>
@@ -147,7 +155,6 @@
                     </p>
                 </div>
 
-                <!-- Card 3: Barang Masuk -->
                 <div onclick="openDashboardModal('barangMasuk')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Barang Masuk</span>
@@ -164,7 +171,6 @@
                     </p>
                 </div>
 
-                <!-- Card 4: Stok Gudang -->
                 <div onclick="openDashboardModal('stok')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-purple-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Item di Gudang</span>
@@ -184,7 +190,6 @@
 
             <!-- Charts Section -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Bar Chart: SPP vs Realisasi -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs lg:col-span-2 flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
@@ -197,7 +202,6 @@
                     </div>
                 </div>
 
-                <!-- Donut Chart: Proporsi Stok Gudang -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
@@ -245,9 +249,7 @@
                                 <th class="p-3">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="sppTableBody" class="text-sm divide-y divide-slate-200 text-slate-700">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="sppTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
@@ -290,9 +292,7 @@
                                 <th class="p-3">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="barangMasukTableBody" class="text-sm divide-y divide-slate-200 text-slate-700">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="barangMasukTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
@@ -311,10 +311,9 @@
                 </div>
             </div>
 
-            <!-- Kartu Stok Barang Logistik -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-slate-800 text-sm">
-                    KARTO STOK BARANG LOGISTIK
+                    KARTU STOK BARANG LOGISTIK
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse no-wrap-table">
@@ -331,14 +330,11 @@
                                 <th class="p-3">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="stokGudangTableBody" class="text-sm divide-y divide-slate-200 text-slate-700">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="stokGudangTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Riwayat Pengeluaran Barang Harian (Riil) -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-slate-800 text-sm">
                     RIWAYAT PENGELUARAN BARANG HARIAN (RIIL)
@@ -358,23 +354,20 @@
                                 <th class="p-3">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="stokKeluarTableBody" class="text-sm divide-y divide-slate-200 text-slate-700">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="stokKeluarTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- DATALISTS UNTUK DROPDOWN REUTILITY -->
+    <!-- DATALISTS -->
     <datalist id="listNamaBarang"></datalist>
     <datalist id="listSatuan"></datalist>
 
-    <!-- MODAL SPP BARU (MULTI-ITEM) -->
+    <!-- MODAL SPP -->
     <div id="modalSpp" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h3 id="modalSppTitle" class="font-bold text-slate-900 text-lg">Tambah SPP Baru</h3>
                 <button onclick="closeModal('modalSpp')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -403,9 +396,7 @@
                             <i class="fa-solid fa-plus"></i><span>Tambah Baris Item</span>
                         </button>
                     </div>
-                    <div id="sppItemsContainer" class="space-y-3">
-                        <!-- Baris Dinamis -->
-                    </div>
+                    <div id="sppItemsContainer" class="space-y-3"></div>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
@@ -416,7 +407,7 @@
         </div>
     </div>
 
-    <!-- MODAL REALISASI BERTAHAP -->
+    <!-- MODAL REALISASI -->
     <div id="modalRealisasi" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -443,7 +434,7 @@
 
     <!-- MODAL BARANG MASUK -->
     <div id="modalBarangMasuk" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h3 id="modalBarangMasukTitle" class="font-bold text-slate-900 text-lg">Input Barang Masuk</h3>
                 <button onclick="closeModal('modalBarangMasuk')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -468,9 +459,7 @@
                             <i class="fa-solid fa-plus"></i><span>Tambah Baris Item</span>
                         </button>
                     </div>
-                    <div id="bmItemsContainer" class="space-y-3">
-                        <!-- Baris Dinamis -->
-                    </div>
+                    <div id="bmItemsContainer" class="space-y-3"></div>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
@@ -481,134 +470,207 @@
         </div>
     </div>
 
-    <!-- MODAL AKUMULASI VENDOR -->
-    <div id="modalVendorAccumulation" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                <h3 class="font-bold text-slate-900 text-lg">Akumulasi per Vendor</h3>
-                <button onclick="closeModal('modalVendorAccumulation')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse no-wrap-table">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
-                            <th class="p-3 border-r border-slate-200">No Urut</th>
-                            <th class="p-3 border-r border-slate-200">Tanggal</th>
-                            <th class="p-3 border-r border-slate-200">Nama Vendor</th>
-                            <th class="p-3 border-r border-slate-200">Rincian Barang</th>
-                            <th class="p-3 border-r border-slate-200">Total Item Barang</th>
-                            <th class="p-3 border-r border-slate-200">Akumulasi Total Harga (Rp)</th>
-                            <th class="p-3">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vendorAccumulationTableBody" class="text-sm divide-y divide-slate-200 text-slate-700">
-                        <!-- Rendered via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL STOK KELUAR / PENYESUAIAN -->
+    <!-- MODAL STOK KELUAR -->
     <div id="modalStokKeluar" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                <h3 class="font-bold text-slate-900 text-lg">Input Penyesuaian / Stok Keluar</h3>
+                <h3 class="font-bold text-slate-900 text-lg">Input Pengeluaran / Stok Keluar</h3>
                 <button onclick="closeModal('modalStokKeluar')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <form id="formStokKeluar" onsubmit="saveStokKeluar(event)" class="space-y-4">
+            <form id="formStokKeluar" onsubmit="saveStokKeluar(event)" class="space-y-3">
                 <input type="hidden" id="editStokKeluarId">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Keluar</label>
+                    <input type="date" id="inputSkTgl" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Yang Mengambil / Proyek Tujuan</label>
+                    <input type="text" id="inputSkPengambilan" required placeholder="Nama / Divisi / Proyek" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Item Barang (dari Stok Gudang)</label>
+                    <select id="inputSkItemSelect" required onchange="onSelectSkItem()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
+                        <option value="">-- Pilih Barang --</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Keluar</label>
-                        <input type="date" id="inputSkTanggal" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Keluar (Qty)</label>
+                        <input type="number" step="any" id="inputSkQty" required placeholder="0" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pengambil Barang</label>
-                        <input type="text" id="inputSkPengambil" required placeholder="Mandor / Nama pemohon" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Satuan</label>
+                        <input type="text" id="inputSkSatuan" readonly class="w-full p-2.5 bg-slate-200 border border-slate-200 rounded-xl text-sm text-slate-600">
                     </div>
                 </div>
-
-                <div class="border-t border-slate-200 pt-3">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-bold text-slate-700 uppercase">Daftar Item Keluar</label>
-                        <button type="button" onclick="addSkItemRow()" class="bg-purple-50 text-purple-700 hover:bg-purple-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1">
-                            <i class="fa-solid fa-plus"></i><span>Tambah Baris Item</span>
-                        </button>
-                    </div>
-                    <div id="skItemsContainer" class="space-y-3">
-                        <!-- Baris Dinamis -->
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Keperluan</label>
+                    <input type="text" id="inputSkKet" placeholder="Catatan pemakaian..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-purple-500">
                 </div>
-
                 <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closeModal('modalStokKeluar')" class="px-4 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700">Batal</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white shadow-sm">Simpan Stok Keluar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white shadow-sm">Simpan Keluar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL DRILLDOWN DASHBOARD -->
-    <div id="modalDashboardDrilldown" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+    <!-- MODAL DASHBOARD DETAIL -->
+    <div id="modalDashboard" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                <h3 id="dashModalTitle" class="font-bold text-slate-900 text-lg">Rincian Dashboard</h3>
-                <button onclick="closeModal('modalDashboardDrilldown')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 id="modalDashboardTitle" class="font-bold text-slate-900 text-lg">Rincian Dashboard</h3>
+                <button onclick="closeModal('modalDashboard')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse no-wrap-table">
-                    <thead id="dashModalHead"></thead>
-                    <tbody id="dashModalBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
+                    <thead id="modalDashboardHead"></thead>
+                    <tbody id="modalDashboardBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT UTAMA -->
+    <!-- MODAL AKUMULASI VENDOR -->
+    <div id="modalVendor" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 class="font-bold text-slate-900 text-lg">Akumulasi Pembelian per Vendor</h3>
+                <button onclick="closeModal('modalVendor')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse no-wrap-table">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
+                            <th class="p-3 border-r border-slate-200">No</th>
+                            <th class="p-3 border-r border-slate-200">Nama Vendor</th>
+                            <th class="p-3 border-r border-slate-200">Jumlah Transaksi</th>
+                            <th class="p-3 border-r border-slate-200">Total Qty Barang</th>
+                            <th class="p-3">Total Nominal (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendorTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
-        // Database State di localStorage
-        let db = JSON.parse(localStorage.getItem('logistikpro_db_v3')) || {
+        let db = {
             spp: [],
             barangMasuk: [],
             stokKeluar: []
         };
 
-        function saveDb() {
-            localStorage.setItem('logistikpro_db_v3', JSON.stringify(db));
-            initApp();
+        let sppRealisasiChartInstance = null;
+        let stokDonutChartInstance = null;
+
+        // Menunggu modul Firebase siap terhubung
+        window.addEventListener('firebase-ready', () => {
+            initFirestoreRealtimeSync();
+        });
+
+        // Fallback jika dimuat offline atau menunggu sebentar
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (!window.fbFirestore) {
+                    loadDataLocal();
+                    refreshAll();
+                }
+            }, 1000);
+            switchTab('dashboard');
+        });
+
+        // Sinkronisasi Real-time dengan Firebase Firestore
+        function initFirestoreRealtimeSync() {
+            const { firestoreDb, collection, onSnapshot, getDocs } = window.fbFirestore;
+
+            // Mendengarkan perubahan koleksi 'spp' secara real-time
+            onSnapshot(collection(firestoreDb, 'spp'), (snapshot) => {
+                db.spp = [];
+                snapshot.forEach((docSnap) => {
+                    db.spp.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                refreshAll();
+            }, (error) => { console.error("Error sync spp:", error); });
+
+            // Mendengarkan perubahan koleksi 'barangMasuk' secara real-time
+            onSnapshot(collection(firestoreDb, 'barangMasuk'), (snapshot) => {
+                db.barangMasuk = [];
+                snapshot.forEach((docSnap) => {
+                    db.barangMasuk.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                refreshAll();
+            }, (error) => { console.error("Error sync barangMasuk:", error); });
+
+            // Mendengarkan perubahan koleksi 'stokKeluar' secara real-time
+            onSnapshot(collection(firestoreDb, 'stokKeluar'), (snapshot) => {
+                db.stokKeluar = [];
+                snapshot.forEach((docSnap) => {
+                    db.stokKeluar.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                refreshAll();
+            }, (error) => { console.error("Error sync stokKeluar:", error); });
         }
 
-        // Inisialisasi Tanggal Default
-        document.getElementById('inputTglSpp').valueAsDate = new Date();
-        document.getElementById('inputBmTanggal').valueAsDate = new Date();
-        document.getElementById('inputSkTanggal').valueAsDate = new Date();
-        document.getElementById('inputRealTgl').valueAsDate = new Date();
+        // Fungsi Simpan ke Firestore
+        async function saveDataToFirestore(collectionName, docId, dataObj) {
+            if (window.fbFirestore) {
+                const { firestoreDb, doc, setDoc } = window.fbFirestore;
+                try {
+                    await setDoc(doc(firestoreDb, collectionName, docId), dataObj);
+                } catch (e) {
+                    console.error("Gagal menyimpan ke Firestore:", e);
+                }
+            } else {
+                saveDataLocal();
+            }
+        }
 
-        // Navigasi Tab
+        // Fungsi Hapus dari Firestore
+        async function deleteDataFromFirestore(collectionName, docId) {
+            if (window.fbFirestore) {
+                const { firestoreDb, doc, deleteDoc } = window.fbFirestore;
+                try {
+                    await deleteDoc(doc(firestoreDb, collectionName, docId));
+                } catch (e) {
+                    console.error("Gagal menghapus dari Firestore:", e);
+                }
+            }
+        }
+
+        // Cadangan LocalStorage
+        function saveDataLocal() {
+            localStorage.setItem('logistikpro_db', JSON.stringify(db));
+        }
+        function loadDataLocal() {
+            const saved = localStorage.getItem('logistikpro_db');
+            if (saved) {
+                try { db = JSON.parse(saved); } catch (e) {}
+            }
+        }
+
         function switchTab(tabId) {
-            ['dashboard', 'spp', 'barangMasuk', 'stokBarang'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
+            const tabs = ['dashboard', 'spp', 'barangMasuk', 'stokBarang'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if (el) el.classList.add('hidden');
             });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            initApp();
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.remove('hidden');
+            refreshAll();
         }
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarOverlay').classList.toggle('hidden');
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+        function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
 
-        // Sinkronisasi Datalist & Global Init
-        let chartsInstance = { spp: null, donut: null };
-
-        function initApp() {
+        function refreshAll() {
             updateDatalists();
             renderDashboard();
             renderSppTable();
@@ -616,719 +678,620 @@
             renderStokTables();
         }
 
+        function getStokGudangSummary() {
+            let map = {};
+            db.barangMasuk.forEach(bm => {
+                (bm.items || []).forEach(item => {
+                    let key = (item.namaBarang || '').trim().toLowerCase() + '___' + (item.spesifikasi || '').trim().toLowerCase();
+                    if (!map[key]) {
+                        map[key] = { namaBarang: item.namaBarang, spesifikasi: item.spesifikasi || '-', satuan: item.satuan || 'Pcs', totalMasuk: 0, totalKeluar: 0, lastUpdate: bm.tanggal };
+                    }
+                    map[key].totalMasuk += Number(item.qty) || 0;
+                    if (bm.tanggal > map[key].lastUpdate) map[key].lastUpdate = bm.tanggal;
+                });
+            });
+
+            db.stokKeluar.forEach(sk => {
+                let key = (sk.namaBarang || '').trim().toLowerCase() + '___' + (sk.spesifikasi || '').trim().toLowerCase();
+                if (!map[key]) {
+                    map[key] = { namaBarang: sk.namaBarang, spesifikasi: sk.spesifikasi || '-', satuan: sk.satuan || 'Pcs', totalMasuk: 0, totalKeluar: 0, lastUpdate: sk.tanggal };
+                }
+                map[key].totalKeluar += Number(sk.qty) || 0;
+                if (sk.tanggal > map[key].lastUpdate) map[key].lastUpdate = sk.tanggal;
+            });
+
+            let result = [];
+            for (let k in map) {
+                let obj = map[k];
+                obj.saldoAkhir = obj.totalMasuk - obj.totalKeluar;
+                result.push(obj);
+            }
+            return result;
+        }
+
         function updateDatalists() {
-            const barangSet = new Set();
-            const satuanSet = new Set();
+            let barangs = new Set();
+            let satuans = new Set();
+            db.barangMasuk.forEach(bm => (bm.items || []).forEach(i => { if(i.namaBarang) barangs.add(i.namaBarang); if(i.satuan) satuans.add(i.satuan); }));
+            db.spp.forEach(s => (s.items || []).forEach(i => { if(i.namaBarang) barangs.add(i.namaBarang); if(i.satuan) satuans.add(i.satuan); }));
 
-            db.spp.forEach(s => { barangSet.add(s.namaBarang); satuanSet.add(s.sat); });
-            db.barangMasuk.forEach(b => { barangSet.add(b.namaBarang); satuanSet.add(b.sat); });
-
-            let bHtml = '';
-            barangSet.forEach(item => bHtml += `<option value="${item}">`);
-            document.getElementById('listNamaBarang').innerHTML = bHtml;
-
-            let sHtml = '';
-            satuanSet.forEach(item => sHtml += `<option value="${item}">`);
-            document.getElementById('listSatuan').innerHTML = sHtml;
+            document.getElementById('listNamaBarang').innerHTML = Array.from(barangs).map(b => `<option value="${b}">`).join('');
+            document.getElementById('listSatuan').innerHTML = Array.from(satuans).map(s => `<option value="${s}">`).join('');
         }
 
         // --- DASHBOARD & CHARTS ---
         function renderDashboard() {
-            let totalSppQty = 0;
-            let totalKurangQty = 0;
+            let totalSppQty = 0, totalSppCount = db.spp.length, totalKurangQty = 0, totalMasukQty = 0, totalMasukRp = 0;
             db.spp.forEach(s => {
-                totalSppQty += Number(s.qty || 0);
-                let realisasiTotal = s.realisasiList ? s.realisasiList.reduce((a,c)=>a+Number(c.qty),0) : 0;
-                let kurang = Number(s.qty) - realisasiTotal;
-                if(kurang > 0) totalKurangQty += kurang;
+                (s.items || []).forEach(item => {
+                    let reqQty = Number(item.qty) || 0;
+                    totalSppQty += reqQty;
+                    let realQty = 0;
+                    (s.realisasi || []).forEach(r => realQty += Number(r.qty) || 0);
+                    let kurang = reqQty - realQty;
+                    if (kurang > 0) totalKurangQty += kurang;
+                });
             });
 
-            let totalMasukQty = 0;
-            let totalMasukRp = 0;
-            db.barangMasuk.forEach(b => {
-                totalMasukQty += Number(b.qty || 0);
-                totalMasukRp += Number(b.totalHarga || 0);
+            db.barangMasuk.forEach(bm => {
+                (bm.items || []).forEach(item => {
+                    let q = Number(item.qty) || 0, h = Number(item.harsat) || 0;
+                    totalMasukQty += q;
+                    totalMasukRp += (q * h);
+                });
             });
 
-            // Hitung Stok per Item
-            let stockMap = calculateStockMap();
-            let totalJenisStok = Object.keys(stockMap).length;
-            let totalSaldoStok = Object.values(stockMap).reduce((a,c)=>a+c.saldo, 0);
+            let stokList = getStokGudangSummary();
+            let totalJenisStok = stokList.length, totalSaldoStok = 0;
+            stokList.forEach(st => totalSaldoStok += st.saldoAkhir);
 
-            document.getElementById('dashTotalSppQty').innerText = `${totalSppQty} Qty`;
-            document.getElementById('dashTotalSppCount').innerHTML = `<span>${db.spp.length} SPP terdaftar</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
-            document.getElementById('dashTotalKurangQty').innerText = `${totalKurangQty} Qty`;
-            document.getElementById('dashTotalMasukQty').innerText = `${totalMasukQty} Qty`;
-            document.getElementById('dashTotalMasukRp').innerHTML = `<span>Rp ${totalMasukRp.toLocaleString('id-ID')}</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
-            document.getElementById('dashTotalJenisStok').innerText = `${totalJenisStok} Jenis`;
-            document.getElementById('dashTotalSaldoStok').innerHTML = `<span>Saldo: ${totalSaldoStok} Qty</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
+            document.getElementById('dashTotalSppQty').innerText = totalSppQty.toLocaleString('id-ID') + ' Qty';
+            document.getElementById('dashTotalSppCount').innerText = `${totalSppCount} SPP terdaftar`;
+            document.getElementById('dashTotalKurangQty').innerText = totalKurangQty.toLocaleString('id-ID') + ' Qty';
+            document.getElementById('dashTotalMasukQty').innerText = totalMasukQty.toLocaleString('id-ID') + ' Qty';
+            document.getElementById('dashTotalMasukRp').innerText = 'Rp ' + totalMasukRp.toLocaleString('id-ID');
+            document.getElementById('dashTotalJenisStok').innerText = totalJenisStok + ' Jenis';
+            document.getElementById('dashTotalSaldoStok').innerText = 'Saldo: ' + totalSaldoStok.toLocaleString('id-ID') + ' Qty';
 
-            renderCharts();
+            renderCharts(stokList);
         }
 
-        function calculateStockMap() {
-            let map = {};
-            // Masuk
-            db.barangMasuk.forEach(b => {
-                let key = `${b.namaBarang}__${b.spesifikasi}`;
-                if(!map[key]) map[key] = { namaBarang: b.namaBarang, spesifikasi: b.spesifikasi, sat: b.sat, tglMasuk: b.tanggal, masuk: 0, keluar: 0, saldo: 0 };
-                map[key].masuk += Number(b.qty);
+        function renderCharts(stokList) {
+            let labelsSpp = [], dataSppReq = [], dataSppReal = [];
+            db.spp.forEach(s => {
+                let reqSum = 0; (s.items || []).forEach(i => reqSum += Number(i.qty) || 0);
+                let realSum = 0; (s.realisasi || []).forEach(r => realSum += Number(r.qty) || 0);
+                labelsSpp.push(s.noSpp); dataSppReq.push(reqSum); dataSppReal.push(realSum);
             });
-            // Keluar
-            db.stokKeluar.forEach(k => {
-                let key = `${k.namaBarang}__${k.spesifikasi}`;
-                if(!map[key]) map[key] = { namaBarang: k.namaBarang, spesifikasi: k.spesifikasi, sat: k.sat, tglMasuk: '-', masuk: 0, keluar: 0, saldo: 0 };
-                map[key].keluar += Number(k.qty);
-            });
-            Object.keys(map).forEach(k => {
-                map[k].saldo = map[k].masuk - map[k].keluar;
-            });
-            return map;
-        }
 
-        function renderCharts() {
-            // Chart SPP vs Realisasi
             const ctxBar = document.getElementById('sppRealisasiChart').getContext('2d');
-            if(chartsInstance.spp) chartsInstance.spp.destroy();
-
-            let labels = db.spp.map(s => s.namaBarang);
-            let dataSpp = db.spp.map(s => Number(s.qty));
-            let dataReal = db.spp.map(s => s.realisasiList ? s.realisasiList.reduce((a,c)=>a+Number(c.qty),0) : 0);
-
-            chartsInstance.spp = new Chart(ctxBar, {
+            if (sppRealisasiChartInstance) sppRealisasiChartInstance.destroy();
+            sppRealisasiChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: labels.length ? labels : ['Belum Ada Data'],
+                    labels: labelsSpp.length > 0 ? labelsSpp : ['Belum Ada Data'],
                     datasets: [
-                        { label: 'Permintaan SPP', data: labels.length ? dataSpp : [0], backgroundColor: '#3b82f6', borderRadius: 6 },
-                        { label: 'Terealisasi', data: labels.length ? dataReal : [0], backgroundColor: '#10b981', borderRadius: 6 }
+                        { label: 'Jumlah SPP (Qty)', data: dataSppReq.length > 0 ? dataSppReq : [0], backgroundColor: '#2563eb', borderRadius: 6 },
+                        { label: 'Realisasi (Qty)', data: dataSppReal.length > 0 ? dataSppReal : [0], backgroundColor: '#10b981', borderRadius: 6 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // Chart Donut Stok Gudang
+            let donutLabels = stokList.map(s => s.namaBarang);
+            let donutData = stokList.map(s => s.saldoAkhir > 0 ? s.saldoAkhir : 0);
             const ctxDonut = document.getElementById('stokDonutChart').getContext('2d');
-            if(chartsInstance.donut) chartsInstance.donut.destroy();
-
-            let stockMap = calculateStockMap();
-            let stockKeys = Object.keys(stockMap);
-            let stockValues = stockKeys.map(k => stockMap[k].saldo);
-
-            chartsInstance.donut = new Chart(ctxDonut, {
+            if (stokDonutChartInstance) stokDonutChartInstance.destroy();
+            stokDonutChartInstance = new Chart(ctxDonut, {
                 type: 'doughnut',
                 data: {
-                    labels: stockKeys.length ? stockKeys.map(k => stockMap[k].namaBarang) : ['Kosong'],
-                    datasets: [{
-                        data: stockKeys.length ? stockValues : [1],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b']
-                    }]
+                    labels: donutLabels.length > 0 ? donutLabels : ['Kosong'],
+                    datasets: [{ data: donutData.length > 0 ? donutData : [1], backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
         }
 
-        // Dashboard Drilldown Modal
         function openDashboardModal(type) {
-            const modal = document.getElementById('modalDashboardDrilldown');
-            const title = document.getElementById('dashModalTitle');
-            const head = document.getElementById('dashModalHead');
-            const body = document.getElementById('dashModalBody');
-            modal.classList.remove('hidden');
-
-            if(type === 'spp') {
-                title.innerText = 'Rincian SPP Terdaftar';
-                head.innerHTML = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r border-slate-200">No SPP</th><th class="p-3 border-r border-slate-200">Tanggal</th><th class="p-3 border-r border-slate-200">Pengaju</th><th class="p-3 border-r border-slate-200">Nama Barang</th><th class="p-3 border-r border-slate-200">Qty</th><th class="p-3">Sat</th></tr>`;
-                body.innerHTML = db.spp.map(s => `<tr class="border-b border-slate-200"><td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${s.noSpp}</td><td class="p-3 border-r border-slate-200">${s.tglSpp}</td><td class="p-3 border-r border-slate-200">${s.pengaju}</td><td class="p-3 border-r border-slate-200">${s.namaBarang}</td><td class="p-3 border-r border-slate-200">${s.qty}</td><td class="p-3">${s.sat}</td></tr>`).join('') || `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada data SPP</td></tr>`;
-            } else if(type === 'kekurangan') {
-                title.innerText = 'Rincian Kekurangan Realisasi SPP';
-                head.innerHTML = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r border-slate-200">No SPP</th><th class="p-3 border-r border-slate-200">Nama Barang</th><th class="p-3 border-r border-slate-200">Qty SPP</th><th class="p-3 border-r border-slate-200">Realisasi</th><th class="p-3">Kekurangan</th></tr>`;
-                let html = '';
-                db.spp.forEach(s => {
-                    let real = s.realisasiList ? s.realisasiList.reduce((a,c)=>a+Number(c.qty),0) : 0;
-                    let kurang = Number(s.qty) - real;
-                    if(kurang > 0) {
-                        html += `<tr class="border-b border-slate-200"><td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${s.noSpp}</td><td class="p-3 border-r border-slate-200">${s.namaBarang}</td><td class="p-3 border-r border-slate-200">${s.qty}</td><td class="p-3 border-r border-slate-200">${real}</td><td class="p-3 font-bold text-amber-600">${kurang} ${s.sat}</td></tr>`;
-                    }
-                });
-                body.innerHTML = html || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada kekurangan realisasi</td></tr>`;
-            } else if(type === 'barangMasuk') {
-                title.innerText = 'Rincian Barang Masuk';
-                head.innerHTML = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r border-slate-200">Tanggal</th><th class="p-3 border-r border-slate-200">Vendor</th><th class="p-3 border-r border-slate-200">Nama Barang</th><th class="p-3 border-r border-slate-200">Qty</th><th class="p-3">Total Harga</th></tr>`;
-                body.innerHTML = db.barangMasuk.map(b => `<tr class="border-b border-slate-200"><td class="p-3 border-r border-slate-200">${b.tanggal}</td><td class="p-3 border-r border-slate-200">${b.vendor}</td><td class="p-3 border-r border-slate-200">${b.namaBarang}</td><td class="p-3 border-r border-slate-200">${b.qty} ${b.sat}</td><td class="p-3">Rp ${Number(b.totalHarga||0).toLocaleString('id-ID')}</td></tr>`).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada barang masuk</td></tr>`;
-            } else if(type === 'stok') {
-                title.innerText = 'Rincian Saldo Stok Gudang';
-                head.innerHTML = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r border-slate-200">Nama Barang</th><th class="p-3 border-r border-slate-200">Spesifikasi</th><th class="p-3 border-r border-slate-200">Masuk</th><th class="p-3 border-r border-slate-200">Keluar</th><th class="p-3">Saldo Akhir</th></tr>`;
-                let stockMap = calculateStockMap();
-                let html = '';
-                Object.keys(stockMap).forEach(k => {
-                    let st = stockMap[k];
-                    html += `<tr class="border-b border-slate-200"><td class="p-3 border-r border-slate-200 font-semibold">${st.namaBarang}</td><td class="p-3 border-r border-slate-200">${st.spesifikasi}</td><td class="p-3 border-r border-slate-200">${st.masuk} ${st.sat}</td><td class="p-3 border-r border-slate-200">${st.keluar} ${st.sat}</td><td class="p-3 font-bold text-purple-600">${st.saldo} ${st.sat}</td></tr>`;
-                });
-                body.innerHTML = html || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Stok gudang kosong</td></tr>`;
+            openModal('modalDashboard');
+            let title = '', headHtml = '', bodyHtml = '';
+            if (type === 'spp') {
+                title = 'Rincian Keseluruhan SPP';
+                headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">No SPP</th><th class="p-3 border-r">Tanggal</th><th class="p-3 border-r">Pengaju</th><th class="p-3 border-r">Item Barang</th><th class="p-3">Qty</th></tr>`;
+                let rows = [];
+                db.spp.forEach(s => (s.items || []).forEach(i => rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium">${s.noSpp}</td><td class="p-3 border-r">${s.tglSpp}</td><td class="p-3 border-r">${s.pengaju}</td><td class="p-3 border-r">${i.namaBarang} (${i.spesifikasi})</td><td class="p-3 font-bold">${i.qty} ${i.satuan}</td></tr>`)));
+                bodyHtml = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>`;
+            } else if (type === 'kekurangan') {
+                title = 'Rincian Kekurangan Realisasi SPP';
+                headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">No SPP</th><th class="p-3 border-r">Nama Barang</th><th class="p-3 border-r">Diminta</th><th class="p-3 border-r">Terealisasi</th><th class="p-3">Kekurangan</th></tr>`;
+                let rows = [];
+                db.spp.forEach(s => (s.items || []).forEach(i => {
+                    let req = Number(i.qty) || 0, real = 0;
+                    (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
+                    let kurang = req - real;
+                    if (kurang > 0) rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium">${s.noSpp}</td><td class="p-3 border-r">${i.namaBarang}</td><td class="p-3 border-r">${req} ${i.satuan}</td><td class="p-3 border-r text-emerald-600">${real}</td><td class="p-3 font-bold text-amber-600">${kurang} ${i.satuan}</td></tr>`);
+                }));
+                bodyHtml = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Semua SPP telah terealisasi penuh.</td></tr>`;
+            } else if (type === 'barangMasuk') {
+                title = 'Rincian Barang Masuk';
+                headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">Tanggal</th><th class="p-3 border-r">Vendor</th><th class="p-3 border-r">Nama Barang</th><th class="p-3 border-r">Qty</th><th class="p-3">Total Harga</th></tr>`;
+                let rows = [];
+                db.barangMasuk.forEach(bm => (bm.items || []).forEach(i => {
+                    let tot = (Number(i.qty) || 0) * (Number(i.harsat) || 0);
+                    rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r">${bm.tanggal}</td><td class="p-3 border-r font-medium">${bm.vendor}</td><td class="p-3 border-r">${i.namaBarang}</td><td class="p-3 border-r">${i.qty} ${i.satuan}</td><td class="p-3 font-bold text-emerald-600">Rp ${tot.toLocaleString('id-ID')}</td></tr>`);
+                }));
+                bodyHtml = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada data.</td></tr>`;
+            } else if (type === 'stok') {
+                title = 'Rincian Stok Gudang';
+                headHtml = `<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold"><th class="p-3 border-r">Nama Barang</th><th class="p-3 border-r">Spesifikasi</th><th class="p-3 border-r">Masuk</th><th class="p-3 border-r">Keluar</th><th class="p-3">Saldo Akhir</th></tr>`;
+                let stokList = getStokGudangSummary();
+                let rows = stokList.map(st => `<tr class="border-b border-slate-100"><td class="p-3 border-r font-semibold">${st.namaBarang}</td><td class="p-3 border-r">${st.spesifikasi}</td><td class="p-3 border-r text-blue-600">${st.totalMasuk} ${st.satuan}</td><td class="p-3 border-r text-amber-600">${st.totalKeluar} ${st.satuan}</td><td class="p-3 font-bold text-purple-600">${st.saldoAkhir} ${st.satuan}</td></tr>`);
+                bodyHtml = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada stok gudang.</td></tr>`;
             }
+            document.getElementById('modalDashboardTitle').innerText = title;
+            document.getElementById('modalDashboardHead').innerHTML = headHtml;
+            document.getElementById('modalDashboardBody').innerHTML = bodyHtml;
         }
 
-        // --- FITUR SPP & REALISASI ---
+        // --- SPP MANAGEMENT ---
         function openSppModal(editId = null) {
-            document.getElementById('modalSpp').classList.remove('hidden');
-            document.getElementById('editSppId').value = editId || '';
+            openModal('modalSpp');
             const container = document.getElementById('sppItemsContainer');
             container.innerHTML = '';
+            document.getElementById('editSppId').value = '';
 
-            if(editId) {
+            if (editId) {
                 document.getElementById('modalSppTitle').innerText = 'Edit SPP';
-                let item = db.spp.find(x => x.id === editId);
-                if(item) {
-                    document.getElementById('inputNoSpp').value = item.noSpp;
-                    document.getElementById('inputTglSpp').value = item.tglSpp;
-                    document.getElementById('inputPengajuSpp').value = item.pengaju;
-                    container.innerHTML = `
-                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 items-center">
-                            <input type="text" placeholder="Nama Barang" required value="${item.namaBarang}" list="listNamaBarang" class="spp-nama p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Spesifikasi" value="${item.spesifikasi}" class="spp-spesifikasi p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="number" step="any" placeholder="Qty" required value="${item.qty}" class="spp-qty p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Satuan" required value="${item.sat}" list="listSatuan" class="spp-sat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Keterangan" value="${item.keterangan || ''}" class="spp-ket p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                        </div>
-                    `;
+                let spp = db.spp.find(s => s.id === editId);
+                if (spp) {
+                    document.getElementById('editSppId').value = spp.id;
+                    document.getElementById('inputNoSpp').value = spp.noSpp;
+                    document.getElementById('inputTglSpp').value = spp.tglSpp;
+                    document.getElementById('inputPengajuSpp').value = spp.pengaju;
+                    (spp.items || []).forEach(item => addSppItemRow(item));
                 }
             } else {
                 document.getElementById('modalSppTitle').innerText = 'Tambah SPP Baru';
                 document.getElementById('inputNoSpp').value = '';
+                document.getElementById('inputTglSpp').value = new Date().toISOString().split('T')[0];
                 document.getElementById('inputPengajuSpp').value = '';
                 addSppItemRow();
             }
         }
 
-        function addSppItemRow() {
+        function addSppItemRow(data = null) {
             const container = document.getElementById('sppItemsContainer');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-5 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 items-center';
-            row.innerHTML = `
-                <input type="text" placeholder="Nama Barang" required list="listNamaBarang" class="spp-nama p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="text" placeholder="Spesifikasi" class="spp-spesifikasi p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="number" step="any" placeholder="Qty" required class="spp-qty p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="text" placeholder="Satuan" required list="listSatuan" class="spp-sat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <div class="flex space-x-1">
-                    <input type="text" placeholder="Keterangan" class="spp-ket p-2 bg-white border border-slate-200 rounded-lg text-sm flex-1">
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
-                </div>
+            const div = document.createElement('div');
+            div.className = 'flex flex-col sm:flex-row items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200';
+            div.innerHTML = `
+                <div class="flex-1 w-full"><input type="text" placeholder="Nama Barang" list="listNamaBarang" class="spp-nama w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.namaBarang : ''}" required></div>
+                <div class="w-full sm:w-36"><input type="text" placeholder="Spesifikasi" class="spp-spes w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.spesifikasi : ''}"></div>
+                <div class="w-24"><input type="number" step="any" placeholder="Qty" class="spp-qty w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.qty : ''}" required></div>
+                <div class="w-28"><input type="text" placeholder="Satuan" list="listSatuan" class="spp-sat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.satuan : ''}" required></div>
+                <div class="flex-1 w-full"><input type="text" placeholder="Keterangan" class="spp-ket w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.ket : ''}"></div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
             `;
-            container.appendChild(row);
+            container.appendChild(div);
         }
 
-        function saveSpp(e) {
+        async function saveSpp(e) {
             e.preventDefault();
-            const editId = document.getElementById('editSppId').value;
-            const noSpp = document.getElementById('inputNoSpp').value;
-            const tglSpp = document.getElementById('inputTglSpp').value;
-            const pengaju = document.getElementById('inputPengajuSpp').value;
+            let editId = document.getElementById('editSppId').value;
+            let id = editId ? editId : 'spp-' + Date.now();
+            let noSpp = document.getElementById('inputNoSpp').value;
+            let tglSpp = document.getElementById('inputTglSpp').value;
+            let pengaju = document.getElementById('inputPengajuSpp').value;
 
-            const rows = document.querySelectorAll('#sppItemsContainer > div');
-
-            if(editId) {
-                let item = db.spp.find(x => x.id === editId);
-                if(item && rows.length > 0) {
-                    let r = rows[0];
-                    item.noSpp = noSpp;
-                    item.tglSpp = tglSpp;
-                    item.pengaju = pengaju;
-                    item.namaBarang = r.querySelector('.spp-nama').value;
-                    item.spesifikasi = r.querySelector('.spp-spesifikasi').value;
-                    item.qty = r.querySelector('.spp-qty').value;
-                    item.sat = r.querySelector('.spp-sat').value;
-                    item.keterangan = r.querySelector('.spp-ket').value;
-                }
-            } else {
-                // Tambah baru (Urutan terbaru di atas)
-                rows.forEach(r => {
-                    const newEntry = {
-                        id: 'spp_' + Date.now() + '_' + Math.random().toString(36).substr(2,4),
-                        noSpp, tglSpp, pengaju,
-                        namaBarang: r.querySelector('.spp-nama').value,
-                        spesifikasi: r.querySelector('.spp-spesifikasi').value,
-                        qty: r.querySelector('.spp-qty').value,
-                        sat: r.querySelector('.spp-sat').value,
-                        keterangan: r.querySelector('.spp-ket').value,
-                        realisasiList: []
-                    };
-                    db.spp.unshift(newEntry);
+            let items = [];
+            document.querySelectorAll('#sppItemsContainer > div').forEach(r => {
+                items.push({
+                    namaBarang: r.querySelector('.spp-nama').value,
+                    spesifikasi: r.querySelector('.spp-spes').value,
+                    qty: r.querySelector('.spp-qty').value,
+                    satuan: r.querySelector('.spp-sat').value,
+                    ket: r.querySelector('.spp-ket').value
                 });
-            }
+            });
 
-            saveDb();
+            let existingSpp = db.spp.find(s => s.id === id);
+            let realisasiData = existingSpp ? (existingSpp.realisasi || []) : [];
+
+            let sppObj = { id, noSpp, tglSpp, pengaju, items, realisasi: realisasiData };
+            await saveDataToFirestore('spp', id, sppObj);
+
             closeModal('modalSpp');
         }
 
-        function deleteSpp(id) {
-            if(confirm('Hapus data SPP ini?')) {
-                db.spp = db.spp.filter(x => x.id !== id);
-                saveDb();
-            }
-        }
-
-        function openRealisasiModal(sppId) {
-            document.getElementById('modalRealisasi').classList.remove('hidden');
-            document.getElementById('realisasiTargetId').value = sppId;
-            document.getElementById('inputRealQty').value = '';
-        }
-
-        function saveRealisasi(e) {
-            e.preventDefault();
-            const sppId = document.getElementById('realisasiTargetId').value;
-            const tanggal = document.getElementById('inputRealTgl').value;
-            const qty = document.getElementById('inputRealQty').value;
-
-            let item = db.spp.find(x => x.id === sppId);
-            if(item) {
-                if(!item.realisasiList) item.realisasiList = [];
-                item.realisasiList.push({ tanggal, qty });
-                saveDb();
-            }
-            closeModal('modalRealisasi');
-        }
-
-        function deleteRealisasi(sppId, index) {
-            let item = db.spp.find(x => x.id === sppId);
-            if(item && item.realisasiList) {
-                item.realisasiList.splice(index, 1);
-                saveDb();
+        async function deleteSpp(id) {
+            if (confirm('Yakin ingin menghapus data SPP ini?')) {
+                db.spp = db.spp.filter(s => s.id !== id);
+                await deleteDataFromFirestore('spp', id);
             }
         }
 
         function renderSppTable() {
             const tbody = document.getElementById('sppTableBody');
-            const keyword = document.getElementById('searchSppInput').value.toLowerCase();
-            
-            let html = '';
+            const keyword = (document.getElementById('searchSppInput').value || '').toLowerCase();
+            tbody.innerHTML = '';
+
+            let filtered = db.spp.filter(s => s.noSpp.toLowerCase().includes(keyword) || s.pengaju.toLowerCase().includes(keyword) || (s.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="13" class="p-6 text-center text-slate-400">Tidak ada data SPP.</td></tr>`;
+                return;
+            }
+
             let no = 1;
-            db.spp.forEach(s => {
-                if(keyword && !s.noSpp.toLowerCase().includes(keyword) && !s.namaBarang.toLowerCase().includes(keyword)) return;
+            filtered.forEach(s => {
+                (s.items || []).forEach(item => {
+                    let reqQty = Number(item.qty) || 0, realTotal = 0;
+                    (s.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                    let realDetails = (s.realisasi || []).map(r => `${r.tanggal}: <b>${r.qty}</b>`).join('<br>') || '<span class="text-slate-400">Belum ada</span>';
+                    let statusBadge = realTotal >= reqQty ? `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">SELESAI</span>` : (realTotal > 0 ? `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">SEBAGIAN</span>` : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200">MENUNGGU</span>`);
 
-                let realTotal = s.realisasiList ? s.realisasiList.reduce((a,c)=>a+Number(c.qty),0) : 0;
-                let status = realTotal >= Number(s.qty) ? '<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold">Terpenuhi</span>' : '<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold">Kurang</span>';
-
-                let realStr = s.realisasiList ? s.realisasiList.map((r, idx) => `
-                    <div class="flex items-center space-x-1 text-xs bg-slate-100 px-2 py-0.5 rounded-md my-0.5">
-                        <span>${r.tanggal}: <b>${r.qty}</b></span>
-                        <button onclick="deleteRealisasi('${s.id}', ${idx})" class="text-rose-500 hover:text-rose-700 ml-1"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                `).join('') : '-';
-
-                html += `
-                    <tr class="border-b border-slate-200 hover:bg-slate-50">
-                        <td class="p-3 border-r border-slate-200">${no++}</td>
-                        <td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${s.noSpp}</td>
-                        <td class="p-3 border-r border-slate-200">${s.tglSpp}</td>
+                    let tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100';
+                    tr.innerHTML = `
+                        <td class="p-3 border-r border-slate-200 font-medium text-slate-500">${no++}</td>
+                        <td class="p-3 border-r border-slate-200 font-semibold text-slate-900">${s.noSpp}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${s.tglSpp}</td>
                         <td class="p-3 border-r border-slate-200">${s.pengaju}</td>
-                        <td class="p-3 border-r border-slate-200 font-medium">${s.namaBarang}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${s.spesifikasi || '-'}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold">${s.qty}</td>
-                        <td class="p-3 border-r border-slate-200">${s.sat}</td>
-                        <td class="p-3 border-r border-slate-200">${realStr}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">${realTotal}</td>
-                        <td class="p-3 border-r border-slate-200">${status}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${s.keterangan || '-'}</td>
+                        <td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${item.namaBarang}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${item.spesifikasi || '-'}</td>
+                        <td class="p-3 border-r border-slate-200 font-bold">${item.qty}</td>
+                        <td class="p-3 border-r border-slate-200">${item.satuan}</td>
+                        <td class="p-3 border-r border-slate-200 text-xs">${realDetails}</td>
+                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">${realTotal} ${item.satuan}</td>
+                        <td class="p-3 border-r border-slate-200">${statusBadge}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${item.ket || '-'}</td>
                         <td class="p-3 flex items-center space-x-2">
-                            <button onclick="openRealisasiModal('${s.id}')" title="Realisasi" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-1.5 rounded-lg"><i class="fa-solid fa-circle-check"></i></button>
-                            <button onclick="openSppModal('${s.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-1.5 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteSpp('${s.id}')" title="Hapus" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-1.5 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openRealisasiModal('${s.id}')" title="Input Realisasi" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="openSppModal('${s.id}')" title="Edit SPP" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteSpp('${s.id}')" title="Hapus SPP" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>
                         </td>
-                    </tr>
-                `;
+                    `;
+                    tbody.appendChild(tr);
+                });
             });
-            tbody.innerHTML = html || `<tr><td colspan="13" class="p-6 text-center text-slate-400">Belum ada data SPP</td></tr>`;
         }
 
-        // --- FITUR BARANG MASUK ---
+        function openRealisasiModal(sppId) {
+            openModal('modalRealisasi');
+            document.getElementById('realisasiTargetId').value = sppId;
+            document.getElementById('inputRealTgl').value = new Date().toISOString().split('T')[0];
+            document.getElementById('inputRealQty').value = '';
+        }
+
+        async function saveRealisasi(e) {
+            e.preventDefault();
+            let sppId = document.getElementById('realisasiTargetId').value;
+            let tanggal = document.getElementById('inputRealTgl').value;
+            let qty = Number(document.getElementById('inputRealQty').value);
+
+            let spp = db.spp.find(s => s.id === sppId);
+            if (spp) {
+                if (!spp.realisasi) spp.realisasi = [];
+                spp.realisasi.push({ tanggal, qty });
+                await saveDataToFirestore('spp', spp.id, spp);
+                closeModal('modalRealisasi');
+            }
+        }
+
+        // --- BARANG MASUK ---
         function openBarangMasukModal(editId = null) {
-            document.getElementById('modalBarangMasuk').classList.remove('hidden');
-            document.getElementById('editBarangMasukId').value = editId || '';
+            openModal('modalBarangMasuk');
             const container = document.getElementById('bmItemsContainer');
             container.innerHTML = '';
+            document.getElementById('editBarangMasukId').value = '';
 
-            if(editId) {
+            if (editId) {
                 document.getElementById('modalBarangMasukTitle').innerText = 'Edit Barang Masuk';
-                let item = db.barangMasuk.find(x => x.id === editId);
-                if(item) {
-                    document.getElementById('inputBmTanggal').value = item.tanggal;
-                    document.getElementById('inputBmVendor').value = item.vendor;
-                    container.innerHTML = `
-                        <div class="grid grid-cols-1 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 items-center">
-                            <input type="text" placeholder="Nama Barang" required value="${item.namaBarang}" list="listNamaBarang" class="bm-nama p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Spesifikasi" value="${item.spesifikasi}" class="bm-spesifikasi p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="number" step="any" placeholder="Qty" required value="${item.qty}" class="bm-qty p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Satuan" required value="${item.sat}" list="listSatuan" class="bm-sat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="number" step="any" placeholder="Harsat (Rp)" value="${item.harsat || 0}" class="bm-harsat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                            <input type="text" placeholder="Keterangan" value="${item.keterangan || ''}" class="bm-ket p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                        </div>
-                    `;
+                let bm = db.barangMasuk.find(b => b.id === editId);
+                if (bm) {
+                    document.getElementById('editBarangMasukId').value = bm.id;
+                    document.getElementById('inputBmTanggal').value = bm.tanggal;
+                    document.getElementById('inputBmVendor').value = bm.vendor;
+                    (bm.items || []).forEach(item => addBmItemRow(item));
                 }
             } else {
                 document.getElementById('modalBarangMasukTitle').innerText = 'Input Barang Masuk';
+                document.getElementById('inputBmTanggal').value = new Date().toISOString().split('T')[0];
                 document.getElementById('inputBmVendor').value = '';
                 addBmItemRow();
             }
         }
 
-        function addBmItemRow() {
+        function addBmItemRow(data = null) {
             const container = document.getElementById('bmItemsContainer');
-            const row = document.createElement('div');
-            row.className = 'grid grid-cols-1 sm:grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 items-center';
-            row.innerHTML = `
-                <input type="text" placeholder="Nama Barang" required list="listNamaBarang" class="bm-nama p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="text" placeholder="Spesifikasi" class="bm-spesifikasi p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="number" step="any" placeholder="Qty" required class="bm-qty p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="text" placeholder="Satuan" required list="listSatuan" class="bm-sat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <input type="number" step="any" placeholder="Harsat (Rp)" class="bm-harsat p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                <div class="flex space-x-1">
-                    <input type="text" placeholder="Keterangan" class="bm-ket p-2 bg-white border border-slate-200 rounded-lg text-sm flex-1">
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
-                </div>
+            const div = document.createElement('div');
+            div.className = 'flex flex-col sm:flex-row items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200';
+            div.innerHTML = `
+                <div class="flex-1 w-full"><input type="text" placeholder="Nama Barang" list="listNamaBarang" class="bm-nama w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.namaBarang : ''}" required></div>
+                <div class="w-full sm:w-32"><input type="text" placeholder="Spesifikasi" class="bm-spes w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.spesifikasi : ''}"></div>
+                <div class="w-20"><input type="number" step="any" placeholder="Qty" class="bm-qty w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.qty : ''}" required></div>
+                <div class="w-24"><input type="text" placeholder="Satuan" list="listSatuan" class="bm-sat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.satuan : ''}" required></div>
+                <div class="w-28"><input type="number" placeholder="Harsat (Rp)" class="bm-harsat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.harsat : ''}" required></div>
+                <div class="flex-1 w-full"><input type="text" placeholder="Keterangan" class="bm-ket w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.ket : ''}"></div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
             `;
-            container.appendChild(row);
+            container.appendChild(div);
         }
 
-        function saveBarangMasuk(e) {
+        async function saveBarangMasuk(e) {
             e.preventDefault();
-            const editId = document.getElementById('editBarangMasukId').value;
-            const tanggal = document.getElementById('inputBmTanggal').value;
-            const vendor = document.getElementById('inputBmVendor').value;
-            const rows = document.querySelectorAll('#bmItemsContainer > div');
+            let editId = document.getElementById('editBarangMasukId').value;
+            let id = editId ? editId : 'bm-' + Date.now();
+            let tanggal = document.getElementById('inputBmTanggal').value;
+            let vendor = document.getElementById('inputBmVendor').value;
 
-            if(editId) {
-                let item = db.barangMasuk.find(x => x.id === editId);
-                if(item && rows.length > 0) {
-                    let r = rows[0];
-                    item.tanggal = tanggal;
-                    item.vendor = vendor;
-                    item.namaBarang = r.querySelector('.bm-nama').value;
-                    item.spesifikasi = r.querySelector('.bm-spesifikasi').value;
-                    item.qty = r.querySelector('.bm-qty').value;
-                    item.sat = r.querySelector('.bm-sat').value;
-                    item.harsat = r.querySelector('.bm-harsat').value || 0;
-                    item.totalHarga = Number(item.qty) * Number(item.harsat);
-                    item.keterangan = r.querySelector('.bm-ket').value;
-                }
-            } else {
-                rows.forEach(r => {
-                    let qty = Number(r.querySelector('.bm-qty').value || 0);
-                    let harsat = Number(r.querySelector('.bm-harsat').value || 0);
-                    const newEntry = {
-                        id: 'bm_' + Date.now() + '_' + Math.random().toString(36).substr(2,4),
-                        tanggal, vendor,
-                        namaBarang: r.querySelector('.bm-nama').value,
-                        spesifikasi: r.querySelector('.bm-spesifikasi').value,
-                        qty,
-                        sat: r.querySelector('.bm-sat').value,
-                        harsat,
-                        totalHarga: qty * harsat,
-                        keterangan: r.querySelector('.bm-ket').value
-                    };
-                    db.barangMasuk.unshift(newEntry);
+            let items = [];
+            document.querySelectorAll('#bmItemsContainer > div').forEach(r => {
+                items.push({
+                    namaBarang: r.querySelector('.bm-nama').value,
+                    spesifikasi: r.querySelector('.bm-spes').value,
+                    qty: Number(r.querySelector('.bm-qty').value) || 0,
+                    satuan: r.querySelector('.bm-sat').value,
+                    harsat: Number(r.querySelector('.bm-harsat').value) || 0,
+                    ket: r.querySelector('.bm-ket').value
                 });
-            }
+            });
 
-            saveDb();
+            let bmObj = { id, tanggal, vendor, items };
+            await saveDataToFirestore('barangMasuk', id, bmObj);
             closeModal('modalBarangMasuk');
         }
 
-        function deleteBarangMasuk(id) {
-            if(confirm('Hapus data barang masuk ini?')) {
-                db.barangMasuk = db.barangMasuk.filter(x => x.id !== id);
-                saveDb();
+        async function deleteBarangMasuk(id) {
+            if (confirm('Yakin ingin menghapus data barang masuk ini?')) {
+                db.barangMasuk = db.barangMasuk.filter(b => b.id !== id);
+                await deleteDataFromFirestore('barangMasuk', id);
             }
         }
 
         function renderBarangMasukTable() {
             const tbody = document.getElementById('barangMasukTableBody');
-            const keyword = document.getElementById('searchBarangMasukInput').value.toLowerCase();
-            let html = '';
-            let no = 1;
-            db.barangMasuk.forEach(b => {
-                if(keyword && !b.vendor.toLowerCase().includes(keyword) && !b.namaBarang.toLowerCase().includes(keyword)) return;
+            const keyword = (document.getElementById('searchBarangMasukInput').value || '').toLowerCase();
+            tbody.innerHTML = '';
 
-                html += `
-                    <tr class="border-b border-slate-200 hover:bg-slate-50">
-                        <td class="p-3 border-r border-slate-200">${no++}</td>
-                        <td class="p-3 border-r border-slate-200">${b.tanggal}</td>
-                        <td class="p-3 border-r border-slate-200 font-semibold text-amber-700">${b.vendor}</td>
-                        <td class="p-3 border-r border-slate-200 font-medium">${b.namaBarang}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${b.spesifikasi || '-'}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold">${b.qty}</td>
-                        <td class="p-3 border-r border-slate-200">${b.sat}</td>
-                        <td class="p-3 border-r border-slate-200">Rp ${Number(b.harsat||0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">Rp ${Number(b.totalHarga||0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${b.keterangan || '-'}</td>
+            let filtered = db.barangMasuk.filter(bm => bm.vendor.toLowerCase().includes(keyword) || (bm.items || []).some(i => i.namaBarang.toLowerCase().includes(keyword)));
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">Tidak ada data barang masuk.</td></tr>`;
+                return;
+            }
+
+            let no = 1;
+            filtered.forEach(bm => {
+                (bm.items || []).forEach(item => {
+                    let totalHarga = (Number(item.qty) || 0) * (Number(item.harsat) || 0);
+                    let tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100';
+                    tr.innerHTML = `
+                        <td class="p-3 border-r border-slate-200 font-medium text-slate-500">${no++}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${bm.tanggal}</td>
+                        <td class="p-3 border-r border-slate-200 font-semibold text-slate-900">${bm.vendor}</td>
+                        <td class="p-3 border-r border-slate-200 font-semibold text-amber-600">${item.namaBarang}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${item.spesifikasi || '-'}</td>
+                        <td class="p-3 border-r border-slate-200 font-bold">${item.qty}</td>
+                        <td class="p-3 border-r border-slate-200">${item.satuan}</td>
+                        <td class="p-3 border-r border-slate-200">Rp ${(Number(item.harsat) || 0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                        <td class="p-3 border-r border-slate-200 text-slate-600">${item.ket || '-'}</td>
                         <td class="p-3 flex items-center space-x-2">
-                            <button onclick="openBarangMasukModal('${b.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-1.5 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteBarangMasuk('${b.id}')" title="Hapus" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-1.5 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openBarangMasukModal('${bm.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteBarangMasuk('${bm.id}')" title="Hapus" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>
                         </td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html || `<tr><td colspan="11" class="p-6 text-center text-slate-400">Belum ada barang masuk</td></tr>`;
-        }
-
-        // Papan Akumulasi Vendor
-        function openVendorAccumulationModal() {
-            document.getElementById('modalVendorAccumulation').classList.remove('hidden');
-            const tbody = document.getElementById('vendorAccumulationTableBody');
-            
-            // Kelompokkan berdasarkan Vendor
-            let vendorMap = {};
-            db.barangMasuk.forEach(b => {
-                if(!vendorMap[b.vendor]) vendorMap[b.vendor] = { tanggal: b.tanggal, vendor: b.vendor, rincian: [], totalItem: 0, totalHarga: 0, ket: [] };
-                vendorMap[b.vendor].rincian.push(`${b.namaBarang} (${b.qty} ${b.sat})`);
-                vendorMap[b.vendor].totalItem += Number(b.qty);
-                vendorMap[b.vendor].totalHarga += Number(b.totalHarga || 0);
-                if(b.keterangan) vendorMap[b.vendor].ket.push(b.keterangan);
-            });
-
-            let html = '';
-            let no = 1;
-            Object.keys(vendorMap).forEach(v => {
-                let vm = vendorMap[v];
-                html += `
-                    <tr class="border-b border-slate-200">
-                        <td class="p-3 border-r border-slate-200">${no++}</td>
-                        <td class="p-3 border-r border-slate-200">${vm.tanggal}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-amber-700">${vm.vendor}</td>
-                        <td class="p-3 border-r border-slate-200 text-xs">${vm.rincian.join(', ')}</td>
-                        <td class="p-3 border-r border-slate-200 font-semibold">${vm.totalItem} Qty</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">Rp ${vm.totalHarga.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-slate-500">${vm.ket.join(', ') || '-'}</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Belum ada akumulasi vendor</td></tr>`;
-        }
-
-        // --- FITUR STOK BARANG ---
-        function openStokKeluarModal(editId = null) {
-            document.getElementById('modalStokKeluar').classList.remove('hidden');
-            document.getElementById('editStokKeluarId').value = editId || '';
-            const container = document.getElementById('skItemsContainer');
-            container.innerHTML = '';
-
-            if(editId) {
-                document.getElementById('editStokKeluarId').value = editId;
-                let item = db.stokKeluar.find(x => x.id === editId);
-                if(item) {
-                    document.getElementById('inputSkTanggal').value = item.tanggal;
-                    document.getElementById('inputSkPengambil').value = item.pengambil;
-                    container.innerHTML = createSkRowHTML(item.namaBarang, item.spesifikasi, item.qty, item.sat, item.keterangan);
-                }
-            } else {
-                document.getElementById('inputSkPengambil').value = '';
-                addSkItemRow();
-            }
-        }
-
-        function createSkRowHTML(nama='', spesifikasi='', qty='', sat='', ket='') {
-            return `
-                <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 items-center">
-                    <input type="text" placeholder="Nama Barang" required value="${nama}" list="listNamaBarang" onchange="autofillStokItem(this)" class="sk-nama p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                    <input type="text" placeholder="Spesifikasi" readonly value="${spesifikasi}" class="sk-spesifikasi p-2 bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-500">
-                    <input type="number" step="any" placeholder="Qty Keluar" required value="${qty}" class="sk-qty p-2 bg-white border border-slate-200 rounded-lg text-sm">
-                    <input type="text" placeholder="Satuan" readonly value="${sat}" class="sk-sat p-2 bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-500">
-                    <div class="flex space-x-1">
-                        <input type="text" placeholder="Keterangan" value="${ket}" class="sk-ket p-2 bg-white border border-slate-200 rounded-lg text-sm flex-1">
-                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function addSkItemRow() {
-            document.getElementById('skItemsContainer').insertAdjacentHTML('beforeend', createSkRowHTML());
-        }
-
-        function autofillStokItem(inputEl) {
-            let nama = inputEl.value;
-            let row = inputEl.parentElement;
-            // Cari spesifikasi & sat dari barang masuk terakhir
-            let found = db.barangMasuk.slice().reverse().find(b => b.namaBarang.toLowerCase() === nama.toLowerCase());
-            if(found) {
-                row.querySelector('.sk-spesifikasi').value = found.spesifikasi || '';
-                row.querySelector('.sk-sat').value = found.sat || '';
-            }
-        }
-
-        function saveStokKeluar(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editStokKeluarId').value;
-            const tanggal = document.getElementById('inputSkTanggal').value;
-            const pengambil = document.getElementById('inputSkPengambil').value;
-            const rows = document.querySelectorAll('#skItemsContainer > div');
-
-            if(editId) {
-                let item = db.stokKeluar.find(x => x.id === editId);
-                if(item && rows.length > 0) {
-                    let r = rows[0];
-                    item.tanggal = tanggal;
-                    item.pengambil = pengambil;
-                    item.namaBarang = r.querySelector('.sk-nama').value;
-                    item.spesifikasi = r.querySelector('.sk-spesifikasi').value;
-                    item.qty = r.querySelector('.sk-qty').value;
-                    item.sat = r.querySelector('.sk-sat').value;
-                    item.keterangan = r.querySelector('.sk-ket').value;
-                }
-            } else {
-                rows.forEach(r => {
-                    const newEntry = {
-                        id: 'sk_' + Date.now() + '_' + Math.random().toString(36).substr(2,4),
-                        tanggal, pengambil,
-                        namaBarang: r.querySelector('.sk-nama').value,
-                        spesifikasi: r.querySelector('.sk-spesifikasi').value,
-                        qty: r.querySelector('.sk-qty').value,
-                        sat: r.querySelector('.sk-sat').value,
-                        keterangan: r.querySelector('.sk-ket').value
-                    };
-                    db.stokKeluar.unshift(newEntry);
+                    `;
+                    tbody.appendChild(tr);
                 });
-            }
+            });
+        }
 
-            saveDb();
+        function openVendorAccumulationModal() {
+            openModal('modalVendor');
+            let vendorMap = {};
+            db.barangMasuk.forEach(bm => {
+                let v = bm.vendor || 'Tanpa Vendor';
+                if (!vendorMap[v]) vendorMap[v] = { countTx: 0, totalQty: 0, totalNominal: 0 };
+                vendorMap[v].countTx += 1;
+                (bm.items || []).forEach(i => {
+                    let q = Number(i.qty) || 0, h = Number(i.harsat) || 0;
+                    vendorMap[v].totalQty += q;
+                    vendorMap[v].totalNominal += (q * h);
+                });
+            });
+
+            let tbody = document.getElementById('vendorTableBody');
+            tbody.innerHTML = '';
+            let rows = [], no = 1;
+            for (let v in vendorMap) {
+                let info = vendorMap[v];
+                rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium text-slate-500">${no++}</td><td class="p-3 border-r font-bold text-slate-900">${v}</td><td class="p-3 border-r">${info.countTx} Transaksi</td><td class="p-3 border-r font-bold text-blue-600">${info.totalQty.toLocaleString('id-ID')} Qty</td><td class="p-3 font-bold text-emerald-600">Rp ${info.totalNominal.toLocaleString('id-ID')}</td></tr>`);
+            }
+            tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data vendor.</td></tr>`;
+        }
+
+        // --- STOK KELUAR ---
+        function openStokKeluarModal(editId = null) {
+            openModal('modalStokKeluar');
+            document.getElementById('editStokKeluarId').value = '';
+            document.getElementById('inputSkTgl').value = new Date().toISOString().split('T')[0];
+            document.getElementById('inputSkPengambilan').value = '';
+            document.getElementById('inputSkQty').value = '';
+            document.getElementById('inputSkSatuan').value = '';
+            document.getElementById('inputSkKet').value = '';
+
+            let select = document.getElementById('inputSkItemSelect');
+            select.innerHTML = '<option value="">-- Pilih Barang (Stok Tersedia) --</option>';
+
+            getStokGudangSummary().forEach(st => {
+                if (st.saldoAkhir > 0) {
+                    let opt = document.createElement('option');
+                    opt.value = st.namaBarang + '___' + st.spesifikasi;
+                    opt.setAttribute('data-satuan', st.satuan);
+                    opt.text = `${st.namaBarang} (${st.spesifikasi}) - Saldo: ${st.saldoAkhir} ${st.satuan}`;
+                    select.appendChild(opt);
+                }
+            });
+
+            if (editId) {
+                let sk = db.stokKeluar.find(x => x.id === editId);
+                if (sk) {
+                    document.getElementById('editStokKeluarId').value = sk.id;
+                    document.getElementById('inputSkTgl').value = sk.tanggal;
+                    document.getElementById('inputSkPengambilan').value = sk.pengambilan;
+                    document.getElementById('inputSkQty').value = sk.qty;
+                    document.getElementById('inputSkSatuan').value = sk.satuan;
+                    document.getElementById('inputSkKet').value = sk.ket || '';
+                    select.value = sk.namaBarang + '___' + sk.spesifikasi;
+                }
+            }
+        }
+
+        function onSelectSkItem() {
+            let select = document.getElementById('inputSkItemSelect');
+            let opt = select.options[select.selectedIndex];
+            document.getElementById('inputSkSatuan').value = (opt && opt.value) ? opt.getAttribute('data-satuan') : '';
+        }
+
+        async function saveStokKeluar(e) {
+            e.preventDefault();
+            let editId = document.getElementById('editStokKeluarId').value;
+            let id = editId ? editId : 'sk-' + Date.now();
+            let tanggal = document.getElementById('inputSkTgl').value;
+            let pengambilan = document.getElementById('inputSkPengambilan').value;
+            let itemVal = document.getElementById('inputSkItemSelect').value;
+            let qty = Number(document.getElementById('inputSkQty').value) || 0;
+            let satuan = document.getElementById('inputSkSatuan').value;
+            let ket = document.getElementById('inputSkKet').value;
+
+            let parts = itemVal.split('___');
+            let skObj = { id, tanggal, pengambilan, namaBarang: parts[0], spesifikasi: parts[1], qty, satuan, ket };
+            await saveDataToFirestore('stokKeluar', id, skObj);
             closeModal('modalStokKeluar');
         }
 
-        function deleteStokKeluar(id) {
-            if(confirm('Hapus riwayat pengambilan ini?')) {
+        async function deleteStokKeluar(id) {
+            if (confirm('Yakin ingin menghapus riwayat pengeluaran ini?')) {
                 db.stokKeluar = db.stokKeluar.filter(x => x.id !== id);
-                saveDb();
+                await deleteDataFromFirestore('stokKeluar', id);
             }
         }
 
         function renderStokTables() {
-            const keyword = document.getElementById('searchStokInput').value.toLowerCase();
-            let stockMap = calculateStockMap();
+            const keyword = (document.getElementById('searchStokInput').value || '').toLowerCase();
+            let stokList = getStokGudangSummary();
 
-            // 1. Render Kartu Stok
-            let stokTbody = document.getElementById('stokGudangTableBody');
-            let stokHtml = '';
-            let no1 = 1;
-            Object.keys(stockMap).forEach(k => {
-                let st = stockMap[k];
-                if(keyword && !st.namaBarang.toLowerCase().includes(keyword)) return;
+            const tbodyStok = document.getElementById('stokGudangTableBody');
+            tbodyStok.innerHTML = '';
+            let filteredStok = stokList.filter(st => st.namaBarang.toLowerCase().includes(keyword));
+            if (filteredStok.length === 0) {
+                tbodyStok.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Tidak ada stok gudang.</td></tr>`;
+            } else {
+                let no = 1;
+                filteredStok.forEach(st => {
+                    tbodyStok.innerHTML += `<tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-3 border-r font-medium text-slate-500">${no++}</td>
+                        <td class="p-3 border-r text-slate-600">${st.lastUpdate}</td>
+                        <td class="p-3 border-r font-semibold text-slate-900">${st.namaBarang}</td>
+                        <td class="p-3 border-r text-slate-600">${st.spesifikasi}</td>
+                        <td class="p-3 border-r">${st.satuan}</td>
+                        <td class="p-3 border-r font-bold text-blue-600">${st.totalMasuk}</td>
+                        <td class="p-3 border-r font-bold text-amber-600">${st.totalKeluar}</td>
+                        <td class="p-3 border-r font-bold text-purple-600">${st.saldoAkhir}</td>
+                        <td class="p-3"><span class="text-xs text-slate-400 italic">Otomatis</span></td>
+                    </tr>`;
+                });
+            }
 
-                let statusBadge = st.saldo > 0 ? '<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold">Tersedia</span>' : '<span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full text-xs font-semibold">Habis</span>';
-
-                stokHtml += `
-                    <tr class="border-b border-slate-200 hover:bg-slate-50">
-                        <td class="p-3 border-r border-slate-200">${no1++}</td>
-                        <td class="p-3 border-r border-slate-200">${st.tglMasuk}</td>
-                        <td class="p-3 border-r border-slate-200 font-semibold text-purple-700">${st.namaBarang}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${st.spesifikasi || '-'}</td>
-                        <td class="p-3 border-r border-slate-200">${st.sat}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">${st.masuk}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-amber-600">${st.keluar}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-purple-600">${st.saldo}</td>
-                        <td class="p-3">${statusBadge}</td>
-                    </tr>
-                `;
-            });
-            stokTbody.innerHTML = stokHtml || `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada item di stok gudang</td></tr>`;
-
-            // 2. Render Riwayat Pengeluaran
-            let keluarTbody = document.getElementById('stokKeluarTableBody');
-            let keluarHtml = '';
-            let no2 = 1;
-            db.stokKeluar.forEach(k => {
-                if(keyword && !k.namaBarang.toLowerCase().includes(keyword) && !k.pengambil.toLowerCase().includes(keyword)) return;
-
-                keluarHtml += `
-                    <tr class="border-b border-slate-200 hover:bg-slate-50">
-                        <td class="p-3 border-r border-slate-200">${no2++}</td>
-                        <td class="p-3 border-r border-slate-200">${k.tanggal}</td>
-                        <td class="p-3 border-r border-slate-200 font-semibold text-slate-800">${k.pengambil}</td>
-                        <td class="p-3 border-r border-slate-200 font-medium">${k.namaBarang}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${k.spesifikasi || '-'}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-amber-600">${k.qty}</td>
-                        <td class="p-3 border-r border-slate-200">${k.sat}</td>
-                        <td class="p-3 border-r border-slate-200 text-slate-500">${k.keterangan || '-'}</td>
+            const tbodyKeluar = document.getElementById('stokKeluarTableBody');
+            tbodyKeluar.innerHTML = '';
+            let filteredKeluar = db.stokKeluar.filter(sk => sk.pengambilan.toLowerCase().includes(keyword) || sk.namaBarang.toLowerCase().includes(keyword));
+            if (filteredKeluar.length === 0) {
+                tbodyKeluar.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Tidak ada riwayat pengeluaran.</td></tr>`;
+            } else {
+                let no = 1;
+                filteredKeluar.forEach(sk => {
+                    tbodyKeluar.innerHTML += `<tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="p-3 border-r font-medium text-slate-500">${no++}</td>
+                        <td class="p-3 border-r text-slate-600">${sk.tanggal}</td>
+                        <td class="p-3 border-r font-semibold text-slate-900">${sk.pengambilan}</td>
+                        <td class="p-3 border-r font-semibold text-purple-600">${sk.namaBarang}</td>
+                        <td class="p-3 border-r text-slate-600">${sk.spesifikasi || '-'}</td>
+                        <td class="p-3 border-r font-bold text-rose-600">${sk.qty}</td>
+                        <td class="p-3 border-r">${sk.satuan}</td>
+                        <td class="p-3 border-r text-slate-600">${sk.ket || '-'}</td>
                         <td class="p-3 flex items-center space-x-2">
-                            <button onclick="openStokKeluarModal('${k.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-1.5 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteStokKeluar('${k.id}')" title="Hapus" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-1.5 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openStokKeluarModal('${sk.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteStokKeluar('${sk.id}')" title="Hapus" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>
                         </td>
-                    </tr>
-                `;
-            });
-            keluarTbody.innerHTML = keluarHtml || `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada riwayat pengeluaran</td></tr>`;
+                    </tr>`;
+                });
+            }
         }
 
-        // --- SHARE, BACKUP JSON & EXCEL ---
+        // --- EXPORT & IMPORT ---
         function shareLink() {
-            const url = window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    alert('Tautan aplikasi berhasil disalin! Bagikan ke rekan kerja agar dapat diakses dan diedit bersama secara lokal.');
-                });
+            if (navigator.share) {
+                navigator.share({ title: 'LogistikPro', text: 'Monitoring Logistik', url: window.location.href }).catch(() => {});
             } else {
-                prompt('Salin tautan ini:', url);
+                navigator.clipboard.writeText(window.location.href);
+                alert('Tautan disalin ke clipboard!');
             }
         }
 
         function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "logistikpro_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            let dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "logistikpro_backup_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
         }
 
-        function importJSON(event) {
-            const fileReader = new FileReader();
-            if(event.target.files[0]) {
-                fileReader.readAsText(event.target.files[0], "UTF-8");
-                fileReader.onload = function(e) {
-                    try {
-                        db = JSON.parse(e.target.result);
-                        saveDb();
-                        alert('Data berhasil diimpor!');
-                    } catch(err) {
-                        alert('Format file JSON tidak valid!');
+        async function importJSON(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    let parsed = JSON.parse(e.target.result);
+                    if (parsed.spp && parsed.barangMasuk) {
+                        // Unggah data hasil impor ke Firebase
+                        if (window.fbFirestore) {
+                            for (let s of (parsed.spp || [])) await saveDataToFirestore('spp', s.id || ('spp-' + Math.random()), s);
+                            for (let bm of (parsed.barangMasuk || [])) await saveDataToFirestore('barangMasuk', bm.id || ('bm-' + Math.random()), bm);
+                            for (let sk of (parsed.stokKeluar || [])) await saveDataToFirestore('stokKeluar', sk.id || ('sk-' + Math.random()), sk);
+                        }
+                        alert('Data berhasil diimpor dan disinkronkan ke Cloud Firebase!');
+                    } else {
+                        alert('Format JSON tidak valid.');
                     }
+                } catch (err) {
+                    alert('Gagal membaca file JSON.');
                 }
-            }
+            };
+            reader.readAsText(file);
         }
 
         function exportExcelAll() {
-            const wb = XLSX.utils.book_new();
+            let wb = XLSX.utils.book_new();
 
-            // Sheet 1: SPP
-            const sppData = db.spp.map((s, i) => ({
-                No: i+1, "No SPP": s.noSpp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Nama Barang": s.namaBarang, "Spesifikasi": s.spesifikasi, "Qty": s.qty, "Satuan": s.sat, "Keterangan": s.keterangan
-            }));
-            const wsSpp = XLSX.utils.json_to_sheet(sppData);
-            XLSX.utils.book_append_sheet(wb, wsSpp, "SPP & Realisasi");
-
-            // Sheet 2: Barang Masuk
-            const bmData = db.barangMasuk.map((b, i) => ({
-                No: i+1, "Tanggal": b.tanggal, "Vendor": b.vendor, "Nama Barang": b.namaBarang, "Spesifikasi": b.spesifikasi, "Qty": b.qty, "Satuan": b.sat, "Harsat": b.harsat, "Total Harga": b.totalHarga, "Keterangan": b.keterangan
-            }));
-            const wsBm = XLSX.utils.json_to_sheet(bmData);
-            XLSX.utils.book_append_sheet(wb, wsBm, "Barang Masuk");
-
-            // Sheet 3: Stok Gudang
-            let stockMap = calculateStockMap();
-            let stokArr = [];
-            let idx = 1;
-            Object.keys(stockMap).forEach(k => {
-                let st = stockMap[k];
-                stokArr.push({ No: idx++, "Tanggal Masuk": st.tglMasuk, "Nama Barang": st.namaBarang, "Spesifikasi": st.spesifikasi, "Satuan": st.sat, "Total Masuk": st.masuk, "Total Keluar": st.keluar, "Saldo Akhir": st.saldo });
+            let sppRows = [];
+            db.spp.forEach(s => {
+                let realTotal = 0; (s.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                (s.items || []).forEach(i => sppRows.push({ "No SPP": s.noSpp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namaBarang, "Spesifikasi": i.spesifikasi, "Qty": i.qty, "Satuan": i.satuan, "Realisasi": realTotal }));
             });
-            const wsStok = XLSX.utils.json_to_sheet(stokArr);
-            XLSX.utils.book_append_sheet(wb, wsStok, "Stok Gudang");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
-            XLSX.writeFile(wb, "LogistikPro_Report.xlsx");
+            let bmRows = [];
+            db.barangMasuk.forEach(bm => (bm.items || []).forEach(i => bmRows.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Barang": i.namaBarang, "Qty": i.qty, "Satuan": i.satuan, "Harsat": i.harsat, "Total": (i.qty||0)*(i.harsat||0) })));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
+
+            let stokRows = getStokGudangSummary().map((st, i) => ({ "No": i+1, "Barang": st.namaBarang, "Spesifikasi": st.spesifikasi, "Masuk": st.totalMasuk, "Keluar": st.totalKeluar, "Saldo": st.saldoAkhir }));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
+
+            XLSX.writeFile(wb, "Laporan_LogistikPro_" + new Date().toISOString().split('T')[0] + ".xlsx");
         }
-
-        // Jalankan inisialisasi awal saat halaman dimuat
-        initApp();
     </script>
 </body>
 </html>
