@@ -456,6 +456,11 @@
             </div>
             <form onsubmit="saveRealisasi(event)" class="space-y-4">
                 <input type="hidden" id="realisasiTargetId">
+                <input type="hidden" id="realisasiItemIndex">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Item Barang</label>
+                    <input type="text" id="inputRealNamaBarang" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600 font-semibold">
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Realisasi</label>
                     <input type="date" id="inputRealTgl" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
@@ -609,7 +614,6 @@
             <div class="space-y-4 text-sm text-slate-600">
                 <p>Aplikasi <b>LogistikPro</b> dapat langsung dipasang sebagai aplikasi mandiri di HP Android/iPhone Anda:</p>
                 
-                <!-- Tombol Eksekusi Install Otomatis (jika didukung browser) -->
                 <div id="installButtonContainer" class="hidden">
                     <button id="btnInstallPwa" onclick="triggerPwaInstall()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md flex items-center justify-center space-x-2 transition-all">
                         <i class="fa-solid fa-download"></i>
@@ -660,7 +664,6 @@
         let stokDonutChartInstance = null;
         let deferredPrompt = null;
 
-        // Tangkap event PWA Install Prompt dari browser
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -836,7 +839,7 @@
                     let reqQty = Number(item.qty) || 0;
                     totalSppQty += reqQty;
                     let realQty = 0;
-                    (s.realisasi || []).forEach(r => realQty += Number(r.qty) || 0);
+                    (item.realisasi || []).forEach(r => realQty += Number(r.qty) || 0);
                     let kurang = reqQty - realQty;
                     if (kurang > 0) totalKurangQty += kurang;
                 });
@@ -877,7 +880,7 @@
                 (s.items || []).forEach(i => {
                     let req = Number(i.qty) || 0;
                     let real = 0;
-                    (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
+                    (i.realisasi || []).forEach(r => real += Number(r.qty) || 0);
                     let kurang = req - real;
                     
                     let statusBadge = '';
@@ -915,8 +918,11 @@
             let labelsSpp = [], dataSppReq = [], dataSppReal = [];
             let sortedSpp = [...db.spp].reverse();
             sortedSpp.forEach(s => {
-                let reqSum = 0; (s.items || []).forEach(i => reqSum += Number(i.qty) || 0);
-                let realSum = 0; (s.realisasi || []).forEach(r => realSum += Number(r.qty) || 0);
+                let reqSum = 0, realSum = 0;
+                (s.items || []).forEach(i => {
+                    reqSum += Number(i.qty) || 0;
+                    (i.realisasi || []).forEach(r => realSum += Number(r.qty) || 0);
+                });
                 labelsSpp.push(s.noSpp); dataSppReq.push(reqSum); dataSppReal.push(realSum);
             });
 
@@ -963,7 +969,7 @@
                 let rows = [];
                 [...db.spp].reverse().forEach(s => (s.items || []).forEach(i => {
                     let req = Number(i.qty) || 0, real = 0;
-                    (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
+                    (i.realisasi || []).forEach(r => real += Number(r.qty) || 0);
                     let kurang = req - real;
                     if (kurang > 0) rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium">${s.noSpp}</td><td class="p-3 border-r">${i.namaBarang}</td><td class="p-3 border-r">${req} ${i.satuan}</td><td class="p-3 border-r text-emerald-600">${real}</td><td class="p-3 font-bold text-amber-600">${kurang} ${i.satuan}</td></tr>`);
                 }));
@@ -1038,21 +1044,26 @@
             let tglSpp = document.getElementById('inputTglSpp').value;
             let pengaju = document.getElementById('inputPengajuSpp').value;
 
+            let existingSpp = db.spp.find(s => s.id === id);
+
             let items = [];
+            let index = 0;
             document.querySelectorAll('#sppItemsContainer > div').forEach(r => {
-                items.push({
-                    namaBarang: r.querySelector('.spp-nama').value,
-                    spesifikasi: r.querySelector('.spp-spes').value,
-                    qty: r.querySelector('.spp-qty').value,
-                    satuan: r.querySelector('.spp-sat').value,
-                    ket: r.querySelector('.spp-ket').value
-                });
+                let namaBarang = r.querySelector('.spp-nama').value;
+                let spesifikasi = r.querySelector('.spp-spes').value;
+                let qty = r.querySelector('.spp-qty').value;
+                let satuan = r.querySelector('.spp-sat').value;
+                let ket = r.querySelector('.spp-ket').value;
+
+                // Pertahankan realisasi lama jika item sama
+                let existingItem = existingSpp && existingSpp.items && existingSpp.items[index];
+                let realisasi = (existingItem && existingItem.namaBarang === namaBarang) ? (existingItem.realisasi || []) : [];
+
+                items.push({ namaBarang, spesifikasi, qty, satuan, ket, realisasi });
+                index++;
             });
 
-            let existingSpp = db.spp.find(s => s.id === id);
-            let realisasiData = existingSpp ? (existingSpp.realisasi || []) : [];
-
-            let sppObj = { id, noSpp, tglSpp, pengaju, items, realisasi: realisasiData };
+            let sppObj = { id, noSpp, tglSpp, pengaju, items };
             await saveDataToFirestore('spp', id, sppObj);
 
             closeModal('modalSpp');
@@ -1078,10 +1089,10 @@
 
             let no = 1;
             filtered.forEach(s => {
-                (s.items || []).forEach(item => {
+                s.items.forEach((item, itemIdx) => {
                     let reqQty = Number(item.qty) || 0, realTotal = 0;
-                    (s.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                    let realDetails = (s.realisasi || []).map(r => `${r.tanggal}: <b>${r.qty}</b>`).join('<br>') || '<span class="text-slate-400">Belum ada</span>';
+                    (item.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                    let realDetails = (item.realisasi || []).map(r => `${r.tanggal}: <b>${r.qty}</b>`).join('<br>') || '<span class="text-slate-400">Belum ada</span>';
                     let statusBadge = realTotal >= reqQty ? `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">SELESAI</span>` : (realTotal > 0 ? `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">SEBAGIAN</span>` : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200">MENUNGGU</span>`);
 
                     let tr = document.createElement('tr');
@@ -1100,7 +1111,7 @@
                         <td class="p-3 border-r border-slate-200">${statusBadge}</td>
                         <td class="p-3 border-r border-slate-200 text-slate-600">${item.ket || '-'}</td>
                         <td class="p-3 flex items-center space-x-2">
-                            <button onclick="openRealisasiModal('${s.id}')" title="Input Realisasi" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-check"></i></button>
+                            <button onclick="openRealisasiModal('${s.id}', ${itemIdx})" title="Input Realisasi" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-check"></i></button>
                             <button onclick="openSppModal('${s.id}')" title="Edit SPP" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteSpp('${s.id}')" title="Hapus SPP" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -1110,9 +1121,17 @@
             });
         }
 
-        function openRealisasiModal(sppId) {
+        function openRealisasiModal(sppId, itemIdx) {
             openModal('modalRealisasi');
             document.getElementById('realisasiTargetId').value = sppId;
+            document.getElementById('realisasiItemIndex').value = itemIdx;
+            
+            let spp = db.spp.find(s => s.id === sppId);
+            if (spp && spp.items && spp.items[itemIdx]) {
+                let item = spp.items[itemIdx];
+                document.getElementById('inputRealNamaBarang').value = `${item.namaBarang} (${item.spesifikasi || '-'}) - Diminta: ${item.qty} ${item.satuan}`;
+            }
+
             document.getElementById('inputRealTgl').value = new Date().toISOString().split('T')[0];
             document.getElementById('inputRealQty').value = '';
         }
@@ -1120,13 +1139,14 @@
         async function saveRealisasi(e) {
             e.preventDefault();
             let sppId = document.getElementById('realisasiTargetId').value;
+            let itemIdx = parseInt(document.getElementById('realisasiItemIndex').value);
             let tanggal = document.getElementById('inputRealTgl').value;
             let qty = Number(document.getElementById('inputRealQty').value);
 
             let spp = db.spp.find(s => s.id === sppId);
-            if (spp) {
-                if (!spp.realisasi) spp.realisasi = [];
-                spp.realisasi.push({ tanggal, qty });
+            if (spp && spp.items && spp.items[itemIdx]) {
+                if (!spp.items[itemIdx].realisasi) spp.items[itemIdx].realisasi = [];
+                spp.items[itemIdx].realisasi.push({ tanggal, qty });
                 await saveDataToFirestore('spp', spp.id, spp);
                 closeModal('modalRealisasi');
             }
@@ -1165,7 +1185,7 @@
                 <div class="w-full sm:w-32"><input type="text" placeholder="Spesifikasi" class="bm-spes w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.spesifikasi : ''}"></div>
                 <div class="w-20"><input type="number" step="any" placeholder="Qty" class="bm-qty w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.qty : ''}" required></div>
                 <div class="w-24"><input type="text" placeholder="Satuan" list="listSatuan" class="bm-sat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.satuan : ''}" required></div>
-                <div class="w-28"><input type="number" placeholder="Harsat (Rp)" class="bm-harsat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.harsat : ''}" required></div>
+                <div class="w-28"><input type="number" placeholder="Harsat (Rp) - Opsional" class="bm-harsat w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data && data.harsat !== undefined ? data.harsat : ''}"></div>
                 <div class="flex-1 w-full"><input type="text" placeholder="Keterangan" class="bm-ket w-full p-2 bg-white border border-slate-200 rounded-lg text-sm" value="${data ? data.ket : ''}"></div>
                 <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 p-2"><i class="fa-solid fa-trash"></i></button>
             `;
@@ -1181,12 +1201,13 @@
 
             let items = [];
             document.querySelectorAll('#bmItemsContainer > div').forEach(r => {
+                let harsatVal = r.querySelector('.bm-harsat').value;
                 items.push({
                     namaBarang: r.querySelector('.bm-nama').value,
                     spesifikasi: r.querySelector('.bm-spes').value,
                     qty: Number(r.querySelector('.bm-qty').value) || 0,
                     satuan: r.querySelector('.bm-sat').value,
-                    harsat: Number(r.querySelector('.bm-harsat').value) || 0,
+                    harsat: harsatVal !== '' ? Number(harsatVal) : 0,
                     ket: r.querySelector('.bm-ket').value
                 });
             });
@@ -1217,7 +1238,8 @@
             let no = 1;
             filtered.forEach(bm => {
                 (bm.items || []).forEach(item => {
-                    let totalHarga = (Number(item.qty) || 0) * (Number(item.harsat) || 0);
+                    let harsatNum = Number(item.harsat) || 0;
+                    let totalHarga = (Number(item.qty) || 0) * harsatNum;
                     let tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100';
                     tr.innerHTML = `
@@ -1228,8 +1250,8 @@
                         <td class="p-3 border-r border-slate-200 text-slate-600">${item.spesifikasi || '-'}</td>
                         <td class="p-3 border-r border-slate-200 font-bold">${item.qty}</td>
                         <td class="p-3 border-r border-slate-200">${item.satuan}</td>
-                        <td class="p-3 border-r border-slate-200">Rp ${(Number(item.harsat) || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                        <td class="p-3 border-r border-slate-200">${harsatNum > 0 ? 'Rp ' + harsatNum.toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-3 border-r border-slate-200 font-bold text-emerald-600">${totalHarga > 0 ? 'Rp ' + totalHarga.toLocaleString('id-ID') : '-'}</td>
                         <td class="p-3 border-r border-slate-200 text-slate-600">${item.ket || '-'}</td>
                         <td class="p-3 flex items-center space-x-2">
                             <button onclick="openBarangMasukModal('${bm.id}')" title="Edit" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen"></i></button>
@@ -1344,6 +1366,10 @@
             } else {
                 let no = 1;
                 filteredStok.forEach(st => {
+                    let statusBadge = st.saldoAkhir > 0 
+                        ? `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">Tersedia</span>` 
+                        : `<span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-full text-xs font-bold border border-rose-200">Habis</span>`;
+
                     tbodyStok.innerHTML += `<tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="p-3 border-r font-medium text-slate-500">${no++}</td>
                         <td class="p-3 border-r text-slate-600">${st.lastUpdate}</td>
@@ -1353,7 +1379,7 @@
                         <td class="p-3 border-r font-bold text-blue-600">${st.totalMasuk}</td>
                         <td class="p-3 border-r font-bold text-amber-600">${st.totalKeluar}</td>
                         <td class="p-3 border-r font-bold text-purple-600">${st.saldoAkhir}</td>
-                        <td class="p-3"><span class="text-xs text-slate-400 italic">Otomatis</span></td>
+                        <td class="p-3">${statusBadge}</td>
                     </tr>`;
                 });
             }
@@ -1433,8 +1459,11 @@
 
             let sppRows = [];
             db.spp.forEach(s => {
-                let realTotal = 0; (s.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                (s.items || []).forEach(i => sppRows.push({ "No SPP": s.noSpp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namaBarang, "Spesifikasi": i.spesifikasi, "Qty": i.qty, "Satuan": i.satuan, "Realisasi": realTotal }));
+                (s.items || []).forEach(i => {
+                    let realTotal = 0; 
+                    (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                    sppRows.push({ "No SPP": s.noSpp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namaBarang, "Spesifikasi": i.spesifikasi, "Qty": i.qty, "Satuan": i.satuan, "Realisasi": realTotal });
+                });
             });
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
