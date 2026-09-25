@@ -1094,7 +1094,7 @@
                     (item.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
                     let realDetails = (item.realisasi || []).map((r, ridx) => `
     <div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-100">
-        <span>${r.tanggal}: <strong>${r.jumlah}</strong></span>
+        <span>${r.tanggal}: <strong>${r.qty !== undefined ? r.qty : (r.jumlah || 0)}</strong></span>
         <span class="inline-flex items-center gap-1 ml-2">
             <button onclick="editRealisasi('${s.id}', ${itemIdx}, ${ridx})" class="text-blue-500 hover:text-blue-700 p-0.5" title="Edit Realisasi">✏️</button>
             <button onclick="hapusRealisasi('${s.id}', ${itemIdx}, ${ridx})" class="text-rose-500 hover:text-rose-700 p-0.5" title="Hapus Realisasi">🗑️</button>
@@ -1159,7 +1159,38 @@
                 closeModal('modalRealisasi');
             }
         }
+function editRealisasi(sppId, itemIdx, realIdx) {
+    let spp = db.spp.find(s => s.id === sppId);
+    if (!spp || !spp.items[itemIdx] || !spp.items[itemIdx].realisasi[realIdx]) return;
+    
+    let targetReal = spp.items[itemIdx].realisasi[realIdx];
+    let currentQty = targetReal.qty !== undefined ? targetReal.qty : (targetReal.jumlah || 0);
+    
+    let newTgl = prompt("Edit Tanggal Realisasi (YYYY-MM-DD):", targetReal.tanggal);
+    if (newTgl === null) return;
+    
+    let newQty = prompt("Edit Jumlah Realisasi:", currentQty);
+    if (newQty === null) return;
+    
+    spp.items[itemIdx].realisasi[realIdx].tanggal = newTgl;
+    spp.items[itemIdx].realisasi[realIdx].qty = Number(newQty);
+    delete spp.items[itemIdx].realisasi[realIdx].jumlah; 
+    
+    saveDataToFirestore('spp', spp.id, spp);
+    renderSppTable();
+}
 
+function hapusRealisasi(sppId, itemIdx, realIdx) {
+    if (!confirm("Apakah Anda yakin ingin menghapus tanggal realisasi ini?")) return;
+    
+    let spp = db.spp.find(s => s.id === sppId);
+    if (!spp || !spp.items[itemIdx]) return;
+    
+    spp.items[itemIdx].realisasi.splice(realIdx, 1);
+    
+    saveDataToFirestore('spp', spp.id, spp);
+    renderSppTable();
+}
         // --- BARANG MASUK ---
         function openBarangMasukModal(editId = null) {
             openModal('modalBarangMasuk');
