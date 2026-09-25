@@ -1531,96 +1531,48 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         async function exportExcelAll() {
     try {
-        // 1. Validasi apakah data tersedia
         if (!db || (!db.spp && !db.barangMasuk)) {
-            alert("Data aplikasi belum siap untuk diexport.");
+            alert("Data aplikasi belum siap.");
             return;
         }
 
         let wb = XLSX.utils.book_new();
         
-        // Tab 1: SPP
+        // Tab SPP
         let sppRows = [];
         (db.spp || []).forEach(s => {
             (s.items || []).forEach(i => {
                 let realTotal = 0;
                 (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                sppRows.push({ 
-                    "No SPP": s.nospp || "", 
-                    "Tanggal": s.tglSpp || "", 
-                    "Pengaju": s.pengaju || "", 
-                    "Barang": i.namabarang || "", 
-                    "Spesifikasi": i.spesifikasi || "", 
-                    "Satuan": i.satuan || "", 
-                    "Qty SPP": Number(i.qty) || 0, 
-                    "Realisasi": realTotal 
-                });
+                sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
             });
         });
-        if (sppRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
-        }
+        if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
-        // Tab 2: Barang Masuk
+        // Tab Barang Masuk
         let barangMasuk = [];
         (db.barangMasuk || []).forEach(bm => {
             (bm.items || []).forEach(i => {
-                barangMasuk.push({ 
-                    "Tanggal": bm.tanggal || "", 
-                    "Vendor": bm.vendor || "", 
-                    "Nama Barang": i.namabarang || "", 
-                    "Qty": Number(i.qty) || 0 
-                });
+                barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty });
             });
         });
-        if (barangMasuk.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
-        }
+        if (barangMasuk.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
 
-        // Tab 3: Stok Gudang
-        let summaryData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : [];
-        let stokRows = summaryData.map((st, index) => ({ 
-            "NO": index + 1, 
-            "Barang": st.namabarang || "", 
-            "Spesifikasi": st.spesifikasi || "", 
-            "Satuan": st.satuan || "", 
-            "Stok Gudang": Number(st.saldo) || 0 
+        // Tab Stok Gudang
+        let stokRows = (typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : []).map((st, i) => ({
+            "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo
         }));
-        if (stokRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
-        }
-
-        // Jika workbook kosong sama sekali
-        if (wb.SheetNames.length === 0) {
-            alert("Tidak ada data untuk diexport.");
-            return;
-        }
+        if (stokRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
 
         let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
 
-        // 2. Eksekusi Export menggunakan Blob URL khusus Android WebView
-        let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        let blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        
-        let blobUrl = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename;
-        a.style.display = 'none';
-        
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(blobUrl);
-        }, 1000);
-
-        console.log("Export berhasil dipicu.");
+        // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
+        XLSX.writeFile(wb, filename);
 
     } catch (error) {
         console.error("Gagal export:", error);
-        alert("Gagal melakukan export Excel: " + error.message);
+        // Fallback jika gagal: berikan opsi salin data atau buka via browser
+        alert("WebView APK memblokir unduhan langsung. Silakan buka aplikasi ini melalui Google Chrome di HP untuk bisa export Excel dengan normal.");
     }
 }
 
