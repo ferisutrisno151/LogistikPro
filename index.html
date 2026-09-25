@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LogistikPro - Monitoring System</title>
+    
+    <!-- PWA Web App Manifest -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22LogistikPro%22%2C%22short_name%22%3A%22LogistikPro%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%232563eb%22%2C%22icons%22%3A%5B%5D%7D">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -109,6 +116,14 @@
             <a href="#" onclick="switchTab('stokBarang'); toggleSidebar();" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-blue-600 hover:text-white transition-all">
                 <i class="fa-solid fa-warehouse w-5"></i>
                 <span>Stok Barang</span>
+            </a>
+            
+            <div class="pt-4 pb-2 border-t border-slate-800 mt-4">
+                <p class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Aplikasi Mobile</p>
+            </div>
+            <a href="#" onclick="openDownloadAppModal(); toggleSidebar();" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-emerald-400 hover:bg-emerald-600/20 hover:text-emerald-300 transition-all border border-emerald-500/30">
+                <i class="fa-solid fa-mobile-screen-button w-5"></i>
+                <span>Panduan Install APK HP</span>
             </a>
         </nav>
     </aside>
@@ -216,9 +231,9 @@
                 <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
                         <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
-                        <span>RINGKASAN KEKURANGAN REALISASI SPP</span>
+                        <span>RINGKASAN STATUS & KEKURANGAN REALISASI SPP</span>
                     </h3>
-                    <span class="text-xs text-slate-500">Data sinkron otomatis real-time</span>
+                    <span class="text-xs text-slate-500">Sinkron real-time otomatis</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse no-wrap-table">
@@ -232,7 +247,7 @@
                                 <th class="p-3 border-r border-slate-200">Spesifikasi</th>
                                 <th class="p-3 border-r border-slate-200">Diminta</th>
                                 <th class="p-3 border-r border-slate-200">Realisasi</th>
-                                <th class="p-3">Kekurangan</th>
+                                <th class="p-3">Status Realisasi</th>
                             </tr>
                         </thead>
                         <tbody id="dashKekuranganTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
@@ -580,6 +595,53 @@
         </div>
     </div>
 
+    <!-- MODAL PANDUAN DOWNLOAD / INSTALL APK DI HP -->
+    <div id="modalDownloadApp" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-emerald-600 text-white p-2 rounded-xl"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                    <h3 class="font-bold text-slate-900 text-lg">Panduan Install Aplikasi ke HP</h3>
+                </div>
+                <button onclick="closeModal('modalDownloadApp')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div class="space-y-4 text-sm text-slate-600">
+                <p>Aplikasi <b>LogistikPro</b> dapat diinstal langsung ke layar utama HP Anda (Android/iPhone) layaknya aplikasi Play Store/App Store tanpa perlu mengunduh file APK manual. Ikuti langkah berikut:</p>
+                
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-brands fa-android text-emerald-600"></i>
+                        <span>Pengguna Android (Google Chrome):</span>
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1 text-xs text-slate-700">
+                        <li>Buka tautan/link LogistikPro melalui browser <b>Google Chrome</b> di HP Anda.</li>
+                        <li>Ketuk ikon titik tiga vertikal (<i class="fa-solid fa-ellipsis-vertical"></i>) di sudut kanan atas browser.</li>
+                        <li>Pilih menu <b>"Tambahkan ke Layar Utama"</b> atau <b>"Install Aplikasi"</b>.</li>
+                        <li>Ketuk <b>Install</b> atau <b>Tambahkan</b>. Ikon LogistikPro akan langsung muncul di menu utama HP Anda!</li>
+                    </ol>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-brands fa-apple text-slate-900"></i>
+                        <span>Pengguna iPhone / iOS (Safari):</span>
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1 text-xs text-slate-700">
+                        <li>Buka tautan melalui browser <b>Safari</b> di iPhone Anda.</li>
+                        <li>Ketuk ikon <b>Bagikan (Share)</b> di bagian bawah layar.</li>
+                        <li>Gulir ke bawah dan pilih opsi <b>"Tambahkan ke Layar Utama" (Add to Home Screen)</b>.</li>
+                        <li>Ketuk <b>Tambah</b>. Aplikasi siap digunakan!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-200">
+                <button type="button" onclick="closeModal('modalDownloadApp')" class="px-5 py-2 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm">Tutup Panduan</button>
+            </div>
+        </div>
+    </div>
+
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
         let db = {
@@ -685,6 +747,7 @@
 
         function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
         function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+        function openDownloadAppModal() { openModal('modalDownloadApp'); }
 
         function refreshAll() {
             updateDatalists();
@@ -778,7 +841,6 @@
             tbody.innerHTML = '';
             let rows = [];
 
-            // Urutkan SPP terbaru di atas (berdasarkan tglSpp atau id)
             let sortedSpp = [...db.spp].reverse();
 
             sortedSpp.forEach(s => {
@@ -787,28 +849,33 @@
                     let real = 0;
                     (s.realisasi || []).forEach(r => real += Number(r.qty) || 0);
                     let kurang = req - real;
+                    
+                    let statusBadge = '';
                     if (kurang > 0) {
-                        rows.push(`
-                            <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
-                                <td class="p-3 border-r border-slate-200 font-medium text-slate-500">#</td>
-                                <td class="p-3 border-r border-slate-200 font-semibold text-slate-900">${s.noSpp}</td>
-                                <td class="p-3 border-r border-slate-200 text-slate-600">${s.tglSpp}</td>
-                                <td class="p-3 border-r border-slate-200">${s.pengaju}</td>
-                                <td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${i.namaBarang}</td>
-                                <td class="p-3 border-r border-slate-200 text-slate-600">${i.spesifikasi || '-'}</td>
-                                <td class="p-3 border-r border-slate-200 font-bold">${req} ${i.satuan}</td>
-                                <td class="p-3 border-r border-slate-200 text-emerald-600 font-bold">${real} ${i.satuan}</td>
-                                <td class="p-3 font-bold text-amber-600">${kurang} ${i.satuan}</td>
-                            </tr>
-                        `);
+                        statusBadge = `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">Kurang, ${kurang} ${i.satuan}</span>`;
+                    } else {
+                        statusBadge = `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">Terpenuhi, ${req} ${i.satuan}</span>`;
                     }
+
+                    rows.push(`
+                        <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                            <td class="p-3 border-r border-slate-200 font-medium text-slate-500">#</td>
+                            <td class="p-3 border-r border-slate-200 font-semibold text-slate-900">${s.noSpp}</td>
+                            <td class="p-3 border-r border-slate-200 text-slate-600">${s.tglSpp}</td>
+                            <td class="p-3 border-r border-slate-200">${s.pengaju}</td>
+                            <td class="p-3 border-r border-slate-200 font-semibold text-blue-600">${i.namaBarang}</td>
+                            <td class="p-3 border-r border-slate-200 text-slate-600">${i.spesifikasi || '-'}</td>
+                            <td class="p-3 border-r border-slate-200 font-bold">${req} ${i.satuan}</td>
+                            <td class="p-3 border-r border-slate-200 text-emerald-600 font-bold">${real} ${i.satuan}</td>
+                            <td class="p-3">${statusBadge}</td>
+                        </tr>
+                    `);
                 });
             });
 
             if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Semua SPP telah terealisasi penuh (Tidak ada kekurangan).</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Belum ada data SPP terdaftar.</td></tr>`;
             } else {
-                // Perbaiki nomor urut agar item terbaru ada di urutan atas
                 let finalRows = rows.map((r, idx) => r.replace('class="p-3 border-r border-slate-200 font-medium text-slate-500">#</td>', `class="p-3 border-r border-slate-200 font-medium text-slate-500">${idx + 1}</td>`));
                 tbody.innerHTML = finalRows.join('');
             }
@@ -816,7 +883,6 @@
 
         function renderCharts(stokList) {
             let labelsSpp = [], dataSppReq = [], dataSppReal = [];
-            // Urutan chart juga dibalik agar update terbaru di awal
             let sortedSpp = [...db.spp].reverse();
             sortedSpp.forEach(s => {
                 let reqSum = 0; (s.items || []).forEach(i => reqSum += Number(i.qty) || 0);
