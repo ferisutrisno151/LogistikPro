@@ -1504,97 +1504,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             dlAnchor.click();
             dlAnchor.remove();
         }
-        // Fungsi untuk mengonversi file JSON cadangan menjadi Excel secara otomatis
-function exportJsonToExcel(event) {
-    let file = event.target.files[0];
-    if (!file) return;
-
-    let reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            let importedDb = JSON.parse(e.target.result);
-            
-            // Buat Workbook Excel baru
-            let wb = XLSX.utils.book_new();
-
-            // 1. Tab Data SPP
-            let sppRows = [];
-            let idxSpp = 1;
-            (importedDb.spp || []).forEach(s => {
-                (s.items || []).forEach(i => {
-                    let realTotal = 0;
-                    (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                    let qtySpp = Number(i.qty) || 0;
-                    sppRows.push({
-                        "No": idxSpp++,
-                        "No SPP": s.nospp || s.noSpp || "",
-                        "Tanggal SPP": s.tglSpp || "",
-                        "Pengaju": s.pengaju || "",
-                        "Nama Barang": i.namabarang || i.namaBarang || "",
-                        "Spesifikasi": i.spesifikasi || "",
-                        "Qty": qtySpp,
-                        "Satuan": i.satuan || "",
-                        "Total Reali": realTotal,
-                        "Status": realTotal >= qtySpp ? "Terpenuhi" : "Kurang",
-                        "Keterangan": i.keterangan || ""
-                    });
-                });
-            });
-            if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "Data SPP");
-
-            // 2. Tab Barang Masuk
-            let bmRows = [];
-            let idxBm = 1;
-            (importedDb.barangMasuk || []).forEach(bm => {
-                (bm.items || []).forEach(i => {
-                    let qtyBm = Number(i.qty) || 0;
-                    let hargaSat = Number(i.hargasatuan) || Number(i.hargaSatuan) || 0;
-                    bmRows.push({
-                        "No": idxBm++,
-                        "Tanggal": bm.tanggal || "",
-                        "Nama Vendor": bm.vendor || "",
-                        "Nama Barang": i.namabarang || i.namaBarang || "",
-                        "Spesifikasi": i.spesifikasi || "",
-                        "Qty": qtyBm,
-                        "Satuan": i.satuan || "",
-                        "Harga Sat (Rp)": hargaSat,
-                        "Total Harga": qtyBm * hargaSat,
-                        "Keterangan": i.keterangan || ""
-                    });
-                });
-            });
-            if (bmRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
-
-            // 3. Tab Stok Keluar
-            let skRows = [];
-            let idxSk = 1;
-            (importedDb.stokKeluar || importedDb.keluar || []).forEach(sk => {
-                (sk.items || []).forEach(i => {
-                    skRows.push({
-                        "No": idxSk++,
-                        "Tanggal": sk.tanggal || "",
-                        "Nama Penerima": sk.penerima || sk.namapenerima || "",
-                        "Nama Barang": i.namabarang || i.namaBarang || "",
-                        "Spesifikasi": i.spesifikasi || "",
-                        "Jumlah": Number(i.qty) || Number(i.jumlah) || 0,
-                        "Satuan": i.satuan || "",
-                        "Keterangan": i.keterangan || ""
-                    });
-                });
-            });
-            if (skRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(skRows), "Stok Keluar");
-
-            // Simpan file Excel hasil ekstrak JSON
-            XLSX.writeFile(wb, "LogistikPro_Convert_" + new Date().toISOString().slice(0, 10) + ".xlsx");
-            alert("Berhasil mengekstrak file JSON ke Excel!");
-
-        } catch (err) {
-            alert("Format file JSON tidak valid: " + err.message);
-        }
-    };
-    reader.readAsText(file);
-}
-
 
         async function importJSON(event) {
             let file = event.target.files[0];
@@ -1665,69 +1574,12 @@ function exportJsonToExcel(event) {
                     "No": idxBm++,
                     "Tanggal": bm.tanggal || "",
                     "Nama Vendor": bm.vendor || "",
-async function exportExcelAll() {
-    try {
-        if (!db) {
-            alert("Data aplikasi belum siap untuk diexport.");
-            return;
-        }
-
-        let wb = XLSX.utils.book_new();
-        
-        // 1. TAB: Data SPP (Memperbaiki No SPP yang kosong)
-        let sppRows = [];
-        let idxSpp = 1;
-        (db.spp || []).forEach(s => {
-            let nomorSpp = s.nospp || s.noSpp || s.no_spp || "";
-            let tglSpp = s.tglSpp || s.tanggal || "";
-            let pengajuSpp = s.pengaju || s.namaPengaju || "";
-
-            (s.items || []).forEach(i => {
-                let realTotal = 0;
-                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                let qtySpp = Number(i.qty) || 0;
-                let status = realTotal >= qtySpp ? "Terpenuhi" : "Kurang";
-
-                sppRows.push({
-                    "No": idxSpp++,
-                    "No SPP": nomorSpp,
-                    "Tanggal SPP": tglSpp,
-                    "Pengaju": pengajuSpp,
                     "Nama Barang": i.namabarang || i.namaBarang || "",
                     "Spesifikasi": i.spesifikasi || "",
-                    "Qty": qtySpp,
+                    "Qty": Number(i.qty) || 0,
                     "Satuan": i.satuan || "",
-                    "Total Reali": realTotal,
-                    "Status": status,
-                    "Keterangan": i.keterangan || ""
-                });
-            });
-        });
-        if (sppRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "Data SPP");
-        }
-
-        // 2. TAB: Barang Masuk
-        let bmRows = [];
-        let idxBm = 1;
-        (db.barangMasuk || []).forEach(bm => {
-            let tglBm = bm.tanggal || bm.tgl || "";
-            let vendorBm = bm.vendor || bm.namavendor || "";
-
-            (bm.items || []).forEach(i => {
-                let qtyBm = Number(i.qty) || 0;
-                let hargaSat = Number(i.hargasatuan) || Number(i.hargaSatuan) || 0;
-
-                bmRows.push({
-                    "No": idxBm++,
-                    "Tanggal": tglBm,
-                    "Nama Vendor": vendorBm,
-                    "Nama Barang": i.namabarang || i.namaBarang || "",
-                    "Spesifikasi": i.spesifikasi || "",
-                    "Qty": qtyBm,
-                    "Satuan": i.satuan || "",
-                    "Harga Sat (Rp)": hargaSat,
-                    "Total Harga": qtyBm * hargaSat,
+                    "Harga Sat (Rp)": Number(i.hargasatuan) || Number(i.hargaSatuan) || 0,
+                    "Total Harga": (Number(i.qty) || 0) * (Number(i.hargasatuan) || Number(i.hargaSatuan) || 0),
                     "Keterangan": i.keterangan || ""
                 });
             });
@@ -1736,22 +1588,18 @@ async function exportExcelAll() {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
         }
 
-        // 3. TAB: Stok Keluar (Mencakup berbagai variasi nama array database)
+        // 3. TAB: Stok Keluar (Sesuai Gambar 3)
         let skRows = [];
         let idxSk = 1;
-        let dataStokKeluar = db.stokKeluar || db.keluar || db.stok_keluar || [];
-        dataStokKeluar.forEach(sk => {
-            let tglSk = sk.tanggal || sk.tgl || "";
-            let penerimaSk = sk.penerima || sk.namapenerima || sk.namaPenerima || "";
-
+        (db.stokKeluar || db.keluar || []).forEach(sk => {
             (sk.items || []).forEach(i => {
                 skRows.push({
                     "No": idxSk++,
-                    "Tanggal": tglSk,
-                    "Nama Penerima": penerimaSk,
+                    "Tanggal": sk.tanggal || "",
+                    "Nama Penerima": sk.penerima || sk.namapenerima || "",
                     "Nama Barang": i.namabarang || i.namaBarang || "",
                     "Spesifikasi": i.spesifikasi || "",
-                    "Jumlah": Number(i.qty) || Number(i.jumlah) || 0,
+                    "Jumlah": Number(i.qty) || 0,
                     "Satuan": i.satuan || "",
                     "Keterangan": i.keterangan || ""
                 });
@@ -1761,11 +1609,10 @@ async function exportExcelAll() {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(skRows), "Stok Keluar");
         }
 
-        // 4. TAB: Kartu Stok
+        // 4. TAB: Kartu Stok (Sesuai Gambar 4)
         let kartuStokRows = [];
         let summaryData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : [];
         summaryData.forEach((st, index) => {
-            let saldoAkhir = Number(st.saldo) || 0;
             kartuStokRows.push({
                 "No": index + 1,
                 "Tanggal Update": st.tanggal || new Date().toISOString().slice(0, 10),
@@ -1774,8 +1621,8 @@ async function exportExcelAll() {
                 "Satuan": st.satuan || "",
                 "Total Masuk": Number(st.totalMasuk) || 0,
                 "Total Keluar": Number(st.totalKeluar) || 0,
-                "Saldo Akhir": saldoAkhir,
-                "Status": saldoAkhir > 0 ? "Tersedia" : "Habis"
+                "Saldo Akhir": Number(st.saldo) || 0,
+                "Status": (Number(st.saldo) || 0) > 0 ? "Tersedia" : "Habis"
             });
         });
         if (kartuStokRows.length > 0) {
@@ -1789,7 +1636,7 @@ async function exportExcelAll() {
 
         let filename = "LogistikPro_Report_" + new Date().toISOString().slice(0, 10) + ".xlsx";
 
-        // Proses Eksekusi Unduh File Excel
+        // Proses Unduh File Excel
         let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         let blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         
@@ -1812,6 +1659,7 @@ async function exportExcelAll() {
         alert("Gagal melakukan export Excel: " + error.message);
     }
 }
+
 
         function importExcelData(event) {
     const file = event.target.files[0];
