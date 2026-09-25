@@ -1092,7 +1092,15 @@
                 s.items.forEach((item, itemIdx) => {
                     let reqQty = Number(item.qty) || 0, realTotal = 0;
                     (item.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                    let realDetails = (item.realisasi || []).map(r => `${r.tanggal}: <b>${r.qty}</b>`).join('<br>') || '<span class="text-slate-400">Belum ada</span>';
+                    let realDetails = (item.realisasi || []).map((r, ridx) => `
+    <div class="flex items-center justify-between text-xs py-0.5 border-b border-slate-100">
+        <span>${r.tanggal}: <strong>${r.jumlah}</strong></span>
+        <span class="inline-flex items-center gap-1 ml-2">
+            <button onclick="editRealisasi('${s.id}', ${itemIdx}, ${ridx})" class="text-blue-500 hover:text-blue-700 p-0.5" title="Edit Realisasi">✏️</button>
+            <button onclick="hapusRealisasi('${s.id}', ${itemIdx}, ${ridx})" class="text-rose-500 hover:text-rose-700 p-0.5" title="Hapus Realisasi">🗑️</button>
+        </span>
+    </div>
+`).join('');
                     let statusBadge = realTotal >= reqQty ? `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-200">SELESAI</span>` : (realTotal > 0 ? `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold border border-amber-200">SEBAGIAN</span>` : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200">MENUNGGU</span>`);
 
                     let tr = document.createElement('tr');
