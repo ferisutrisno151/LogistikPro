@@ -557,8 +557,7 @@
             </form>
         </div>
     </div>
-
-    <!-- MODAL STOK KELUAR -->
+    
 <!-- MODAL STOK KELUAR -->
 <div id="modalStokKeluar" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
@@ -1804,10 +1803,8 @@ async function exportExcelAll() {
                 let noSppVal = s.noSpp || s.no_spp || s.noSPP || s.id || '-';
                 let tglVal = s.tglSpp || s.tanggal || s.tgl || '-';
                 let pengajuVal = s.pengaju || s.pemohon || s.nama_pengaju || '-';
-                
-                // Deteksi berbagai variasi nama properti status & keterangan
-                let statusVal = s.status || s.statusSpp || s.status_spp || s.state || '-';
-                let ketVal = s.keterangan || s.catatan || s.ket || s.note || '-';
+                let headerStatus = s.status || s.statusSpp || '-';
+                let headerKet = s.keterangan || s.catatan || '-';
 
                 let items = s.rincian || s.listBarang || s.items || [];
                 if (Array.isArray(items) && items.length > 0) {
@@ -1835,8 +1832,8 @@ async function exportExcelAll() {
                             "Qty": qtyVal,
                             "Sat": satuanVal,
                             "Total Realisasi": realTotal,
-                            "Status": i.status || statusVal,
-                            "Keterangan": i.keterangan || i.ket || ketVal
+                            "Status": i.status || headerStatus,
+                            "Keterangan": i.keterangan || i.ket || headerKet
                         });
                     });
                 }
@@ -1846,7 +1843,7 @@ async function exportExcelAll() {
         XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
 
 
-        // 2. Sheet: Barang Masuk
+        // 2. Sheet: Barang Masuk (Sudah OK)
         let barangMasukRows = [];
         let indexBm = 1;
         let bmData = (typeof db !== 'undefined' && db.barangMasuk) ? db.barangMasuk : (typeof window.barangMasuk !== 'undefined' ? window.barangMasuk : []);
@@ -1855,8 +1852,6 @@ async function exportExcelAll() {
             bmData.forEach(bm => {
                 let tglBm = bm.tanggal || bm.tgl || bm.tgl_masuk || '-';
                 let vendorBm = bm.vendor || bm.supplier || bm.namaVendor || '-';
-                
-                // Deteksi keterangan universal pada tingkat transaksi maupun item
                 let ketBm = bm.keterangan || bm.catatan || bm.ket || '-';
 
                 let bmItems = bm.rincian || bm.listBarang || bm.items || [bm];
@@ -1889,56 +1884,75 @@ async function exportExcelAll() {
         XLSX.utils.book_append_sheet(wb, wsBm, "Barang Masuk");
 
 
-        // 3. Sheet: Stok Barang (Sinkronisasi otomatis dari fungsi lokal atau database)
+        // 3. Sheet: Stok Barang (Sinkronisasi persis logika render tabel gudang Anda)
         let stokRows = [];
         let indexStok = 1;
-        // Mengambil fungsi/variabel penampung stok yang biasa digunakan di aplikasi web standar
-        let stokData = (typeof db !== 'undefined' && db.stokBarang) ? db.stokBarang : 
-                       (typeof getStokBarang === 'function' ? getStokBarang() : 
-                       (typeof stokBarang !== 'undefined' ? stokBarang : 
-                       (typeof inventory !== 'undefined' ? inventory : [])));
+        let stokList = [];
+        
+        if (typeof getStokGudangSummary === 'function') {
+            stokList = getStokGudangSummary();
+        } else {
+            let masuk = (typeof db !== 'undefined' && db.barangMasuk) ? db.barangMasuk : [];
+            let keluar = (typeof db !== 'undefined' && db.stokKeluar) ? db.stokKeluar : [];
+            let map = {};
+            
+            masuk.forEach(n => {
+                let items = n.rincian || n.listBarang || n.items || [n];
+                items.forEach(i => {
+                    let key = (i.namaBarang || i.nama || '-') + '___' + (i.spesifikasi || i.spek || '-');
+                    if (!map[key]) map[key] = { namaBarang: i.namaBarang || i.nama, spesifikasi: i.spesifikasi || i.spek, satuan: i.satuan || i.sat, saldoAkhir: 0, totalMasuk: 0, totalKeluar: 0, tanggal: n.tanggal };
+                    map[key].totalMasuk += Number(i.qty || 0);
+                    map[key].saldoAkhir += Number(i.qty || 0);
+                });
+            });
 
-        if (Array.isArray(stokData) && stokData.length > 0) {
-            stokData.forEach(item => {
+            keluar.forEach(k => {
+                let key = (k.namaBarang || '-') + '___' + (k.spesifikasi || '-');
+                if (!map[key]) map[key] = { namaBarang: k.namaBarang, spesifikasi: k.spesifikasi, satuan: k.satuan, saldoAkhir: 0, totalMasuk: 0, totalKeluar: 0, tanggal: k.tanggal };
+                map[key].totalKeluar += Number(k.qty || 0);
+                map[key].saldoAkhir -= Number(k.qty || 0);
+            });
+            stokList = Object.values(map);
+        }
+
+        if (Array.isArray(stokList) && stokList.length > 0) {
+            stokList.forEach(item => {
                 stokRows.push({
                     "No": indexStok++,
-                    "Tanggal Update": item.tanggal || item.lastUpdate || item.tgl || '-',
-                    "Nama Barang": item.namaBarang || item.nama || item.barang || item.itemName || '-',
+                    "Tanggal Update": item.tanggal || item.lastUpdate || '-',
+                    "Nama Barang": item.namaBarang || item.nama || '-',
                     "Spesifikasi": item.spesifikasi || item.spek || '-',
                     "Satuan": item.satuan || item.sat || '-',
-                    "Total Masuk": Number(item.totalMasuk || item.masuk || 0),
-                    "Total Keluar": Number(item.totalKeluar || item.keluar || 0),
-                    "Saldo Akhir": Number(item.saldoAkhir || item.stok || item.saldo || item.qty || 0)
+                    "Total Masuk": Number(item.totalMasuk || 0),
+                    "Total Keluar": Number(item.totalKeluar || 0),
+                    "Saldo Akhir": Number(item.saldoAkhir !== undefined ? item.saldoAkhir : (item.stok || 0))
                 });
             });
         }
-        const wsStok = XLSX.utils.json_to_sheet(stokRows.length > 0 ? stokRows : [{"Info": "Data stok kosong atau belum dimuat"}]);
+        const wsStok = XLSX.utils.json_to_sheet(stokRows.length > 0 ? stokRows : [{"Info": "Tidak ada data stok"}]);
         XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
 
 
-        // 4. Sheet: Riwayat Pengeluaran (Sinkronisasi otomatis)
+        // 4. Sheet: Riwayat Pengeluaran Rill (Mengambil langsung dari db.stokKeluar)
         let keluarRows = [];
         let indexKeluar = 1;
-        let keluarData = (typeof db !== 'undefined' && db.riwayatKeluar) ? db.riwayatKeluar : 
-                         (typeof getRiwayatKeluar === 'function' ? getRiwayatKeluar() : 
-                         (typeof riwayatKeluar !== 'undefined' ? riwayatKeluar : 
-                         (typeof barangKeluar !== 'undefined' ? barangKeluar : [])));
+        let keluarData = (typeof db !== 'undefined' && db.stokKeluar) ? db.stokKeluar : (typeof window.stokKeluar !== 'undefined' ? window.stokKeluar : []);
 
-        if (Array.isArray(keluarData) && keluarData.length > 0) {
+        if (Array.isArray(keluarData)) {
             keluarData.forEach(item => {
                 keluarRows.push({
                     "No": indexKeluar++,
-                    "Tanggal Out": item.tanggal || item.tglKeluar || item.tgl || '-',
-                    "Yang Mengambil": item.penerima || item.pengambilan || item.nama || '-',
-                    "Nama Barang": item.namaBarang || item.nama || item.barang || item.itemName || '-',
+                    "Tanggal Out": item.tanggal || item.tgl || '-',
+                    "Yang Mengambil": item.pengambilan || item.penerima || '-',
+                    "Nama Barang": item.namaBarang || item.nama || '-',
                     "Spesifikasi": item.spesifikasi || item.spek || '-',
                     "Jumlah Kel": Number(item.qty || item.jumlah || 0),
                     "Sat": item.satuan || item.sat || '-',
-                    "Keterangan": item.keterangan || item.ket || '-'
+                    "Keterangan": item.ket || item.keterangan || '-'
                 });
             });
         }
-        const wsKeluar = XLSX.utils.json_to_sheet(keluarRows.length > 0 ? keluarRows : [{"Info": "Data riwayat pengeluaran kosong atau belum dimuat"}]);
+        const wsKeluar = XLSX.utils.json_to_sheet(keluarRows.length > 0 ? keluarRows : [{"Info": "Tidak ada data riwayat pengeluaran"}]);
         XLSX.utils.book_append_sheet(wb, wsKeluar, "Riwayat Pengeluaran");
 
 
@@ -1952,9 +1966,7 @@ async function exportExcelAll() {
     }
 }
 
-                    
-        
-      function importExcelData(event) {
+ function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
 
