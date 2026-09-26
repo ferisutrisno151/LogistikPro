@@ -1847,84 +1847,83 @@ async function saveStokKeluar(e) {
                 let satuanVal = i.satuan || i.unit || i.sat || "-";
                 let qtyVal = Number(i.qty || i.jumlah || 0);
                 let harsatVal = Number(i.harsat || i.harga_satuan || i.harga || i.price || 0);
-// Contoh Perbaikan Fungsi Export Excel agar Nama Barang & Data Lainnya Tidak Kosong (-)
+                let totalHargaVal = qtyVal * harsatVal;
+                let itemKet = i.keterangan || i.ket || ketBm;
 
-function exportToExcel() {
-    // Pastikan library XLSX sudah tersedia
-    if (typeof XLSX === 'undefined') {
-        alert('Library Excel belum dimuat!');
-        return;
+                barangMasuk.push({
+                    "No": indexBm++,
+                    "Tanggal": tglBm,
+                    "Nama Vendor": vendorBm,
+                    "Nama Barang": namaBarangVal,
+                    "Spesifikasi": spekVal,
+                    "Qty": qtyVal,
+                    "Sat": satuanVal,
+                    "Harsat": harsatVal,
+                    "Total Harga": totalHargaVal,
+                    "Keterangan": itemKet
+                });
+            });
+        });
+        if (barangMasuk.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
+        }
+
+        // 3. Sheet: Stok Barang
+        let stokRows = [];
+        let stokData = (typeof getStokGudangSummary === 'function') ? getStokGudangSummary() : [];
+        stokData.forEach((st, i) => {
+            stokRows.push({
+                "No": i + 1,
+                "Tanggal Update": st.tanggal || st.tgl_update || st.tgl || new Date().toISOString().slice(0, 10),
+                "Nama Barang": st.namabarang || st.nama_barang || st.nama || st.barang || "-",
+                "Spesifikasi": st.spesifikasi || st.spek || "-",
+                "Satuan": st.satuan || st.unit || st.sat || "-",
+                "Total Masuk": Number(st.totalmasuk || st.masuk || st.in || 0),
+                "Total Keluar": Number(st.totalkeluar || st.keluar || st.out || 0),
+                "Saldo Akhir": Number(st.saldo || st.stok || st.saldoakhir || 0)
+            });
+        });
+        if (stokRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Barang");
+        }
+
+        // 4. Sheet: Riwayat Pengeluaran
+        let riwayatRows = [];
+        let indexRiwayat = 1;
+        (db.spp || []).forEach(s => {
+            let tglSpP = s.tglspp || s.tanggal || "-";
+
+            (s.items || s.rincian || s.listbarang || []).forEach(i => {
+                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || i.barang || "-";
+                let spekVal = i.spesifikasi || i.spek || "-";
+                let satuanVal = i.satuan || i.unit || st.sat || "-";
+                
+                (i.realisasi || i.history || i.pengeluaran || []).forEach(r => {
+                    riwayatRows.push({
+                        "No": indexRiwayat++,
+                        "Tanggal Out": r.tanggal || r.tgl || tglSpP,
+                        "Yang Mengambil": r.penerima || r.pengambil || r.yang_mengambil || s.pengaju || "-",
+                        "Nama Barang": namaBarangVal,
+                        "Spesifikasi": spekVal,
+                        "Jumlah Keluar (Qty)": Number(r.qty || r.jumlah || 0),
+                        "Sat": satuanVal,
+                        "Keterangan": r.catatan || r.keterangan || r.ket || "-"
+                    });
+                });
+            });
+        });
+        if (riwayatRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayatRows), "Riwayat Pengeluaran");
+        }
+
+        let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+        XLSX.writeFile(wb, filename);
+
+    } catch (error) {
+        console.error("Gagal export:", error);
+        alert("Gagal melakukan export data.");
     }
-
-    const wb = XLSX.utils.book_new();
-
-    // 1. Sheet: SPP & Realisasi
-    const dataSPP = sppList.map((item, index) => ({
-        "No": index + 1,
-        "No SPP": item.noSpp || item.sppNo || '-',
-        "Tgl SPP": item.tglSpp || item.tanggal || '-',
-        "Yang Mengajukan": item.pemohon || item.pengaju || '-',
-        // Perbaikan: Cek berbagai kemungkinan nama properti untuk Nama Barang
-        "Nama Barang": item.namaBarang || item.barang || item.itemName || '-',
-        "Spesifikasi": item.spesifikasi || item.spek || '-',
-        "Qty": item.qty || item.jumlah || 0,
-        "Sat": item.satuan || item.sat || '-',
-        "Total Realisasi": item.totalRealisasi || 0,
-        "Status": item.status || '-',
-        "Keterangan": item.keterangan || '-'
-    }));
-    const wsSPP = XLSX.utils.json_to_sheet(dataSPP);
-    XLSX.utils.book_append_sheet(wb, wsSPP, "SPP & Realisasi");
-
-    // 2. Sheet: Barang Masuk
-    const dataMasuk = barangMasukList.map((item, index) => ({
-        "No": index + 1,
-        "Tanggal": item.tanggal || item.tglMasuk || '-',
-        "Nama Vendor": item.vendor || item.namaVendor || '-',
-        "Nama Barang": item.namaBarang || item.barang || item.itemName || '-',
-        "Spesifikasi": item.spesifikasi || '-',
-        "Qty": item.qty || item.jumlah || 0,
-        "Sat": item.satuan || '-',
-        "Harsat": item.hargaSatuan || item.harsat || 0,
-        "Total Harga": item.totalHarga || 0,
-        "Keterangan": item.keterangan || '-'
-    }));
-    const wsMasuk = XLSX.utils.json_to_sheet(dataMasuk);
-    XLSX.utils.book_append_sheet(wb, wsMasuk, "Barang Masuk");
-
-    // 3. Sheet: Stok Barang
-    const dataStok = stokBarangList.map((item, index) => ({
-        "No": index + 1,
-        "Tanggal Update": item.tanggal || item.lastUpdate || '-',
-        "Nama Barang": item.namaBarang || item.barang || item.itemName || '-',
-        "Spesifikasi": item.spesifikasi || '-',
-        "Satuan": item.satuan || '-',
-        "Total Masuk": item.totalMasuk || 0,
-        "Total Keluar": item.totalKeluar || 0,
-        "Saldo Akhir": item.saldoAkhir || item.stok || 0
-    }));
-    const wsStok = XLSX.utils.json_to_sheet(dataStok);
-    XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
-
-    // 4. Sheet: Riwayat Pengeluaran
-    const dataKeluar = riwayatKeluarList.map((item, index) => ({
-        "No": index + 1,
-        "Tanggal Out": item.tanggal || item.tglKeluar || '-',
-        "Yang Mengambil": item.penerima || item.pengambilan || '-',
-        "Nama Barang": item.namaBarang || item.barang || item.itemName || '-',
-        "Spesifikasi": item.spesifikasi || '-',
-        "Jumlah Kel": item.qty || item.jumlah || 0,
-        "Sat": item.satuan || '-',
-        "Keterangan": item.keterangan || '-'
-    }));
-    const wsKeluar = XLSX.utils.json_to_sheet(dataKeluar);
-    XLSX.utils.book_append_sheet(wb, wsKeluar, "Riwayat Pengeluaran");
-
-    // Simpan file Excel
-    const fileName = `Laporan_LogistikPro_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(wb, fileName);
 }
-
         function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
