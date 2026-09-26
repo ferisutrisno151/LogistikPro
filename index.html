@@ -186,7 +186,7 @@
                     <div class="flex items-baseline space-x-2">
                         <h3 id="dashTotalSppQty" class="text-2xl font-bold text-slate-900">0 Qty</h3>
                     </div>
-                    <p id="dashTotalSppCount" class="text-xs text-blue-600 font-medium mt-2 flex items-center space-x-1">
+                    <p id="dashTotalSppCount" class="text-[10px] text-blue-600 font-medium mt-2 flex items-center space-x-1">
                         <span>0 SPP terdaftar</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </p>
@@ -194,7 +194,7 @@
 
                 <div onclick="openDashboardModal('kekurangan')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-amber-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kekurangan Realisasi</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Kekurangan Realisasi</span>
                         <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
                             <i class="fa-solid fa-triangle-exclamation text-lg"></i>
                         </div>
@@ -202,7 +202,7 @@
                     <div class="flex items-baseline space-x-2">
                         <h3 id="dashTotalKurangQty" class="text-2xl font-bold text-slate-900">0 Qty</h3>
                     </div>
-                    <p class="text-xs text-amber-600 font-medium mt-2 flex items-center space-x-1">
+                    <p class="text-[10px] text-amber-600 font-medium mt-2 flex items-center space-x-1">
                         <span>Klik rincian</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </p>
@@ -210,7 +210,7 @@
 
                 <div onclick="openDashboardModal('barangMasuk')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Barang Masuk</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Barang Masuk</span>
                         <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
                             <i class="fa-solid fa-box-open text-lg"></i>
                         </div>
@@ -218,7 +218,7 @@
                     <div class="flex items-baseline space-x-2">
                         <h3 id="dashTotalMasukQty" class="text-2xl font-bold text-slate-900">0 Qty</h3>
                     </div>
-                    <p id="dashTotalMasukRp" class="text-xs text-emerald-600 font-medium mt-2 flex items-center space-x-1">
+                    <p id="dashTotalMasukRp" class="text-[10px] text-emerald-600 font-medium mt-2 flex items-center space-x-1">
                         <span>Rp 0</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </p>
@@ -226,7 +226,7 @@
 
                 <div onclick="openDashboardModal('stok')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-purple-500 cursor-pointer transition-all relative overflow-hidden group">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Item di Gudang</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Item di Gudang</span>
                         <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
                             <i class="fa-solid fa-warehouse text-lg"></i>
                         </div>
@@ -234,7 +234,7 @@
                     <div class="flex items-baseline space-x-2">
                         <h3 id="dashTotalJenisStok" class="text-2xl font-bold text-slate-900">0 Jenis</h3>
                     </div>
-                    <p id="dashTotalSaldoStok" class="text-xs text-purple-600 font-medium mt-2 flex items-center space-x-1">
+                    <p id="dashTotalSaldoStok" class="text-[10px] text-purple-600 font-medium mt-2 flex items-center space-x-1">
                         <span>Saldo: 0 Qty</span>
                         <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </p>
@@ -316,19 +316,19 @@
                     <table class="w-full text-left border-collapse no-wrap-table">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-semibold">
-                                <th class="p-2 border-r border-slate-200">No</th>
-                                <th class="p-2 border-r border-slate-200">No SPP</th>
-                                <th class="p-2 border-r border-slate-200">Tgl SPP</th>
-                                <th class="p-2 border-r border-slate-200">Yang Mengajukan</th>
-                                <th class="p-2 border-r border-slate-200">Nama Barang</th>
-                                <th class="p-2 border-r border-slate-200">Spesifikasi</th>
-                                <th class="p-2 border-r border-slate-200">Qty</th>
-                                <th class="p-2 border-r border-slate-200">Sat</th>
-                                <th class="p-2 border-r border-slate-200">Tgl Realisasi & Bertahap</th>
-                                <th class="p-2 border-r border-slate-200">Total Realisasi</th>
-                                <th class="p-2 border-r border-slate-200">Status</th>
-                                <th class="p-2 border-r border-slate-200">Keterangan</th>
-                                <th class="p-2">Aksi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">No</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">No SPP</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Tgl SPP</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Yang Mengajukan</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Barang</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Spesifikasi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Qty</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Sat</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Tgl Realisasi & Bertahap</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Total Realisasi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Status</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Keterangan</th>
+                                <th class="py-0.5 px 1.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="sppTableBody" class="text-[10px] divide-y divide-slate-200 text-slate-700"></tbody>
@@ -361,17 +361,17 @@
                     <table class="w-full text-left border-collapse no-wrap-table">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-semibold">
-                                <th class="p-2 border-r border-slate-200">No</th>
-                                <th class="p-2 border-r border-slate-200">Tanggal</th>
-                                <th class="p-2 border-r border-slate-200">Nama Vendor</th>
-                                <th class="p-2 border-r border-slate-200">Nama Barang</th>
-                                <th class="p-2 border-r border-slate-200">Spesifikasi</th>
-                                <th class="p-2 border-r border-slate-200">Qty</th>
-                                <th class="p-2 border-r border-slate-200">Sat</th>
-                                <th class="p-2 border-r border-slate-200">Harsat (Rp)</th>
-                                <th class="p-2 border-r border-slate-200">Total Harga (Rp)</th>
-                                <th class="p-2 border-r border-slate-200">Keterangan</th>
-                                <th class="p-2">Aksi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">No</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Tanggal</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Vendor</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Barang</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Spesifikasi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Qty</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Sat</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Harsat (Rp)</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Total Harga (Rp)</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Keterangan</th>
+                                <th class="py-0.5 px 1.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="barangMasukTableBody" class="text-[10px] divide-y divide-slate-200 text-slate-700"></tbody>
@@ -402,15 +402,15 @@
                     <table class="w-full text-left border-collapse no-wrap-table">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-semibold">
-                                <th class="p-2 border-r border-slate-200">No</th>
-                                <th class="p-2 border-r border-slate-200">Tanggal Update</th>
-                                <th class="p-2 border-r border-slate-200">Nama Barang</th>
-                                <th class="p-2 border-r border-slate-200">Spesifikasi</th>
-                                <th class="p-2 border-r border-slate-200">Satuan</th>
-                                <th class="p-2 border-r border-slate-200">Total Masuk</th>
-                                <th class="p-2 border-r border-slate-200">Total Keluar</th>
-                                <th class="p-2 border-r border-slate-200">Saldo Akhir</th>
-                                <th class="p-2">Aksi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">No</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Tanggal Update</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Barang</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Spesifikasi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Satuan</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Total Masuk</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Total Keluar</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Saldo Akhir</th>
+                                <th class="py-0.5 px 1.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="stokGudangTableBody" class="text-[10px] divide-y divide-slate-200 text-slate-700"></tbody>
@@ -426,15 +426,15 @@
                     <table class="w-full text-left border-collapse no-wrap-table">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-[10px] uppercase font-semibold">
-                                <th class="p-2 border-r border-slate-200">No</th>
-                                <th class="p-2 border-r border-slate-200">Tanggal Out</th>
-                                <th class="p-2 border-r border-slate-200">Yang Mengambil</th>
-                                <th class="p-2 border-r border-slate-200">Nama Barang</th>
-                                <th class="p-2 border-r border-slate-200">Spesifikasi</th>
-                                <th class="p-2 border-r border-slate-200">Jumlah Keluar (Qty)</th>
-                                <th class="p-2 border-r border-slate-200">Sat</th>
-                                <th class="p-2 border-r border-slate-200">Keterangan</th>
-                                <th class="p-2">Aksi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">No</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Tanggal Out</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Yang Mengambil</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Barang</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Spesifikasi</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Jumlah Keluar (Qty)</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Sat</th>
+                                <th class="py-0.5 px 1.5 border-r border-slate-200">Keterangan</th>
+                                <th class="py-0.5 px 1.5">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="stokKeluarTableBody" class="text-[10px] divide-y divide-slate-200 text-slate-700"></tbody>
@@ -653,11 +653,11 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-600 uppercase">
-                            <th class="p-2 border-r border-slate-200">No</th>
-                            <th class="p-2 border-r border-slate-200">Tanggal</th>
-                            <th class="p-2 border-r border-slate-200">Nama Vendor</th>
-                            <th class="p-2 border-r border-slate-200">Total Harga (Rp)</th>
-                            <th class="p-2">Keterangan</th>
+                            <th class="py-0.5 px 1.5 border-r border-slate-200">No</th>
+                            <th class="py-0.5 px 1.5 border-r border-slate-200">Tanggal</th>
+                            <th class="py-0.5 px 1.5 border-r border-slate-200">Nama Vendor</th>
+                            <th class="py-0.5 px 1.5 border-r border-slate-200">Total Harga (Rp)</th>
+                            <th class="py-0.5 px 1.5">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody id="vendorTableBody" class="text-[10px]">
