@@ -1378,12 +1378,18 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     openModal('modalVendor');
     let vendorMap = {};
     
-    // Asumsi data utama diambil dari db.barangMasuk
-    let dataBarangMasuk = (window.db && window.db.barangMasuk) ? window.db.barangMasuk : (typeof barangMasuk !== 'undefined' ? barangMasuk : []);
+    // Ambil data dari berbagai kemungkinan struktur penyimpanan database lokal
+    let dataList = [];
+    if (window.db && Array.isArray(window.db.barangMasuk)) {
+        dataList = window.db.barangMasuk;
+    } else if (typeof barangMasuk !== 'undefined' && Array.isArray(barangMasuk)) {
+        dataList = barangMasuk;
+    }
 
-    dataBarangMasuk.forEach(bm => {
-        let v = bm.vendor || bm.namaVendor || 'Tanpa Vendor';
-        let tgl = bm.tanggal || bm.tgl || 'Tanpa Tanggal';
+    dataList.forEach(bm => {
+        // Deteksi berbagai variasi penamaan properti pada database Anda
+        let v = bm.vendor || bm.namaVendor || bm.namavendor || 'Tanpa Vendor';
+        let tgl = bm.tanggal || bm.tgl || bm.date || 'Tanpa Tanggal';
         let key = v + '___' + tgl;
         
         if (!vendorMap[key]) {
@@ -1398,24 +1404,23 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             };
         }
 
-        // Ambil atribut dari item atau langsung dari object barangMasuk jika strukturnya datar
-        let namaBrg = bm.namaBarang || bm.nama_barang || '';
-        let spesifikasi = bm.spesifikasi ? ` (${bm.spesifikasi})` : '';
-        let qty = Number(bm.qty) || 0;
-        let satuan = bm.satuan || '';
+        let namaBrg = bm.namaBarang || bm.nama_barang || bm.namabarang || '';
+        let spesifikasi = bm.spesifikasi || bm.spek || '';
+        let qty = Number(bm.qty || bm. jumlah || 0) || 0;
+        let satuan = bm.satuan || bm.unit || '';
         
-        // Hitung total harga (harsat * qty atau langsung dari field totalHarga)
         let totalHrg = 0;
         if (bm.totalHarga !== undefined && bm.totalHarga !== null && bm.totalHarga !== '') {
             totalHrg = Number(bm.totalHarga) || 0;
             vendorMap[key].hasHarga = true;
-        } else if (bm.harsat && bm.qty) {
-            totalHrg = (Number(bm.harsat) || 0) * (Number(bm.qty) || 0);
+        } else if (bm.harsat && qty) {
+            totalHrg = (Number(bm.harsat) || 0) * qty;
             vendorMap[key].hasHarga = true;
         }
 
         if (namaBrg) {
-            vendorMap[key].itemsDetail.push(`${namaBrg}${spesifikasi} (${qty} ${satuan})`);
+            let specText = spesifikasi ? ` (${spesifikasi})` : '';
+            vendorMap[key].itemsDetail.push(`${namaBrg}${specText} (${qty} ${satuan})`);
         }
 
         vendorMap[key].totalQty += qty;
@@ -1432,7 +1437,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     tbody.innerHTML = '';
     let rows = [], no = 1;
     
-    // Urutkan berdasarkan tanggal terbaru
     let sortedKeys = Object.keys(vendorMap).sort((a, b) => {
         let dateA = vendorMap[a].tanggal;
         let dateB = vendorMap[b].tanggal;
@@ -1442,16 +1446,12 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     sortedKeys.forEach(key => {
         let info = vendorMap[key];
         
-        // Format Total Harga Rupiah atau tampilkan tanda strip (-) jika tidak ada data harga
         let formattedHarga = '-';
         if (info.hasHarga && info.totalHargaSum > 0) {
             formattedHarga = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(info.totalHargaSum);
         }
 
-        // Gabungkan daftar item barang
         let itemBarangStr = info.itemsDetail.length > 0 ? info.itemsDetail.join(', ') : '-';
-        
-        // Gabungkan keterangan unik
         let keteranganStr = info.keteranganList.size > 0 ? Array.from(info.keteranganList).join(', ') : '-';
         
         rows.push(`
