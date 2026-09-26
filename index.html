@@ -141,10 +141,10 @@
         </a>
 
         <!-- Export JSON -->
-        <a href="#" onclick="exportJSON(); return false;" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-download w-5 text-blue-400"></i>
-            <span>Export JSON</span>
-        </a>
+        <button onclick="exportJsonToExcel()" class="btn btn-primary">
+    <i class="fas fa-file-excel"></i> Export Laporan (Excel)
+</button>
+
 
         <!-- Import JSON -->
         <label class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer">
@@ -1553,71 +1553,47 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
                     "Satuan": i.satuan || "",
                     "Harga Satuan": harga,
                     "Total Harga": qty * harga,
-                    "Keterangan": i.keterangan || bm.keterangan || ""
-                });
-            });
-        });
-        if (bmRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
+function exportJSON() {
+    try {
+        let exportData = {};
+        
+        // Cek berbagai kemungkinan variabel atau fungsi penyimpan data di LogistikPro
+        if (typeof db !== 'undefined') exportData.db = db;
+        if (typeof sppList !== 'undefined') exportData.sppList = sppList;
+        if (typeof barangMasukList !== 'undefined') exportData.barangMasukList = barangMasukList;
+        if (typeof stokGudang !== 'undefined') exportData.stokGudang = stokGudang;
+        
+        // Ambil juga data mentah dari localStorage browser jika ada
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            try {
+                exportData[key] = JSON.parse(localStorage.getItem(key));
+            } catch(e) {
+                exportData[key] = localStorage.getItem(key);
+            }
         }
 
-        // 3. TAB: Stok Barang
-        let stokRows = [];
-        let stokData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : (rawData.stok || []);
-        stokData.forEach((st, idx) => {
-            let saldo = Number(st.saldo) || Number(st.stokAkhir) || 0;
-            stokRows.push({
-                "No": idx + 1,
-                "Nama Barang": st.namabarang || st.namaBarang || st.nama || "",
-                "Spesifikasi": st.spesifikasi || "",
-                "Satuan": st.satuan || "",
-                "Total Masuk": Number(st.totalMasuk) || 0,
-                "Total Keluar": Number(st.totalKeluar) || 0,
-                "Stok Akhir": saldo,
-                "Status": saldo > 0 ? "Tersedia" : "Habis"
-            });
-        });
-        if (stokRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Barang");
-        }
-
-        // 4. TAB: Riwayat Pengeluaran Rill
-        let keluarRows = [];
-        let idxKeluar = 1;
-        (rawData.stokKeluar || rawData.keluar || []).forEach(k => {
-            let tgl = k.tanggal || k.tgl || "-";
-            let penerima = k.penerima || k.namaPenerima || "-";
-
-            (k.items || []).forEach(i => {
-                keluarRows.push({
-                    "No": idxKeluar++,
-                    "Tanggal": tgl,
-                    "Penerima": penerima,
-                    "Nama Barang": i.namabarang || i.namaBarang || "",
-                    "Spesifikasi": i.spesifikasi || "",
-                    "Qty Keluar": Number(i.qty) || Number(i.jumlah) || 0,
-                    "Satuan": i.satuan || "",
-                    "Keterangan": i.keterangan || k.keterangan || ""
-                });
-            });
-        });
-        if (keluarRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(keluarRows), "Riwayat Pengeluaran Rill");
-        }
-
-        if (wb.SheetNames.length === 0) {
+        // Jika sama sekali tidak ada data yang ditemukan
+        if (Object.keys(exportData).length === 0) {
             alert("Tidak ada data untuk diexport.");
             return;
         }
 
-        let fileName = "LogistikPro_Laporan_" + new Date().toISOString().slice(0, 10) + ".xlsx";
-        XLSX.writeFile(wb, fileName);
+        // Proses download file JSON
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+        let downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "LogistikPro_Backup_" + new Date().toISOString().slice(0, 10) + ".json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
 
     } catch (err) {
-        console.error("Error export:", err);
+        console.error("Gagal export JSON:", err);
         alert("Gagal export: " + err.message);
     }
 }
+
 
         async function importJSON(event) {
             let file = event.target.files[0];
