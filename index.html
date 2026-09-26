@@ -642,9 +642,8 @@
     </div>
 
     <!-- MODAL AKUMULASI VENDOR -->
-    <!-- MODAL AKUMULASI VENDOR -->
 <div id="modalVendor" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
         <div class="flex items-center justify-between p-4 border-b border-slate-100">
             <h3 class="font-bold text-slate-900 text-lg">Akumulasi Pembelian per Vendor & Tanggal</h3>
             <button onclick="closeModal('modalVendor')" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -655,10 +654,8 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
                             <th class="p-3 border-r border-slate-200">No</th>
-                            <th class="p-3 border-r border-slate-200">Tanggal Transaksi</th>
+                            <th class="p-3 border-r border-slate-200">Tanggal</th>
                             <th class="p-3 border-r border-slate-200">Nama Vendor</th>
-                            <th class="p-3 border-r border-slate-200">Total Item Barang</th>
-                            <th class="p-3 border-r border-slate-200">Total Qty Barang</th>
                             <th class="p-3 border-r border-slate-200">Total Harga (Rp)</th>
                             <th class="p-3">Keterangan</th>
                         </tr>
@@ -1378,57 +1375,40 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     openModal('modalVendor');
     let vendorMap = {};
     
-    // Ambil data dari berbagai kemungkinan struktur penyimpanan database lokal
-    let dataList = [];
-    if (window.db && Array.isArray(window.db.barangMasuk)) {
-        dataList = window.db.barangMasuk;
-    } else if (typeof barangMasuk !== 'undefined' && Array.isArray(barangMasuk)) {
-        dataList = barangMasuk;
-    }
+    // Ambil data dari database utama aplikasi
+    let dataBarangMasuk = (window.db && window.db.barangMasuk) ? window.db.barangMasuk : [];
 
-    dataList.forEach(bm => {
-        // Deteksi berbagai variasi penamaan properti pada database Anda
-        let v = bm.vendor || bm.namaVendor || bm.namavendor || 'Tanpa Vendor';
-        let tgl = bm.tanggal || bm.tgl || bm.date || 'Tanpa Tanggal';
-        let key = v + '___' + tgl;
+    dataBarangMasuk.forEach(bm => {
+        // Menyesuaikan dengan penamaan pada tabel barang masuk Anda
+        let tgl = bm.tanggal || bm.tgl || '';
+        let vendor = bm.vendor || bm.namaVendor || '';
+        let key = vendor + '___' + tgl;
         
         if (!vendorMap[key]) {
             vendorMap[key] = { 
-                vendor: v, 
-                tanggal: tgl, 
-                itemsDetail: [], 
-                totalQty: 0, 
+                tanggal: tgl,
+                vendor: vendor, 
                 totalHargaSum: 0,
                 hasHarga: false,
-                keteranganList: new Set()
+                keteranganSet: new Set()
             };
         }
 
-        let namaBrg = bm.namaBarang || bm.nama_barang || bm.namabarang || '';
-        let spesifikasi = bm.spesifikasi || bm.spek || '';
-        let qty = Number(bm.qty || bm. jumlah || 0) || 0;
-        let satuan = bm.satuan || bm.unit || '';
-        
+        // Ambil total harga atau hitung dari harsat * qty
         let totalHrg = 0;
         if (bm.totalHarga !== undefined && bm.totalHarga !== null && bm.totalHarga !== '') {
             totalHrg = Number(bm.totalHarga) || 0;
             vendorMap[key].hasHarga = true;
-        } else if (bm.harsat && qty) {
-            totalHrg = (Number(bm.harsat) || 0) * qty;
+        } else if (bm.harsat && bm.qty) {
+            totalHrg = (Number(bm.harsat) || 0) * (Number(bm.qty) || 0);
             vendorMap[key].hasHarga = true;
         }
 
-        if (namaBrg) {
-            let specText = spesifikasi ? ` (${spesifikasi})` : '';
-            vendorMap[key].itemsDetail.push(`${namaBrg}${specText} (${qty} ${satuan})`);
-        }
-
-        vendorMap[key].totalQty += qty;
         vendorMap[key].totalHargaSum += totalHrg;
 
         let ket = bm.keterangan || bm.ket || '';
         if (ket && ket.trim() !== '' && ket !== '-') {
-            vendorMap[key].keteranganList.add(ket);
+            vendorMap[key].keteranganSet.add(ket);
         }
     });
 
@@ -1437,6 +1417,7 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     tbody.innerHTML = '';
     let rows = [], no = 1;
     
+    // Urutkan berdasarkan tanggal terbaru
     let sortedKeys = Object.keys(vendorMap).sort((a, b) => {
         let dateA = vendorMap[a].tanggal;
         let dateB = vendorMap[b].tanggal;
@@ -1451,23 +1432,20 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             formattedHarga = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(info.totalHargaSum);
         }
 
-        let itemBarangStr = info.itemsDetail.length > 0 ? info.itemsDetail.join(', ') : '-';
-        let keteranganStr = info.keteranganList.size > 0 ? Array.from(info.keteranganList).join(', ') : '-';
+        let keteranganStr = info.keteranganSet.size > 0 ? Array.from(info.keteranganSet).join(', ') : '-';
         
         rows.push(`
             <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                 <td class="p-3 border-r border-slate-100 text-slate-600">${no++}</td>
-                <td class="p-3 border-r border-slate-100 text-slate-600"><span class="bg-slate-100 px-2.5 py-1 rounded-md text-xs font-medium">${info.tanggal}</span></td>
-                <td class="p-3 border-r border-slate-100 font-semibold text-slate-800">${info.vendor}</td>
-                <td class="p-3 border-r border-slate-100 text-slate-700 max-w-xs truncate" title="${itemBarangStr}">${itemBarangStr}</td>
-                <td class="p-3 border-r border-slate-100 text-slate-700 font-medium">${info.totalQty} Qty</td>
+                <td class="p-3 border-r border-slate-100 text-slate-600"><span class="bg-slate-100 px-2.5 py-1 rounded-md text-xs font-medium">${info.tanggal || '-'}</span></td>
+                <td class="p-3 border-r border-slate-100 font-semibold text-slate-800">${info.vendor || '-'}</td>
                 <td class="p-3 border-r border-slate-100 text-slate-800 font-bold">${formattedHarga}</td>
                 <td class="p-3 text-slate-600">${keteranganStr}</td>
             </tr>
         `);
     });
     
-    tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="7" class="text-center p-4 text-slate-400">Belum ada data transaksi barang masuk</td></tr>`;
+    tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="text-center p-4 text-slate-400">Belum ada data transaksi barang masuk</td></tr>`;
 }
    
         // --- STOK KELUAR ---
