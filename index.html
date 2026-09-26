@@ -642,28 +642,32 @@
     </div>
 
     <!-- MODAL AKUMULASI VENDOR -->
-    <div id="modalVendor" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                <h3 class="font-bold text-slate-900 text-lg">Akumulasi Pembelian per Vendor</h3>
-                <button onclick="closeModal('modalVendor')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <div id="modalVendor" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between p-4 border-b border-slate-100">
+                <h3 class="font-bold text-slate-900 text-lg">Akumulasi Pembelian per Vendor & Tanggal</h3>
+                <button onclick="closeModal('modalVendor')" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse no-wrap-table">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
-                            <th class="p-3 border-r border-slate-200">No</th>
-                            <th class="p-3 border-r border-slate-200">Nama Vendor</th>
-                            <th class="p-3 border-r border-slate-200">Jumlah Transaksi</th>
-                            <th class="p-3 border-r border-slate-200">Total Qty Barang</th>
-                            <th class="p-3">Total Nominal (Rp)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vendorTableBody" class="text-sm divide-y divide-slate-200 text-slate-700"></tbody>
-                </table>
+            <div class="p-4 overflow-y-auto flex-1">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                                <th class="p-3 border-r border-slate-200">No</th>
+                                <th class="p-3 border-r border-slate-200">Nama Vendor</th>
+                                <th class="p-3 border-r border-slate-200">Tanggal Transaksi</th>
+                                <th class="p-3">Jumlah Transaksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vendorTableBody" class="text-sm">
+                            <!-- Data akan diisi via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
 
     <!-- MODAL PANDUAN DOWNLOAD / INSTALL APK DI HP -->
     <div id="modalDownloadApp" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
@@ -1368,28 +1372,59 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         }
 
         function openVendorAccumulationModal() {
-            openModal('modalVendor');
-            let vendorMap = {};
-            db.barangMasuk.forEach(bm => {
-                let v = bm.vendor || 'Tanpa Vendor';
-                if (!vendorMap[v]) vendorMap[v] = { countTx: 0, totalQty: 0, totalNominal: 0 };
-                vendorMap[v].countTx += 1;
-                (bm.items || []).forEach(i => {
-                    let q = Number(i.qty) || 0, h = Number(i.harsat) || 0;
-                    vendorMap[v].totalQty += q;
-                    vendorMap[v].totalNominal += (q * h);
-                });
-            });
-
-            let tbody = document.getElementById('vendorTableBody');
-            tbody.innerHTML = '';
-            let rows = [], no = 1;
-            for (let v in vendorMap) {
-                let info = vendorMap[v];
-                rows.push(`<tr class="border-b border-slate-100"><td class="p-3 border-r font-medium text-slate-500">${no++}</td><td class="p-3 border-r font-bold text-slate-900">${v}</td><td class="p-3 border-r">${info.countTx} Transaksi</td><td class="p-3 border-r font-bold text-blue-600">${info.totalQty.toLocaleString('id-ID')} Qty</td><td class="p-3 font-bold text-emerald-600">Rp ${info.totalNominal.toLocaleString('id-ID')}</td></tr>`);
-            }
-            tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data vendor.</td></tr>`;
+    openModal('modalVendor');
+    let vendorMap = {};
+    
+    db.barangMasuk.forEach(bm => {
+        let v = bm.vendor || 'Tanpa Vendor';
+        let tgl = bm.tanggal || 'Tanpa Tanggal';
+        let key = v + '___' + tgl;
+        
+        if (!vendorMap[key]) {
+            vendorMap[key] = { 
+                vendor: v, 
+                tanggal: tgl, 
+                countTx: 0, 
+                totalQty: 0, 
+                totalNominal: 0 
+            };
         }
+        vendorMap[key].countTx += 1;
+        
+        if (bm.items && Array.isArray(bm.items)) {
+            bm.items.forEach(i => {
+                let q = Number(i.qty) || 0, h = Number(i.harga) || 0;
+                vendorMap[key].totalQty += q;
+                vendorMap[key].totalNominal += (q * h);
+            });
+        }
+    });
+
+    let tbody = document.getElementById('vendorTableBody');
+    tbody.innerHTML = '';
+    let rows = [], no = 1;
+    
+    // Urutkan berdasarkan tanggal terbaru
+    let sortedKeys = Object.keys(vendorMap).sort((a, b) => {
+        let dateA = vendorMap[a].tanggal;
+        let dateB = vendorMap[b].tanggal;
+        return new Date(dateB) - new Date(dateA);
+    });
+
+    sortedKeys.forEach(key => {
+        let info = vendorMap[key];
+        rows.push(`
+            <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                <td class="p-3 border-r border-slate-100 text-slate-600">${no++}</td>
+                <td class="p-3 border-r border-slate-100 font-semibold text-slate-800">${info.vendor}</td>
+                <td class="p-3 border-r border-slate-100 text-slate-600"><span class="bg-slate-100 px-2 py-1 rounded text-xs">${info.tanggal}</span></td>
+                <td class="p-3 text-slate-700">${info.countTx} Transaksi (${info.totalQty} Qty)</td>
+            </tr>
+        `);
+    });
+    
+    tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="4" class="text-center p-4 text-slate-400">Belum ada data transaksi</td></tr>`;
+}
 
         // --- STOK KELUAR ---
         function openStokKeluarModal(editId = null) {
