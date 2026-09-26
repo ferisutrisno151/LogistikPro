@@ -1375,13 +1375,11 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     openModal('modalVendor');
     let vendorMap = {};
     
-    // Ambil data dari database utama aplikasi
     let dataBarangMasuk = (window.db && window.db.barangMasuk) ? window.db.barangMasuk : [];
 
     dataBarangMasuk.forEach(bm => {
-        // Menyesuaikan dengan penamaan pada tabel barang masuk Anda
-        let tgl = bm.tanggal || bm.tgl || '';
-        let vendor = bm.vendor || bm.namaVendor || '';
+        let tgl = bm.tanggal || '';
+        let vendor = bm.vendor || 'Tanpa Vendor';
         let key = vendor + '___' + tgl;
         
         if (!vendorMap[key]) {
@@ -1394,21 +1392,23 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             };
         }
 
-        // Ambil total harga atau hitung dari harsat * qty
-        let totalHrg = 0;
-        if (bm.totalHarga !== undefined && bm.totalHarga !== null && bm.totalHarga !== '') {
-            totalHrg = Number(bm.totalHarga) || 0;
-            vendorMap[key].hasHarga = true;
-        } else if (bm.harsat && bm.qty) {
-            totalHrg = (Number(bm.harsat) || 0) * (Number(bm.qty) || 0);
-            vendorMap[key].hasHarga = true;
-        }
+        // Karena item disimpan di dalam array items, kita looping di sini
+        if (bm.items && Array.isArray(bm.items)) {
+            bm.items.forEach(item => {
+                let qty = Number(item.qty) || 0;
+                let harsat = Number(item.harsat) || 0;
+                let totalHrg = qty * harsat;
 
-        vendorMap[key].totalHargaSum += totalHrg;
+                if (totalHrg > 0) {
+                    vendorMap[key].hasHarga = true;
+                }
+                vendorMap[key].totalHargaSum += totalHrg;
 
-        let ket = bm.keterangan || bm.ket || '';
-        if (ket && ket.trim() !== '' && ket !== '-') {
-            vendorMap[key].keteranganSet.add(ket);
+                let ket = item.ket || bm.keterangan || '';
+                if (ket && ket.trim() !== '' && ket !== '-') {
+                    vendorMap[key].keteranganSet.add(ket);
+                }
+            });
         }
     });
 
@@ -1417,7 +1417,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     tbody.innerHTML = '';
     let rows = [], no = 1;
     
-    // Urutkan berdasarkan tanggal terbaru
     let sortedKeys = Object.keys(vendorMap).sort((a, b) => {
         let dateA = vendorMap[a].tanggal;
         let dateB = vendorMap[b].tanggal;
