@@ -559,64 +559,70 @@
     </div>
 
     <!-- MODAL STOK KELUAR -->
-<div id="modalPengeluaran" class="modal">
-    <div class="modal-content">
-        <h3>Input Pengeluaran / Stok Keluar</h3>
+<!-- MODAL STOK KELUAR -->
+<div id="modalStokKeluar" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-auto max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+            <h3 class="font-bold text-slate-900 text-lg">Input Pengeluaran / Stok Keluar</h3>
+            <button type="button" onclick="closeModal('modalStokKeluar')" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
         
-        <!-- Tanggal dan Nama Pengambil Bersifat Global -->
-        <div class="form-group">
-            <label>Tanggal Keluar</label>
-            <input type="date" id="tglKeluar" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Yang Mengambil / Proyek Tujuan</label>
-            <input type="text" id="peminjamKeluar" class="form-control" placeholder="Nama / Divisi / Proyek">
-        </div>
+        <form id="formStokKeluar" onsubmit="saveStokKeluar(event)" class="space-y-3">
+            <input type="hidden" id="editStokKeluarId">
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Keluar</label>
+                <input type="date" id="inputSkTgl" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+            </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Yang Mengambil / Proyek Tujuan</label>
+                <input type="text" id="inputSkPengambilan" required placeholder="Nama / Divisi / Proyek" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+            </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0 5px 0;">
-            <label style="font-weight: bold;">DAFTAR ITEM BARANG KELUAR</label>
-            <button type="button" onclick="tambahBarisItemKeluar()" style="background: #fff8e1; color: #f57c00; border: 1px solid #ffe082; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">+ Tambah Baris Item</button>
-        </div>
-
-        <!-- Container untuk menampung baris item dinamis -->
-        <div id="containerItemKeluar">
-            <div class="item-row-keluar" style="border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; margin-bottom: 10px; background: #fafafa; position: relative;">
-                
-                <div class="form-group">
-                    <label>Pilih Item Barang (dari Stok Gudang)</label>
-                    <select class="form-control select-barang-keluar" onchange="updateSatuanKeluar(this)">
-                        <option value="">-- Pilih Barang (Stok Tersedia) --</option>
-                    </select>
+            <div class="border-t border-slate-200 pt-3">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Daftar Item Barang Keluar</label>
+                    <button type="button" onclick="tambahBarisItemKeluar()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition">+ Tambah Baris Item</button>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Jumlah Keluar (Qty)</label>
-                        <input type="number" class="form-control qty-keluar" placeholder="0">
+                <!-- Container untuk baris item dinamis -->
+                <div id="containerItemKeluar" class="space-y-3">
+                    <div class="item-row-keluar border border-slate-200 p-3 rounded-xl bg-slate-50/50 space-y-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Item Barang (dari Stok Gudang)</label>
+                            <select class="select-item-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" required onchange="onSelectSkItemNew(this)">
+                                <option value="">-- Pilih Barang (Stok Tersedia) --</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Keluar (Qty)</label>
+                                <input type="number" step="any" class="qty-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" required placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Satuan</label>
+                                <input type="text" class="satuan-keluar w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-sm" readonly placeholder="Satuan">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Keperluan</label>
+                            <input type="text" class="ket-item-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" placeholder="Catatan pemakaian...">
+                        </div>
                     </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Satuan</label>
-                        <input type="text" class="form-control satuan-keluar" readonly placeholder="Satuan">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Keterangan / Keperluan</label>
-                    <input type="text" class="form-control ket-item-keluar" placeholder="Catatan pemakaian...">
-                </div>
-
-                <div style="text-align: right;">
-                    <button type="button" onclick="hapusBarisItemKeluar(this)" style="background: none; border: none; color: #ff5252; cursor: pointer; font-size: 16px;" title="Hapus Baris">🗑️</button>
                 </div>
             </div>
-        </div>
 
-        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-            <button type="button" onclick="tutupModalPengeluaran()">Batal</button>
-            <button type="button" onclick="simpanStokKeluarMulti()" class="btn-primary" style="background: #9c27b0; color: white; padding: 8px 16px; border-radius: 6px; border: none;">Simpan Keluar</button>
-        </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+                <button type="button" onclick="closeModal('modalStokKeluar')" class="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 shadow-md">Simpan Keluar</button>
+            </div>
+        </form>
     </div>
 </div>
+
 
 
     <!-- MODAL DASHBOARD DETAIL -->
