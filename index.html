@@ -1556,14 +1556,92 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
                     "Keterangan": i.keterangan || bm.keterangan || ""
                 });
             });
+function exportJSON() {
+    try {
+        // Cek berbagai kemungkinan nama variabel database di aplikasi Anda
+        let rawData = window.db || {};
+        
+        // Jika window.db kosong, coba ambil langsung dari variabel global lain atau localStorage
+        if (!rawData.spp && typeof spp !== 'undefined') rawData.spp = spp;
+        if (!rawData.barangMasuk && typeof barangMasuk !== 'undefined') rawData.barangMasuk = barangMasuk;
+        if (!rawData.stokKeluar && typeof stokKeluar !== 'undefined') rawData.stokKeluar = stokKeluar;
+
+        // Jika masih kosong, coba ambil dari localStorage
+        if ((!rawData.spp || rawData.spp.length === 0) && localStorage.getItem('db')) {
+            try { rawData = JSON.parse(localStorage.getItem('db')); } catch(e){}
+        }
+
+        let wb = XLSX.utils.book_new();
+        let hasData = false;
+
+        // 1. TAB: SPP & Realisasi
+        let sppList = rawData.spp || rawData.dataSpp || window.spp || [];
+        let sppRows = [];
+        let idxSpp = 1;
+        sppList.forEach(s => {
+            let noSpp = s.nospp || s.noSpp || s.no_spp || "-";
+            let tglSpp = s.tglSpp || s.tanggal || "-";
+            let pengaju = s.pengaju || s.namaPengaju || "-";
+
+            (s.items || []).forEach(i => {
+                let realTotal = 0;
+                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                let qtySpp = Number(i.qty) || 0;
+                let status = realTotal >= qtySpp ? "Terpenuhi" : (realTotal > 0 ? "Sebagian" : "Belum");
+
+                sppRows.push({
+                    "No": idxSpp++,
+                    "No SPP": noSpp,
+                    "Tanggal SPP": tglSpp,
+                    "Pengaju": pengaju,
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Qty SPP": qtySpp,
+                    "Satuan": i.satuan || "",
+                    "Total Realisasi": realTotal,
+                    "Status": status,
+                    "Keterangan": i.keterangan || s.keterangan || ""
+                });
+            });
+        });
+        if (sppRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP & Realisasi");
+            hasData = true;
+        }
+
+        // 2. TAB: Barang Masuk
+        let bmList = rawData.barangMasuk || rawData.dataBarangMasuk || window.barangMasuk || [];
+        let bmRows = [];
+        let idxBm = 1;
+        bmList.forEach(bm => {
+            let tgl = bm.tanggal || bm.tgl || "-";
+            let vendor = bm.vendor || bm.namaVendor || "-";
+
+            (bm.items || []).forEach(i => {
+                let qty = Number(i.qty) || 0;
+                let harga = Number(i.hargasatuan) || Number(i.hargaSatuan) || 0;
+                bmRows.push({
+                    "No": idxBm++,
+                    "Tanggal": tgl,
+                    "Vendor": vendor,
+                    "Nama Barang": i.namabarang || i.namaBarang || "",
+                    "Spesifikasi": i.spesifikasi || "",
+                    "Qty": qty,
+                    "Satuan": i.satuan || "",
+                    "Harga Satuan": harga,
+                    "Total Harga": qty * harga,
+                    "Keterangan": i.keterangan || bm.keterangan || ""
+                });
+            });
         });
         if (bmRows.length > 0) {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bmRows), "Barang Masuk");
+            hasData = true;
         }
 
         // 3. TAB: Stok Barang
+        let stokData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : (rawData.stok || window.stok || []);
         let stokRows = [];
-        let stokData = typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : (rawData.stok || []);
         stokData.forEach((st, idx) => {
             let saldo = Number(st.saldo) || Number(st.stokAkhir) || 0;
             stokRows.push({
@@ -1579,12 +1657,14 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         });
         if (stokRows.length > 0) {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Barang");
+            hasData = true;
         }
 
         // 4. TAB: Riwayat Pengeluaran Rill
+        let keluarList = rawData.stokKeluar || rawData.keluar || window.stokKeluar || [];
         let keluarRows = [];
         let idxKeluar = 1;
-        (rawData.stokKeluar || rawData.keluar || []).forEach(k => {
+        keluarList.forEach(k => {
             let tgl = k.tanggal || k.tgl || "-";
             let penerima = k.penerima || k.namaPenerima || "-";
 
@@ -1603,10 +1683,11 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         });
         if (keluarRows.length > 0) {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(keluarRows), "Riwayat Pengeluaran Rill");
+            hasData = true;
         }
 
-        if (wb.SheetNames.length === 0) {
-            alert("Tidak ada data untuk diexport.");
+        if (!hasData) {
+            alert("Data di aplikasi masih kosong, belum ada transaksi yang bisa diexport ke Excel.");
             return;
         }
 
@@ -1616,77 +1697,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     } catch (err) {
         console.error("Error export:", err);
         alert("Gagal export: " + err.message);
-    }
-}
-
-        async function importJSON(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    let parsed = JSON.parse(e.target.result);
-                    if (parsed.spp && parsed.barangMasuk) {
-                        if (window.fbFirestore) {
-                            for (let s of (parsed.spp || [])) await saveDataToFirestore('spp', s.id || ('spp-' + Math.random()), s);
-                            for (let bm of (parsed.barangMasuk || [])) await saveDataToFirestore('barangMasuk', bm.id || ('bm-' + Math.random()), bm);
-                            for (let sk of (parsed.stokKeluar || [])) await saveDataToFirestore('stokKeluar', sk.id || ('sk-' + Math.random()), sk);
-                        }
-                        alert('Data berhasil diimpor dan disinkronkan ke Cloud Firebase!');
-                    } else {
-                        alert('Format JSON tidak valid.');
-                    }
-                } catch (err) {
-                    alert('Gagal membaca file JSON.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        async function exportExcelAll() {
-    try {
-        if (!db || (!db.spp && !db.barangMasuk)) {
-            alert("Data aplikasi belum siap.");
-            return;
-        }
-
-        let wb = XLSX.utils.book_new();
-        
-        // Tab SPP
-        let sppRows = [];
-        (db.spp || []).forEach(s => {
-            (s.items || []).forEach(i => {
-                let realTotal = 0;
-                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
-            });
-        });
-        if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
-
-        // Tab Barang Masuk
-        let barangMasuk = [];
-        (db.barangMasuk || []).forEach(bm => {
-            (bm.items || []).forEach(i => {
-                barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty });
-            });
-        });
-        if (barangMasuk.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
-
-        // Tab Stok Gudang
-        let stokRows = (typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : []).map((st, i) => ({
-            "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo
-        }));
-        if (stokRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
-
-        let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
-
-        // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
-        XLSX.writeFile(wb, filename);
-
-    } catch (error) {
-        console.error("Gagal export:", error);
-        // Fallback jika gagal: berikan opsi salin data atau buka via browser
-        alert("WebView APK memblokir unduhan langsung. Silakan buka aplikasi ini melalui Google Chrome di HP untuk bisa export Excel dengan normal.");
     }
 }
 
