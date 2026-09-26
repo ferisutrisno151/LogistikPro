@@ -1532,7 +1532,8 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         }
 
         // Export Multi-Sheet Excel via SheetJS
-        function exportExcel() {
+        async function exportExcelAll() {
+
             let wb = XLSX.utils.book_new();
 
             // Sheet 1: Data SPP & Realisasi
