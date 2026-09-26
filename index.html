@@ -1624,18 +1624,7 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         console.error("Gagal export:", error);
         alert("Gagal melakukan export data.");
     }
-}
-
-        // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
-        XLSX.writeFile(wb, filename);
-
-    } catch (error) {
-        console.error("Gagal export:", error);
-        // Fallback jika gagal: berikan opsi salin data atau buka via browser
-        alert("WebView APK memblokir unduhan langsung. Silakan buka aplikasi ini melalui Google Chrome di HP untuk bisa export Excel dengan normal.");
-    }
-}
-
+  
         function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
