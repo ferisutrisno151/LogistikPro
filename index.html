@@ -63,39 +63,39 @@
     <div class="max-w-7xl mx-auto px-3 py-3 flex items-center justify-between">
         
         <!-- Bagian Kiri: Tombol Drawer & Judul AppsLog -->
-      <div class="flex items-center gap-3">
-          <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
-              <i class="fa-solid fa-bars text-xl"></i>
-          </button>
-          
-          <div>
-              <h1 style="margin: 0; font-size: 1.2rem; font-weight: bold;">AppsLog</h1>
-              <span style="font-size: 0.7rem; color: #64748b; display: block; margin-top: -2px;">Monitoring System</span>
-              
-              <!-- TOMBOL EXPORT & IMPORT DIPINDAHKAN KE SINI (DI BAWAH JUDUL) -->
-              <div class="flex items-center gap-2 mt-2">
-                  <!-- Tombol Export Excel -->
-                  <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 hover:bg-blue-100 transition">
-                      <i class="fa-solid fa-file-excel text-base"></i>
-                      <span class="hidden sm:inline text-xs font-semibold">Export</span>
-                  </button>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            
+            <div>
+                <h1 style="margin: 0; font-size: 1.2rem; font-weight: bold;">AppsLog</h1>
+                <span style="font-size: 0.7rem; color: #64748b; display: block; margin-top: -2px;">Monitoring System</span>
+            </div>
+        </div>
 
-                  <!-- Tombol Import Excel -->
-                  <label title="Import Excel" class="bg-emerald-50 text-emerald-600 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 hover:bg-emerald-100 transition cursor-pointer">
-                      <i class="fa-solid fa-file-arrow-down text-base"></i>
-                      <span class="hidden sm:inline text-xs font-semibold">Import</span>
-                      <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcel(event)">
-                  </label>
-              </div>
-          </div>
-      </div>
+        <!-- Bagian Kanan: Tombol Export, Import, & Refresh Sejajar -->
+        <div class="flex items-center gap-2">
+            <!-- Tombol Export Excel -->
+            <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 hover:bg-blue-100 transition">
+                <i class="fa-solid fa-file-excel text-base"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Export</span>
+            </button>
 
-      <!-- Bagian Kanan: Tombol Refresh Cepat -->
-      <div class="flex items-center">
-          <button onclick="location.reload();" title="Muat Ulang Aplikasi" class="bg-slate-50 text-slate-600 p-2 rounded-lg flex items-center space-x-1.5 hover:bg-slate-100 transition">
-              <i class="fa-solid fa-rotate text-base text-slate-600"></i>
-              <span class="hidden sm:inline text-xs font-semibold">Refresh</span>
-          </button>
+            <!-- Tombol Import Excel -->
+            <label title="Import Excel" class="bg-emerald-50 text-emerald-600 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 hover:bg-emerald-100 transition cursor-pointer">
+                <i class="fa-solid fa-file-arrow-down text-base"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Import</span>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden" onchange="importExcel(event)">
+            </label>
+
+            <!-- Tombol Refresh Cepat -->
+            <button onclick="location.reload();" title="Muat Ulang Aplikasi" class="bg-slate-50 text-slate-600 p-2 rounded-lg flex items-center space-x-1.5 hover:bg-slate-100 transition">
+                <i class="fa-solid fa-rotate text-base text-slate-600"></i>
+                <span class="hidden sm:inline text-xs font-semibold">Refresh</span>
+            </button>
+        </div>
+
     </div>
 </header>
 
