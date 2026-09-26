@@ -642,21 +642,25 @@
     </div>
 
     <!-- MODAL AKUMULASI VENDOR -->
+    <!-- MODAL AKUMULASI VENDOR -->
     <div id="modalVendor" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="flex items-center justify-between p-4 border-b border-slate-100">
                 <h3 class="font-bold text-slate-900 text-lg">Akumulasi Pembelian per Vendor & Tanggal</h3>
                 <button onclick="closeModal('modalVendor')" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            <!-- Wrapper dengan overflow-x-auto agar bisa digeser horizontal dan teks tidak wrap -->
             <div class="p-4 overflow-y-auto flex-1">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
                                 <th class="p-3 border-r border-slate-200">No</th>
-                                <th class="p-3 border-r border-slate-200">Nama Vendor</th>
                                 <th class="p-3 border-r border-slate-200">Tanggal Transaksi</th>
-                                <th class="p-3">Jumlah Transaksi</th>
+                                <th class="p-3 border-r border-slate-200">Nama Vendor</th>
+                                <th class="p-3 border-r border-slate-200">Jumlah Transaksi</th>
+                                <th class="p-3 border-r border-slate-200">Total Qty Barang</th>
+                                <th class="p-3">Total Nominal (Rp)</th>
                             </tr>
                         </thead>
                         <tbody id="vendorTableBody" class="text-sm">
@@ -667,9 +671,8 @@
             </div>
         </div>
     </div>
-
-
-    <!-- MODAL PANDUAN DOWNLOAD / INSTALL APK DI HP -->
+    
+ <!-- MODAL PANDUAN DOWNLOAD / INSTALL APK DI HP -->
     <div id="modalDownloadApp" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -1413,19 +1416,22 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
     sortedKeys.forEach(key => {
         let info = vendorMap[key];
+        let formattedNominal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(info.totalNominal);
+        
         rows.push(`
             <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
                 <td class="p-3 border-r border-slate-100 text-slate-600">${no++}</td>
+                <td class="p-3 border-r border-slate-100 text-slate-600"><span class="bg-slate-100 px-2.5 py-1 rounded-md text-xs font-medium">${info.tanggal}</span></td>
                 <td class="p-3 border-r border-slate-100 font-semibold text-slate-800">${info.vendor}</td>
-                <td class="p-3 border-r border-slate-100 text-slate-600"><span class="bg-slate-100 px-2 py-1 rounded text-xs">${info.tanggal}</span></td>
-                <td class="p-3 text-slate-700">${info.countTx} Transaksi (${info.totalQty} Qty)</td>
+                <td class="p-3 border-r border-slate-100 text-slate-700">${info.countTx} Transaksi</td>
+                <td class="p-3 border-r border-slate-100 text-slate-700 font-medium">${info.totalQty} Qty</td>
+                <td class="p-3 text-slate-800 font-bold">${formattedNominal}</td>
             </tr>
         `);
     });
     
-    tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="4" class="text-center p-4 text-slate-400">Belum ada data transaksi</td></tr>`;
+    tbody.innerHTML = rows.length > 0 ? rows.join('') : `<tr><td colspan="6" class="text-center p-4 text-slate-400">Belum ada data transaksi</td></tr>`;
 }
-
         // --- STOK KELUAR ---
         function openStokKeluarModal(editId = null) {
     openModal('modalStokKeluar');
