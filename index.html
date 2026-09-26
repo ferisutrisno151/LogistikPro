@@ -1375,9 +1375,17 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     openModal('modalVendor');
     let vendorMap = {};
     
-    let dataBarangMasuk = (window.db && window.db.barangMasuk) ? window.db.barangMasuk : [];
+    // Periksa berbagai kemungkinan sumber data global di aplikasi Anda
+    let dataList = [];
+    if (typeof db !== 'undefined' && db && Array.isArray(db.barangMasuk)) {
+        dataList = db.barangMasuk;
+    } else if (typeof barangMasuk !== 'undefined' && Array.isArray(barangMasuk)) {
+        dataList = barangMasuk;
+    } else if (window.barangMasuk && Array.isArray(window.barangMasuk)) {
+        dataList = window.barangMasuk;
+    }
 
-    dataBarangMasuk.forEach(bm => {
+    dataList.forEach(bm => {
         let tgl = bm.tanggal || '';
         let vendor = bm.vendor || 'Tanpa Vendor';
         let key = vendor + '___' + tgl;
@@ -1392,7 +1400,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             };
         }
 
-        // Karena item disimpan di dalam array items, kita looping di sini
         if (bm.items && Array.isArray(bm.items)) {
             bm.items.forEach(item => {
                 let qty = Number(item.qty) || 0;
