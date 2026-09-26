@@ -1430,28 +1430,112 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
     isiDropdownBarangKeluarBaru();
 }
 
-function isiDropdownBarangKeluarBaru() {
-    let stokList = (typeof getStokGudangSummary === 'function') ? getStokGudangSummary() : [];
-    let selects = document.querySelectorAll('.select-item-keluar');
+// Panggil fungsi ini saat modal stok keluar dibuka
+function openStokKeluarModal(editId = null) {
+    openModal('modalStokKeluar');
+    document.getElementById('editStokKeluarId').value = '';
+    document.getElementById('inputSkTgl').value = new Date().toISOString().split('T')[0];
+    document.getElementById('inputSkPengambilan').value = '';
+    
+    // Reset container item dinamis
+    let container = document.getElementById('containerItemKeluar');
+    if (container) {
+        container.innerHTML = `
+            <div class="item-row-keluar border border-slate-200 p-3 rounded-xl bg-slate-50/50 space-y-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Item Barang (dari Stok Gudang)</label>
+                    <select class="select-item-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" required onchange="onSelectSkItemNew(this)">
+                        <option value="">-- Pilih Barang (Stok Tersedia) --</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Keluar (Qty)</label>
+                        <input type="number" step="any" class="qty-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" required placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Satuan</label>
+                        <input type="text" class="satuan-keluar w-full p-2.5 bg-slate-100 border border-slate-300 rounded-xl text-sm" readonly placeholder="Satuan">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Keperluan</label>
+                    <input type="text" class="ket-item-keluar w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm" placeholder="Catatan pemakaian...">
+                </div>
+            </div>
+        `;
+    }
 
+    // Jalankan pengisian dropdown HANYA saat modal benar-benar terbuka
+    setTimeout(() => {
+        isiDropdownBarangKeluarBaru();
+    }, 100);
+}
+
+function isiDropdownBarangKeluarBaru() {
+    let stokList = [];
+    
+    // Cek berbagai sumber fungsi rekap stok yang mungkin ada di project Anda
+    if (typeof getStokGudangSummary === 'function') {
+        stokList = getStokGudangSummary();
+    } else if (typeof renderStokGudang === 'function' && window.db) {
+        // Fallback hitung manual dari database lokal jika fungsi summary tidak merespons
+        let masuk = window.db.barangMasuk || [];
+        let keluar = window.db.stokKeluar || [];
+        let map = {};
+        
+        masuk.forEach(m => {
+            let key = (m.namaBarang || '') + '___' + (m.spesifikasi || '');
+            if (!map[key]) map[key] = { namabarang: m.namaBarang, spesifikasi: m.spesifikasi, satuan: m.satuan, saldoAkhir: 0 };
+            map[key].saldoAkhir += Number(m.qty || 0);
+        });
+        
+        keluar.forEach(k => {
+            let key = (k.namaBarang || '') + '___' + (k.spesifikasi || '');
+            if (map[key]) map[key].saldoAkhir -= Number(k.qty || 0);
+        });
+        
+        stokList = Object.values(map);
+    } else if (window.db && window.db.barangMasuk) {
+        let masuk = window.db.barangMasuk || [];
+        let keluar = window.db.stokKeluar || [];
+        let map = {};
+        
+        masuk.forEach(m => {
+            let key = (m.namaBarang || '') + '___' + (m.spesifikasi || '');
+            if (!map[key]) map[key] = { namabarang: m.namaBarang, spesifikasi: m.spesifikasi, satuan: m.satuan, saldoAkhir: 0 };
+            map[key].saldoAkhir += Number(m.qty || 0);
+        });
+        
+        keluar.forEach(k => {
+            let key = (k.namaBarang || '') + '___' + (k.spesifikasi || '');
+            if (map[key]) map[key].saldoAkhir -= Number(k.qty || 0);
+        });
+        
+        stokList = Object.values(map);
+    }
+
+    let selects = document.querySelectorAll('.select-item-keluar');
     selects.forEach(select => {
         let currentVal = select.value;
         select.innerHTML = '<option value="">-- Pilih Barang (Stok Tersedia) --</option>';
         
-        stokList.forEach(st => {
-            let nama = st.namabarang || st.nama_barang || st.nama;
-            let spesifikasi = st.spesifikasi || '';
-            let saldo = st.saldoAkhir || st.saldo || st.stok || 0;
-            let satuan = st.satuan || st.unit || '';
+        if (Array.isArray(stokList)) {
+            stokList.forEach(st => {
+                let nama = st.namabarang || st.namaBarang || st.nama_barang || st.nama || '';
+                let spesifikasi = st.spesifikasi || '';
+                let saldo = st.saldoAkhir !== undefined ? st.saldoAkhir : (st.saldo || st.stok || 0);
+                let satuan = st.satuan || st.unit || '';
 
-            if (nama && saldo > 0) {
-                let opt = document.createElement('option');
-                opt.value = nama + (spesifikasi ? ' _ ' + spesifikasi : '');
-                opt.setAttribute('data-satuan', satuan);
-                opt.textContent = `${nama} ${spesifikasi ? '(' + spesifikasi + ')' : ''} - Saldo: ${saldo} ${satuan}`;
-                select.appendChild(opt);
-            }
-        });
+                if (nama && Number(saldo) > 0) {
+                    let opt = document.createElement('option');
+                    opt.value = nama + (spesifikasi ? ' _ ' + spesifikasi : '');
+                    opt.setAttribute('data-satuan', satuan);
+                    opt.textContent = `${nama} ${spesifikasi ? '(' + spesifikasi + ')' : ''} - Saldo: ${saldo} ${satuan}`;
+                    select.appendChild(opt);
+                }
+            });
+        }
         select.value = currentVal;
     });
 }
@@ -1473,16 +1557,25 @@ function tambahBarisItemKeluar() {
     if (!firstRow) return;
 
     let newRow = firstRow.cloneNode(true);
-    newRow.querySelector('.select-item-keluar').value = '';
-    newRow.querySelector('.qty-keluar').value = '';
-    newRow.querySelector('.satuan-keluar').value = '';
-    newRow.querySelector('.ket-item-keluar').value = '';
+    
+    // Kosongkan nilai pada baris baru
+    let selectEl = newRow.querySelector('.select-item-keluar');
+    let qtyEl = newRow.querySelector('.qty-keluar');
+    let satuanEl = newRow.querySelector('.satuan-keluar');
+    let ketEl = newRow.querySelector('.ket-item-keluar');
 
-    // Tambahkan tombol hapus baris
-    let deleteBtnContainer = document.createElement('div');
-    deleteBtnContainer.className = 'flex justify-end pt-1';
-    deleteBtnContainer.innerHTML = `<button type="button" onclick="this.closest('.item-row-keluar').remove()" class="text-red-500 hover:text-red-700 text-xs font-semibold flex items-center gap-1"><i class="fa-solid fa-trash"></i> Hapus Baris</button>`;
-    newRow.appendChild(deleteBtnContainer);
+    if (selectEl) selectEl.value = '';
+    if (qtyEl) qtyEl.value = '';
+    if (satuanEl) satuanEl.value = '';
+    if (ketEl) ketEl.value = '';
+
+    // Cek apakah tombol hapus sudah ada, jika belum tambahkan tombol hapus baris
+    if (!newRow.querySelector('.btn-hapus-baris')) {
+        let actionDiv = document.createElement('div');
+        actionDiv.className = 'flex justify-end pt-1';
+        actionDiv.innerHTML = `<button type="button" class="btn-hapus-baris text-red-500 hover:text-red-700 text-xs font-semibold flex items-center gap-1" onclick="this.closest('.item-row-keluar').remove()"><i class="fa-solid fa-trash"></i> Hapus Baris</button>`;
+        newRow.appendChild(actionDiv);
+    }
 
     container.appendChild(newRow);
     isiDropdownBarangKeluarBaru();
@@ -1495,7 +1588,7 @@ async function saveStokKeluar(e) {
     let rows = document.querySelectorAll('.item-row-keluar');
 
     if (!tanggal || !pengambilan) {
-        alert('Mohon isi Tanggal dan Nama Pengambilan terlebih dahulu.');
+        alert('Mohon isi Tanggal Keluar dan Yang Mengambil terlebih dahulu.');
         return;
     }
 
@@ -1519,19 +1612,33 @@ async function saveStokKeluar(e) {
                 satuan: satuan,
                 ket: ket
             };
-            await saveDataToFirestore('stokKeluar', id, skObj);
+            
+            if (typeof saveDataToFirestore === 'function') {
+                await saveDataToFirestore('stokKeluar', id, skObj);
+            } else if (window.db && window.db.stokKeluar) {
+                window.db.stokKeluar.push(skObj);
+            }
             successCount++;
         }
     }
 
     if (successCount > 0) {
-        closeModal('modalStokKeluar');
-        if (typeof renderStokTables === 'function') renderStokTables();
+        if (typeof closeModal === 'function') {
+            closeModal('modalStokKeluar');
+        } else {
+            let modal = document.getElementById('modalStokKeluar');
+            if (modal) modal.classList.add('hidden');
+        }
+        
+        if (typeof renderStokTables === 'function') {
+            renderStokTables();
+        } else {
+            location.reload();
+        }
     } else {
-        alert('Mohon pilih minimal satu barang dan isi jumlah keluar dengan benar.');
+        alert('Mohon pilih minimal satu barang dan pastikan jumlah keluar (Qty) lebih dari 0.');
     }
 }
-
 
         async function deleteStokKeluar(id) {
             if (confirm('Yakin ingin menghapus riwayat pengeluaran ini?')) {
