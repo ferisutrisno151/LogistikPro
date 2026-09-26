@@ -165,12 +165,20 @@
             </a>
         </div>
         </nav>
-        <div class="p-4 text-center text-xs text-slate-500 border-t border-slate-800 mt-auto">
+        
+            <!-- Tombol Panel Admin Akses -->
+    <div class="px-4 pb-2">
+        <button onclick="openAdminAccessPanel(); toggleSidebar();" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors border border-slate-700 shadow-sm">
+            <i class="fas fa-shield-alt text-amber-400"></i> Panel Admin Akses
+        </button>
+    </div>
+
+    <div class="p-4 text-center text-xs text-slate-500 border-t border-slate-800 mt-auto">
     Created 💻 By <strong>Feri Sutrisno</strong>
 </div>
-    </aside>
+ </aside>
 
-    <!-- MAIN CONTAINER -->
+ <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
 
         <!-- TAB 1: DASHBOARD -->
@@ -723,10 +731,12 @@
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
         let db = {
-            spp: [],
-            barangMasuk: [],
-            stokKeluar: []
-        };
+    app: [],
+    barangMasuk: [],
+    stokKeluar: [],
+    access_requests: []
+};
+
 
         let sppRealisasiChartInstance = null;
         let stokDonutChartInstance = null;
@@ -759,14 +769,16 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (!window.fbFirestore) {
-                    loadDataLocal();
-                    refreshAll();
-                }
-            }, 1000);
-            switchTab('dashboard');
-        });
+    setTimeout(() => {
+        if (!window.fbFirestore) {
+            loadDataLocal();
+            refreshAll();
+        }
+    }, 1000);
+    switchTab('dashboard');
+    checkDeviceAccess();
+});
+
 
         function initFirestoreRealtimeSync() {
             const { firestoreDb, collection, onSnapshot } = window.fbFirestore;
@@ -794,9 +806,20 @@
                 });
                 refreshAll();
             }, (error) => { console.error("Error sync stokKeluar:", error); });
-        }
+                   
+        
 
-        async function saveDataToFirestore(collectionName, docId, dataObj) {
+    onSnapshot(collection(firestoreDb, 'access_requests'), (snapshot) => {
+        db.access_requests = [];
+        snapshot.forEach((docSnap) => {
+            db.access_requests.push({ id: docSnap.id, ...docSnap.data() });
+        });
+    }, (error) => console.error("Error sync access_requests:", error));
+
+} // <-- Penutup fungsi initFirestoreRealtimeSync()
+
+
+   async function saveDataToFirestore(collectionName, docId, dataObj) {
             if (window.fbFirestore) {
                 const { firestoreDb, doc, setDoc } = window.fbFirestore;
                 try {
@@ -2027,6 +2050,192 @@ function importExcelData(event) {
     };
     reader.readAsArrayBuffer(file);
 }
+        // --- KODE LOGIKA KONTROL AKSES & PANEL ADMIN ---
+
+// Mendapatkan ID Unik Perangkat (Device ID) secara otomatis
+function getDeviceId() {
+    let devId = localStorage.getItem('logistikpro_device_id');
+    if (!devId) {
+        devId = 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('logistikpro_device_id', devId);
+    }
+    return devId;
+}
+
+// Cek status akses perangkat saat aplikasi dimuat
+function checkDeviceAccess() {
+    const devId = getDeviceId();
+    const overlay = document.getElementById('accessControlOverlay');
+    const statusContainer = document.getElementById('accessStatusContainer');
+    const waitingScreen = document.getElementById('waitingApprovalScreen');
+    const rejectedScreen = document.getElementById('rejectedScreen');
+
+    if (!overlay) return;
+
+    // Cari apakah deviceId ini sudah ada di database access_requests
+    const requestData = db.access_requests ? db.access_requests.find(r => r.id === devId || r.deviceId === devId) : null;
+
+    if (!requestData) {
+        // Belum pernah minta akses -> Tampilkan form input nama
+        overlay.classList.remove('hidden');
+        statusContainer.classList.remove('hidden');
+        waitingScreen.classList.add('hidden');
+        rejectedScreen.classList.add('hidden');
+    } else if (requestData.status === 'approved') {
+        // Sudah di-ACC -> Sembunyikan overlay, izinkan akses penuh
+        overlay.classList.add('hidden');
+    } else if (requestData.status === 'rejected') {
+        // Ditolak -> Tampilkan layar penolakan
+        overlay.classList.remove('hidden');
+        statusContainer.classList.add('hidden');
+        waitingScreen.classList.add('hidden');
+        rejectedScreen.classList.remove('hidden');
+    } else {
+        // Pending / Menunggu persetujuan
+        overlay.classList.remove('hidden');
+        statusContainer.classList.add('hidden');
+        waitingScreen.classList.remove('hidden');
+        rejectedScreen.classList.add('hidden');
+    }
+}
+
+// Mengirim permintaan akses baru ke Firebase
+async function submitAccessRequest(event) {
+    event.preventDefault();
+    const namaInput = document.getElementById('reqNamaUser').value.trim();
+    if (!namaInput) return;
+
+    const devId = getDeviceId();
+    const payload = {
+        deviceId: devId,
+        nama: namaInput,
+        status: 'pending',
+        timestamp: new Date().toISOString()
+    };
+
+    // Simpan ke Firestore menggunakan fungsi saveDataToFirestore yang sudah ada
+    if (typeof saveDataToFirestore === 'function') {
+        await saveDataToFirestore('access_requests', devId, payload);
+    }
+
+    alert('Permintaan akses berhasil dikirim! Menunggu persetujuan Admin.');
+    checkDeviceAccess();
+}
+
+// Fungsi untuk membuka Panel Admin Pengelola Akses
+function openAdminAccessPanel() {
+    let modalAdmin = document.getElementById('adminAccessModal');
+    if (!modalAdmin) {
+        const div = document.createElement('div');
+        div.id = 'adminAccessModal';
+        div.className = 'fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4';
+        div.innerHTML = `
+            <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 class="font-bold text-lg text-slate-900">Panel Admin: Kelola Akses Perangkat</h3>
+                    <button onclick="document.getElementById('adminAccessModal').remove()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
+                </div>
+                <div class="overflow-y-auto flex-1 space-y-3" id="adminAccessListContainer">
+                    <!-- Daftar request akan dimuat di sini -->
+                </div>
+            </div>
+        `;
+        document.body.appendChild(div);
+    }
+    renderAdminAccessList();
+}
+
+// Render daftar perangkat yang meminta akses ke dalam list admin
+function renderAdminAccessList() {
+    const container = document.getElementById('adminAccessListContainer');
+    if (!container) return;
+
+    const requests = db.access_requests || [];
+    if (requests.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-400 py-8 text-sm">Belum ada permintaan akses perangkat.</p>`;
+        return;
+    }
+
+    let html = `<div class="space-y-2">`;
+    requests.forEach(req => {
+        let badgeColor = req.status === 'approved' ? 'bg-green-100 text-green-700' : (req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700');
+        html += `
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h4 class="font-bold text-sm text-slate-800">${req.nama || 'Tanpa Nama'}</h4>
+                    <p class="text-xs text-slate-500">ID: ${req.deviceId} | Status: <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeColor}">${req.status.toUpperCase()}</span></p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="updateAccessStatus('${req.id || req.deviceId}', 'approved')" class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">ACC</button>
+                    <button onclick="updateAccessStatus('${req.id || req.deviceId}', 'rejected')" class="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
+                    <button onclick="deleteAccessRequest('${req.id || req.deviceId}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1.5 rounded-lg text-xs">Hapus</button>
+                </div>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// Mengubah status izin akses (ACC atau Tolak)
+async function updateAccessStatus(id, newStatus) {
+    const target = db.access_requests.find(r => r.id === id || r.deviceId === id);
+    if (!target) return;
+
+    target.status = newStatus;
+    if (typeof saveDataToFirestore === 'function') {
+        await saveDataToFirestore('access_requests', target.id || target.deviceId, target);
+    }
+    renderAdminAccessList();
+}
+
+// Menghapus data request
+async function deleteAccessRequest(id) {
+    const target = db.access_requests.find(r => r.id === id || r.deviceId === id);
+    if (!target) return;
+
+    if (typeof deleteDataFromFirestore === 'function') {
+        await deleteDataFromFirestore('access_requests', target.id || target.deviceId);
+    }
+    db.access_requests = db.access_requests.filter(r => (r.id !== id && r.deviceId !== id));
+    renderAdminAccessList();
+}
+
     </script>
+    <!-- MODAL / LAYAR KONTROL AKSES -->
+<div id="accessControlOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <div id="accessStatusContainer">
+            <h3 class="font-bold text-lg text-slate-900">Akses LogistikPro</h3>
+            <p class="text-xs text-slate-500 mb-4">Masukkan nama Anda untuk meminta izin akses ke aplikasi.</p>
+            
+            <form id="formRequestAccess" onsubmit="submitAccessRequest(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Lengkap & Bagian</label>
+                    <input type="text" id="reqNamaUser" required placeholder="Contoh: Budi (Bagian Gudang)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
+                    Minta Akses (Request Access)
+                </button>
+            </form>
+        </div>
+
+        <!-- Tampilan jika status masih Waiting / Pending -->
+        <div id="waitingApprovalScreen" class="text-center py-6 hidden space-y-3">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+            <h4 class="font-bold text-slate-800 text-base">Menunggu Persetujuan Admin</h4>
+            <p class="text-xs text-slate-500">Permintaan Anda sudah dikirim. Mohon tunggu Administrator meng-ACC akses Anda.</p>
+            <button onclick="checkDeviceAccess()" class="text-xs text-blue-600 underline mt-2">Cek Status Kembali</button>
+        </div>
+
+        <!-- Tampilan jika Akses Ditolak -->
+        <div id="rejectedScreen" class="text-center py-6 hidden space-y-3">
+            <div class="text-red-500 text-3xl font-bold">✕</div>
+            <h4 class="font-bold text-slate-800 text-base">Akses Ditolak</h4>
+            <p class="text-xs text-slate-500">Maaf, permintaan akses Anda ditolak oleh Administrator.</p>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
