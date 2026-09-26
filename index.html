@@ -1511,30 +1511,6 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             dlAnchor.remove();
         }
 
-        async function importJSON(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    let parsed = JSON.parse(e.target.result);
-                    if (parsed.spp && parsed.barangMasuk) {
-                        if (window.fbFirestore) {
-                            for (let s of (parsed.spp || [])) await saveDataToFirestore('spp', s.id || ('spp-' + Math.random()), s);
-                            for (let bm of (parsed.barangMasuk || [])) await saveDataToFirestore('barangMasuk', bm.id || ('bm-' + Math.random()), bm);
-                            for (let sk of (parsed.stokKeluar || [])) await saveDataToFirestore('stokKeluar', sk.id || ('sk-' + Math.random()), sk);
-                        }
-                        alert('Data berhasil diimpor dan disinkronkan ke Cloud Firebase!');
-                    } else {
-                        alert('Format JSON tidak valid.');
-                    }
-                } catch (err) {
-                    alert('Gagal membaca file JSON.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
         async function exportExcelAll() {
     try {
         if (!db || (!db.spp && !db.barangMasuk)) {
@@ -1546,13 +1522,17 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         // 1. Sheet: SPP & Realisasi
         let sppRows = [];
+        let indexSpp = 1;
         (db.spp || []).forEach(s => {
             let noSpPVal = s.nospp || s.no_spp || s.noSPP || s.id || "-";
             let tglVal = s.tglspp || s.tanggal || s.tgl || "-";
             let pengajuVal = s.pengaju || s.pemohon || "-";
+            let statusVal = s.status || "-";
+            let ketVal = s.keterangan || s.ket || "-";
             
             (s.items || s.rincian || []).forEach(i => {
                 let namaBarangVal = i.namabarang || i.nama_barang || i.nama || "-";
+                let spekVal = i.spesifikasi || i.spek || "-";
                 let satuanVal = i.satuan || i.unit || "-";
                 let qtyVal = Number(i.qty || i.jumlah || 0);
                 
@@ -1560,13 +1540,17 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
                 (i.realisasi || i.history || []).forEach(r => realTotal += Number(r.qty || r.jumlah || 0));
 
                 sppRows.push({
+                    "No": indexSpp++,
                     "No SPP": noSpPVal,
-                    "Tanggal": tglVal,
-                    "Pengaju": pengajuVal,
-                    "Barang": namaBarangVal,
-                    "Satuan": satuanVal,
-                    "Qty SPP": qtyVal,
-                    "Realisasi": realTotal
+                    "Tgl SPP": tglVal,
+                    "Yang Mengajukan": pengajuVal,
+                    "Nama Barang": namaBarangVal,
+                    "Spesifikasi": spekVal,
+                    "Qty": qtyVal,
+                    "Sat": satuanVal,
+                    "Total Realisasi": realTotal,
+                    "Status": statusVal,
+                    "Keterangan": ketVal
                 });
             });
         });
@@ -1576,16 +1560,28 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
 
         // 2. Sheet: Barang Masuk
         let barangMasuk = [];
+        let indexBm = 1;
         (db.barangMasuk || []).forEach(bm => {
             let tglBm = bm.tanggal || bm.tgl || "-";
             let vendorBm = bm.vendor || bm.supplier || "-";
+            let ketBm = bm.keterangan || bm.ket || "-";
             
             (bm.items || bm.rincian || []).forEach(i => {
+                let qtyVal = Number(i.qty || i.jumlah || 0);
+                let harsatVal = Number(i.harsat || i.harga_satuan || i.price || 0);
+                let totalHargaVal = qtyVal * harsatVal;
+
                 barangMasuk.push({
+                    "No": indexBm++,
                     "Tanggal": tglBm,
-                    "Vendor": vendorBm,
+                    "Nama Vendor": vendorBm,
                     "Nama Barang": i.namabarang || i.nama_barang || i.nama || "-",
-                    "Qty": Number(i.qty || i.jumlah || 0)
+                    "Spesifikasi": i.spesifikasi || i.spek || "-",
+                    "Qty": qtyVal,
+                    "Sat": i.satuan || i.unit || "-",
+                    "Harsat": harsatVal,
+                    "Total Harga": totalHargaVal,
+                    "Keterangan": i.keterangan || ketBm
                 });
             });
         });
@@ -1598,39 +1594,47 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         let stokData = (typeof getStokGudangSummary === 'function') ? getStokGudangSummary() : [];
         stokData.forEach((st, i) => {
             stokRows.push({
-                "NO": i + 1,
-                "Barang": st.namabarang || st.nama_barang || st.nama || "-",
+                "No": i + 1,
+                "Tanggal Update": st.tanggal || st.tgl_update || new Date().toISOString().slice(0, 10),
+                "Nama Barang": st.namabarang || st.nama_barang || st.nama || "-",
                 "Spesifikasi": st.spesifikasi || st.spek || "-",
                 "Satuan": st.satuan || st.unit || "-",
-                "Stok Gudang": Number(st.saldo || st.stok || 0)
+                "Total Masuk": Number(st.totalmasuk || st.masuk || 0),
+                "Total Keluar": Number(st.totalkeluar || st.keluar || 0),
+                "Saldo Akhir": Number(st.saldo || st.stok || 0)
             });
         });
         if (stokRows.length > 0) {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Barang");
         }
 
-        // 4. Sheet: Riwayat Pengeluaran Rill
+        // 4. Sheet: Riwayat Pengeluaran
         let riwayatRows = [];
+        let indexRiwayat = 1;
         (db.spp || []).forEach(s => {
-            let noSpPVal = s.nospp || s.no_spp || s.noSPP || s.id || "-";
             let tglSpP = s.tglspp || s.tanggal || "-";
 
             (s.items || s.rincian || []).forEach(i => {
                 let namaBarangVal = i.namabarang || i.nama_barang || i.nama || "-";
+                let spekVal = i.spesifikasi || i.spek || "-";
+                let satuanVal = i.satuan || i.unit || "-";
                 
                 (i.realisasi || i.history || []).forEach(r => {
                     riwayatRows.push({
-                        "No SPP": noSpPVal,
-                        "Tanggal Keluar": r.tanggal || r.tgl || tglSpP,
+                        "No": indexRiwayat++,
+                        "Tanggal Out": r.tanggal || r.tgl || tglSpP,
+                        "Yang Mengambil": r.penerima || r.pengambil || s.pengaju || "-",
                         "Nama Barang": namaBarangVal,
-                        "Qty Keluar": Number(r.qty || r.jumlah || 0),
-                        "Penerima / Catatan": r.catatan || r.penerima || "-"
+                        "Spesifikasi": spekVal,
+                        "Jumlah Keluar (Qty)": Number(r.qty || r.jumlah || 0),
+                        "Sat": satuanVal,
+                        "Keterangan": r.catatan || r.keterangan || "-"
                     });
                 });
             });
         });
         if (riwayatRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayatRows), "Riwayat Pengeluaran Rill");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayatRows), "Riwayat Pengeluaran");
         }
 
         let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
