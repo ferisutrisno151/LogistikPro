@@ -1525,19 +1525,19 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         let indexSpp = 1;
         (db.spp || []).forEach(s => {
             let noSpPVal = s.nospp || s.no_spp || s.noSPP || s.id || "-";
-            let tglVal = s.tglspp || s.tanggal || s.tgl || "-";
-            let pengajuVal = s.pengaju || s.pemohon || "-";
-            let statusVal = s.status || "-";
-            let ketVal = s.keterangan || s.ket || "-";
+            let tglVal = s.tglspp || s.tanggal || s.tgl || s.tanggalspp || "-";
+            let pengajuVal = s.pengaju || s.pemohon || s.nama_pengaju || "-";
+            let statusVal = s.status || s.stat || "-";
+            let ketVal = s.keterangan || s.ket || s.catatan || "-";
             
-            (s.items || s.rincian || []).forEach(i => {
-                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || "-";
-                let spekVal = i.spesifikasi || i.spek || "-";
-                let satuanVal = i.satuan || i.unit || "-";
-                let qtyVal = Number(i.qty || i.jumlah || 0);
+            (s.items || s.rincian || s.listbarang || []).forEach(i => {
+                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || i.barang || "-";
+                let spekVal = i.spesifikasi || i.spek || i.spesifikasi_barang || "-";
+                let satuanVal = i.satuan || i.unit || i.sat || "-";
+                let qtyVal = Number(i.qty || i.jumlah || i.quantity || 0);
                 
                 let realTotal = 0;
-                (i.realisasi || i.history || []).forEach(r => realTotal += Number(r.qty || r.jumlah || 0));
+                (i.realisasi || i.history || i.pengeluaran || []).forEach(r => realTotal += Number(r.qty || r.jumlah || 0));
 
                 sppRows.push({
                     "No": indexSpp++,
@@ -1562,26 +1562,30 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         let barangMasuk = [];
         let indexBm = 1;
         (db.barangMasuk || []).forEach(bm => {
-            let tglBm = bm.tanggal || bm.tgl || "-";
-            let vendorBm = bm.vendor || bm.supplier || "-";
-            let ketBm = bm.keterangan || bm.ket || "-";
+            let tglBm = bm.tanggal || bm.tgl || bm.tgl_masuk || "-";
+            let vendorBm = bm.vendor || bm.supplier || bm.namavendor || "-";
+            let ketBm = bm.keterangan || bm.ket || bm.catatan || "-";
             
-            (bm.items || bm.rincian || []).forEach(i => {
+            (bm.items || bm.rincian || bm.listbarang || []).forEach(i => {
+                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || i.barang || "-";
+                let spekVal = i.spesifikasi || i.spek || "-";
+                let satuanVal = i.satuan || i.unit || i.sat || "-";
                 let qtyVal = Number(i.qty || i.jumlah || 0);
-                let harsatVal = Number(i.harsat || i.harga_satuan || i.price || 0);
+                let harsatVal = Number(i.harsat || i.harga_satuan || i.harga || i.price || 0);
                 let totalHargaVal = qtyVal * harsatVal;
+                let itemKet = i.keterangan || i.ket || ketBm;
 
                 barangMasuk.push({
                     "No": indexBm++,
                     "Tanggal": tglBm,
                     "Nama Vendor": vendorBm,
-                    "Nama Barang": i.namabarang || i.nama_barang || i.nama || "-",
-                    "Spesifikasi": i.spesifikasi || i.spek || "-",
+                    "Nama Barang": namaBarangVal,
+                    "Spesifikasi": spekVal,
                     "Qty": qtyVal,
-                    "Sat": i.satuan || i.unit || "-",
+                    "Sat": satuanVal,
                     "Harsat": harsatVal,
                     "Total Harga": totalHargaVal,
-                    "Keterangan": i.keterangan || ketBm
+                    "Keterangan": itemKet
                 });
             });
         });
@@ -1595,13 +1599,13 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         stokData.forEach((st, i) => {
             stokRows.push({
                 "No": i + 1,
-                "Tanggal Update": st.tanggal || st.tgl_update || new Date().toISOString().slice(0, 10),
-                "Nama Barang": st.namabarang || st.nama_barang || st.nama || "-",
+                "Tanggal Update": st.tanggal || st.tgl_update || st.tgl || new Date().toISOString().slice(0, 10),
+                "Nama Barang": st.namabarang || st.nama_barang || st.nama || st.barang || "-",
                 "Spesifikasi": st.spesifikasi || st.spek || "-",
-                "Satuan": st.satuan || st.unit || "-",
-                "Total Masuk": Number(st.totalmasuk || st.masuk || 0),
-                "Total Keluar": Number(st.totalkeluar || st.keluar || 0),
-                "Saldo Akhir": Number(st.saldo || st.stok || 0)
+                "Satuan": st.satuan || st.unit || st.sat || "-",
+                "Total Masuk": Number(st.totalmasuk || st.masuk || st.in || 0),
+                "Total Keluar": Number(st.totalkeluar || st.keluar || st.out || 0),
+                "Saldo Akhir": Number(st.saldo || st.stok || st.saldoakhir || 0)
             });
         });
         if (stokRows.length > 0) {
@@ -1614,21 +1618,21 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         (db.spp || []).forEach(s => {
             let tglSpP = s.tglspp || s.tanggal || "-";
 
-            (s.items || s.rincian || []).forEach(i => {
-                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || "-";
+            (s.items || s.rincian || s.listbarang || []).forEach(i => {
+                let namaBarangVal = i.namabarang || i.nama_barang || i.nama || i.barang || "-";
                 let spekVal = i.spesifikasi || i.spek || "-";
-                let satuanVal = i.satuan || i.unit || "-";
+                let satuanVal = i.satuan || i.unit || st.sat || "-";
                 
-                (i.realisasi || i.history || []).forEach(r => {
+                (i.realisasi || i.history || i.pengeluaran || []).forEach(r => {
                     riwayatRows.push({
                         "No": indexRiwayat++,
                         "Tanggal Out": r.tanggal || r.tgl || tglSpP,
-                        "Yang Mengambil": r.penerima || r.pengambil || s.pengaju || "-",
+                        "Yang Mengambil": r.penerima || r.pengambil || r.yang_mengambil || s.pengaju || "-",
                         "Nama Barang": namaBarangVal,
                         "Spesifikasi": spekVal,
                         "Jumlah Keluar (Qty)": Number(r.qty || r.jumlah || 0),
                         "Sat": satuanVal,
-                        "Keterangan": r.catatan || r.keterangan || "-"
+                        "Keterangan": r.catatan || r.keterangan || r.ket || "-"
                     });
                 });
             });
