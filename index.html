@@ -75,7 +75,7 @@
 
 
             <!-- Tombol Export Excel (Biru) di PINGGIR KIRI dengan Jarak Lebih Renggang -->
-            <button onclick="exportToExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2.5 rounded-xl text-sm transition flex items-center gap-1.5 px-3 border border-blue-200/60 shadow-xs ml-1">
+            <button onclick="exportExcelAll()" title="Export ke Excel" class="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2.5 rounded-xl text-sm transition flex items-center gap-1.5 px-3 border border-blue-200/60 shadow-xs ml-1">
                 <i class="fa-solid fa-file-excel text-base"></i>
                 <span class="hidden sm:inline text-xs font-semibold">Export</span>
             </button>
@@ -1531,68 +1531,54 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
             reader.readAsText(file);
         }
 
-        // Export Multi-Sheet Excel via SheetJS
         async function exportExcelAll() {
+    try {
+        if (!db || (!db.spp && !db.barangMasuk)) {
+            alert("Data aplikasi belum siap.");
+            return;
+        }
 
-            let wb = XLSX.utils.book_new();
-
-            // Sheet 1: Data SPP & Realisasi
-            let sppRows = [["No", "No SPP", "Tanggal SPP", "Pengaju", "Nama Barang", "Spesifikasi", "Qty", "Satuan", "Total Realisasi", "Status", "Keterangan"]];
-            let sNo = 1;
-            db.spp.forEach(s => {
-                s.items.forEach(i => {
-                    let realTotal = 0;
-                    if(i.realisasiList) i.realisasiList.forEach(r => realTotal += Number(r.qty || 0));
-                    let status = realTotal >= Number(i.qty || 0) ? 'Terpenuhi' : 'Kurang';
-                    sppRows.push([sNo++, s.noSpp, s.tglSpp, s.pengaju, i.namaBarang, i.spesifikasi || '-', i.qty, i.sat, realTotal, status, i.keterangan || s.keterangan || '']);
-                });
+        let wb = XLSX.utils.book_new();
+        
+        // Tab SPP
+        let sppRows = [];
+        (db.spp || []).forEach(s => {
+            (s.items || []).forEach(i => {
+                let realTotal = 0;
+                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
             });
-            let wsSpp = XLSX.utils.aoa_to_sheet(sppRows);
-            XLSX.utils.book_append_sheet(wb, wsSpp, "Data SPP");
+        });
+        if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
-            // Sheet 2: Barang Masuk
-            let bmRows = [["No", "Tanggal", "Nama Vendor", "Nama Barang", "Spesifikasi", "Qty", "Satuan", "Harsat (Rp)", "Total Harga (Rp)", "Keterangan"]];
-            let bmNo = 1;
-            db.barangMasuk.forEach(bm => {
-                bm.items.forEach(i => {
-                    let qty = Number(i.qty || 0);
-                    let harsat = Number(i.harsat || 0);
-                    bmRows.push([bmNo++, bm.tanggal, bm.vendor, i.namaBarang, i.spesifikasi || '-', qty, i.sat, harsat, qty * harsat, i.keterangan || '']);
-                });
+        // Tab Barang Masuk
+        let barangMasuk = [];
+        (db.barangMasuk || []).forEach(bm => {
+            (bm.items || []).forEach(i => {
+                barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty });
             });
-            let wsBm = XLSX.utils.aoa_to_sheet(bmRows);
-            XLSX.utils.book_append_sheet(wb, wsBm, "Barang Masuk");
+        });
+        if (barangMasuk.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
 
-            // Sheet 3: Stok Keluar / Riwayat
-            let skRows = [["No", "Tanggal Out", "Nama Pengambil", "Nama Barang", "Spesifikasi", "Jumlah Keluar", "Satuan", "Petugas", "Keterangan"]];
-            let skNo = 1;
-            db.stokKeluar.forEach(sk => {
-                sk.items.forEach(i => {
-                    skRows.push([skNo++, sk.tanggal, sk.pengambil, i.namaBarang, i.spesifikasi || '-', i.qty, i.sat, sk.petugas, sk.keterangan || '']);
-                });
-            });
-            let wsSk = XLSX.utils.aoa_to_sheet(skRows);
-            XLSX.utils.book_append_sheet(wb, wsSk, "Stok Keluar");
+        // Tab Stok Gudang
+        let stokRows = (typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : []).map((st, i) => ({
+            "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo
+        }));
+        if (stokRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
 
-            // Sheet 4: Kartu Stok Gudang
-            let stokMap = calculateStokMap();
-            let stRows = [["No", "Tanggal Update", "Nama Barang", "Spesifikasi", "Satuan", "Total Masuk", "Total Keluar", "Saldo Akhir", "Status"]];
-            let stNo = 1;
-            Object.values(stokMap).forEach(st => {
-                let stat = st.saldoAkhir > 0 ? 'Tersedia' : 'Habis';
-                stRows.push([stNo++, st.tglMasuk, st.namaBarang, st.spesifikasi, st.sat, st.totalMasuk, st.totalKeluar, st.saldoAkhir, stat]);
-            });
-            let wsSt = XLSX.utils.aoa_to_sheet(stRows);
-            XLSX.utils.book_append_sheet(wb, wsSt, "Kartu Stok");
+        let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
 
-            // Simpan File Excel
-    XLSX.writeFile(wb, `LogistikPro_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+        // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
+        XLSX.writeFile(wb, filename);
+
+    } catch (error) {
+        console.error("Gagal export:", error);
+        // Fallback jika gagal: berikan opsi salin data atau buka via browser
+        alert("WebView APK memblokir unduhan langsung. Silakan buka aplikasi ini melalui Google Chrome di HP untuk bisa export Excel dengan normal.");
+    }
 }
 
-// === TAMBAHKAN PEMANGGILAN INI DI SINI ===
-loadDataFromCloud();
-
-        function importToExcelData(event) {
+        function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
 
