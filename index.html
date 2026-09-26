@@ -1543,34 +1543,88 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         }
 
         let wb = XLSX.utils.book_new();
-        
-        // Tab SPP
+
+        // 1. Sheet: SPP & Realisasi
         let sppRows = [];
         (db.spp || []).forEach(s => {
             (s.items || []).forEach(i => {
                 let realTotal = 0;
                 (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
+                sppRows.push({
+                    "No SPP": s.nospp,
+                    "Tanggal": s.tglspp,
+                    "Pengaju": s.pengaju,
+                    "Barang": i.namabarang,
+                    "Qty SPP": i.qty,
+                    "Realisasi": realTotal,
+                    "Status": i.status || "Pending"
+                });
             });
         });
-        if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
+        if (sppRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP & Realisasi");
+        }
 
-        // Tab Barang Masuk
+        // 2. Sheet: Barang Masuk
         let barangMasuk = [];
         (db.barangMasuk || []).forEach(bm => {
             (bm.items || []).forEach(i => {
-                barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty });
+                barangMasuk.push({
+                    "Tanggal": bm.tanggal,
+                    "Vendor": bm.vendor,
+                    "Nama Barang": i.namabarang,
+                    "Qty": i.qty,
+                    "Keterangan": bm.keterangan || "-"
+                });
             });
         });
-        if (barangMasuk.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
+        if (barangMasuk.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
+        }
 
-        // Tab Stok Gudang
-        let stokRows = (typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : []).map((st, i) => ({
-            "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo
-        }));
-        if (stokRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
+        // 3. Sheet: Stok Barang
+        let stokRows = [];
+        let stokData = (typeof getStokGudangSummary === 'function') ? getStokGudangSummary() : [];
+        stokData.forEach((st, i) => {
+            stokRows.push({
+                "NO": i + 1,
+                "Barang": st.namabarang,
+                "Spesifikasi": st.spesifikasi,
+                "Satuan": st.satuan,
+                "Stok Gudang": st.saldo || 0
+            });
+        });
+        if (stokRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Barang");
+        }
+
+        // 4. Sheet: Riwayat Pengeluaran Rill
+        let riwayatRows = [];
+        (db.spp || []).forEach(s => {
+            (s.items || []).forEach(i => {
+                (i.realisasi || []).forEach(r => {
+                    riwayatRows.push({
+                        "No SPP": s.nospp,
+                        "Tanggal Keluar": r.tanggal || s.tglspp,
+                        "Nama Barang": i.namabarang,
+                        "Qty Keluar": r.qty,
+                        "Penerima / Catatan": r.catatan || "-"
+                    });
+                });
+            });
+        });
+        if (riwayatRows.length > 0) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(riwayatRows), "Riwayat Pengeluaran Rill");
+        }
 
         let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+        XLSX.writeFile(wb, filename);
+
+    } catch (error) {
+        console.error("Gagal export:", error);
+        alert("Gagal melakukan export data.");
+    }
+}
 
         // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
         XLSX.writeFile(wb, filename);
