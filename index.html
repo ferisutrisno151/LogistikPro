@@ -1785,8 +1785,7 @@ async function saveStokKeluar(e) {
             dlAnchor.click();
             dlAnchor.remove();
         }
-
-        async function exportExcelAll() {
+async function exportExcelAll() {
     try {
         if (typeof XLSX === 'undefined') {
             alert('Library SheetJS (XLSX) belum dimuat!');
@@ -1805,8 +1804,10 @@ async function saveStokKeluar(e) {
                 let noSppVal = s.noSpp || s.no_spp || s.noSPP || s.id || '-';
                 let tglVal = s.tglSpp || s.tanggal || s.tgl || '-';
                 let pengajuVal = s.pengaju || s.pemohon || s.nama_pengaju || '-';
-                let statusVal = s.status || '-';
-                let ketVal = s.keterangan || s.catatan || '-';
+                
+                // Deteksi berbagai variasi nama properti status & keterangan
+                let statusVal = s.status || s.statusSpp || s.status_spp || s.state || '-';
+                let ketVal = s.keterangan || s.catatan || s.ket || s.note || '-';
 
                 let items = s.rincian || s.listBarang || s.items || [];
                 if (Array.isArray(items) && items.length > 0) {
@@ -1834,8 +1835,8 @@ async function saveStokKeluar(e) {
                             "Qty": qtyVal,
                             "Sat": satuanVal,
                             "Total Realisasi": realTotal,
-                            "Status": statusVal,
-                            "Keterangan": ketVal
+                            "Status": i.status || statusVal,
+                            "Keterangan": i.keterangan || i.ket || ketVal
                         });
                     });
                 }
@@ -1854,7 +1855,9 @@ async function saveStokKeluar(e) {
             bmData.forEach(bm => {
                 let tglBm = bm.tanggal || bm.tgl || bm.tgl_masuk || '-';
                 let vendorBm = bm.vendor || bm.supplier || bm.namaVendor || '-';
-                let ketBm = bm.keterangan || bm.catatan || '-';
+                
+                // Deteksi keterangan universal pada tingkat transaksi maupun item
+                let ketBm = bm.keterangan || bm.catatan || bm.ket || '-';
 
                 let bmItems = bm.rincian || bm.listBarang || bm.items || [bm];
                 if (Array.isArray(bmItems)) {
@@ -1876,7 +1879,7 @@ async function saveStokKeluar(e) {
                             "Sat": satuanVal,
                             "Harsat": harsatVal,
                             "Total Harga": totalHargaVal,
-                            "Keterangan": ketBm
+                            "Keterangan": i.keterangan || i.ket || ketBm
                         });
                     });
                 }
@@ -1886,13 +1889,14 @@ async function saveStokKeluar(e) {
         XLSX.utils.book_append_sheet(wb, wsBm, "Barang Masuk");
 
 
-        // 3. Sheet: Stok Barang (Mendeteksi berbagai sumber variabel stok global)
+        // 3. Sheet: Stok Barang (Sinkronisasi otomatis dari fungsi lokal atau database)
         let stokRows = [];
         let indexStok = 1;
+        // Mengambil fungsi/variabel penampung stok yang biasa digunakan di aplikasi web standar
         let stokData = (typeof db !== 'undefined' && db.stokBarang) ? db.stokBarang : 
+                       (typeof getStokBarang === 'function' ? getStokBarang() : 
                        (typeof stokBarang !== 'undefined' ? stokBarang : 
-                       (typeof inventory !== 'undefined' ? inventory : 
-                       (typeof masterBarang !== 'undefined' ? masterBarang : [])));
+                       (typeof inventory !== 'undefined' ? inventory : [])));
 
         if (Array.isArray(stokData) && stokData.length > 0) {
             stokData.forEach(item => {
@@ -1904,21 +1908,21 @@ async function saveStokKeluar(e) {
                     "Satuan": item.satuan || item.sat || '-',
                     "Total Masuk": Number(item.totalMasuk || item.masuk || 0),
                     "Total Keluar": Number(item.totalKeluar || item.keluar || 0),
-                    "Saldo Akhir": Number(item.saldoAkhir || item.stok || item.saldo || 0)
+                    "Saldo Akhir": Number(item.saldoAkhir || item.stok || item.saldo || item.qty || 0)
                 });
             });
         }
-        const wsStok = XLSX.utils.json_to_sheet(stokRows.length > 0 ? stokRows : [{"Info": "Data stok belum tersedia di memori global aplikasi"}]);
+        const wsStok = XLSX.utils.json_to_sheet(stokRows.length > 0 ? stokRows : [{"Info": "Data stok kosong atau belum dimuat"}]);
         XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
 
 
-        // 4. Sheet: Riwayat Pengeluaran (Mendeteksi berbagai sumber variabel keluar global)
+        // 4. Sheet: Riwayat Pengeluaran (Sinkronisasi otomatis)
         let keluarRows = [];
         let indexKeluar = 1;
         let keluarData = (typeof db !== 'undefined' && db.riwayatKeluar) ? db.riwayatKeluar : 
+                         (typeof getRiwayatKeluar === 'function' ? getRiwayatKeluar() : 
                          (typeof riwayatKeluar !== 'undefined' ? riwayatKeluar : 
-                         (typeof barangKeluar !== 'undefined' ? barangKeluar : 
-                         (typeof pengeluaran !== 'undefined' ? pengeluaran : [])));
+                         (typeof barangKeluar !== 'undefined' ? barangKeluar : [])));
 
         if (Array.isArray(keluarData) && keluarData.length > 0) {
             keluarData.forEach(item => {
@@ -1930,11 +1934,11 @@ async function saveStokKeluar(e) {
                     "Spesifikasi": item.spesifikasi || item.spek || '-',
                     "Jumlah Kel": Number(item.qty || item.jumlah || 0),
                     "Sat": item.satuan || item.sat || '-',
-                    "Keterangan": item.keterangan || '-'
+                    "Keterangan": item.keterangan || item.ket || '-'
                 });
             });
         }
-        const wsKeluar = XLSX.utils.json_to_sheet(keluarRows.length > 0 ? keluarRows : [{"Info": "Data riwayat pengeluaran belum tersedia di memori global aplikasi"}]);
+        const wsKeluar = XLSX.utils.json_to_sheet(keluarRows.length > 0 ? keluarRows : [{"Info": "Data riwayat pengeluaran kosong atau belum dimuat"}]);
         XLSX.utils.book_append_sheet(wb, wsKeluar, "Riwayat Pengeluaran");
 
 
@@ -1946,7 +1950,9 @@ async function saveStokKeluar(e) {
         console.error("Gagal export excel:", error);
         alert("Terjadi kesalahan saat export file Excel: " + error.message);
     }
-        }
+}
+
+                    
         
       function importExcelData(event) {
     const file = event.target.files[0];
