@@ -68,7 +68,7 @@
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
             <div class="flex items-center gap-1.5 mr-1">
-                <h1 class="text-lg font-bold text-slate-900 leading-tight">AppsLog</h1>
+                <h1 class="text-lg font-bold text-slate-900 leading-tight">LogistikPro</h1>
                 <span class="hidden sm:inline bg-blue-50 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-blue-100 uppercase">PRO</span>
             </div>
 
@@ -141,10 +141,10 @@
         </a>
 
         <!-- Export JSON -->
-        <button onclick="exportJsonToExcel()" class="btn btn-primary">
-    <i class="fas fa-file-excel"></i> Export Laporan (Excel)
-</button>
-
+        <a href="#" onclick="exportJSON(); return false;" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <i class="fa-solid fa-download w-5 text-blue-400"></i>
+            <span>Export JSON</span>
+        </a>
 
         <!-- Import JSON -->
         <label class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer">
@@ -1486,114 +1486,24 @@ function hapusRealisasi(sppId, itemIdx, realIdx) {
         }
 
         // --- EXPORT & IMPORT ---
-        function exportJSON() {
-    try {
-        let rawData = window.db;
-        if (!rawData) {
-            let saved = localStorage.getItem('db') || localStorage.getItem('logistik_db');
-            if (saved) rawData = JSON.parse(saved);
-        }
-        if (!rawData) {
-            alert("Tidak ada data untuk diexport.");
-            return;
-        }
-
-        let wb = XLSX.utils.book_new();
-
-        // 1. TAB: SPP & Realisasi
-        let sppRows = [];
-        let idxSpp = 1;
-        (rawData.spp || []).forEach(s => {
-            let noSpp = s.nospp || s.noSpp || s.no_spp || "-";
-            let tglSpp = s.tglSpp || s.tanggal || "-";
-            let pengaju = s.pengaju || s.namaPengaju || "-";
-
-            (s.items || []).forEach(i => {
-                let realTotal = 0;
-                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
-                let qtySpp = Number(i.qty) || 0;
-                let status = realTotal >= qtySpp ? "Terpenuhi" : (realTotal > 0 ? "Sebagian" : "Belum");
-
-                sppRows.push({
-                    "No": idxSpp++,
-                    "No SPP": noSpp,
-                    "Tanggal SPP": tglSpp,
-                    "Pengaju": pengaju,
-                    "Nama Barang": i.namabarang || i.namaBarang || "",
-                    "Spesifikasi": i.spesifikasi || "",
-                    "Qty SPP": qtySpp,
-                    "Satuan": i.satuan || "",
-                    "Total Realisasi": realTotal,
-                    "Status": status,
-                    "Keterangan": i.keterangan || s.keterangan || ""
-                });
-            });
-        });
-        if (sppRows.length > 0) {
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP & Realisasi");
-        }
-
-        // 2. TAB: Barang Masuk
-        let bmRows = [];
-        let idxBm = 1;
-        (rawData.barangMasuk || []).forEach(bm => {
-            let tgl = bm.tanggal || bm.tgl || "-";
-            let vendor = bm.vendor || bm.namaVendor || "-";
-
-            (bm.items || []).forEach(i => {
-                let qty = Number(i.qty) || 0;
-                let harga = Number(i.hargasatuan) || Number(i.hargaSatuan) || 0;
-                bmRows.push({
-                    "No": idxBm++,
-                    "Tanggal": tgl,
-                    "Vendor": vendor,
-                    "Nama Barang": i.namabarang || i.namaBarang || "",
-                    "Spesifikasi": i.spesifikasi || "",
-                    "Qty": qty,
-                    "Satuan": i.satuan || "",
-                    "Harga Satuan": harga,
-                    "Total Harga": qty * harga,
-function exportJSON() {
-    try {
-        let exportData = {};
-        
-        // Cek berbagai kemungkinan variabel atau fungsi penyimpan data di LogistikPro
-        if (typeof db !== 'undefined') exportData.db = db;
-        if (typeof sppList !== 'undefined') exportData.sppList = sppList;
-        if (typeof barangMasukList !== 'undefined') exportData.barangMasukList = barangMasukList;
-        if (typeof stokGudang !== 'undefined') exportData.stokGudang = stokGudang;
-        
-        // Ambil juga data mentah dari localStorage browser jika ada
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i);
-            try {
-                exportData[key] = JSON.parse(localStorage.getItem(key));
-            } catch(e) {
-                exportData[key] = localStorage.getItem(key);
+        function shareLink() {
+            if (navigator.share) {
+                navigator.share({ title: 'LogistikPro', text: 'Monitoring Logistik', url: window.location.href }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Tautan disalin ke clipboard!');
             }
         }
 
-        // Jika sama sekali tidak ada data yang ditemukan
-        if (Object.keys(exportData).length === 0) {
-            alert("Tidak ada data untuk diexport.");
-            return;
+        function exportJSON() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            let dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "logistikpro_backup_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
         }
-
-        // Proses download file JSON
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-        let downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "LogistikPro_Backup_" + new Date().toISOString().slice(0, 10) + ".json");
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-
-    } catch (err) {
-        console.error("Gagal export JSON:", err);
-        alert("Gagal export: " + err.message);
-    }
-}
-
 
         async function importJSON(event) {
             let file = event.target.files[0];
@@ -1615,61 +1525,56 @@ function exportJSON() {
                 } catch (err) {
                     alert('Gagal membaca file JSON.');
                 }
-function exportJSON() {
+            };
+            reader.readAsText(file);
+        }
+
+        async function exportExcelAll() {
     try {
-        let allData = {};
-        let found = false;
-
-        // 1. Scan semua variabel global window untuk mencari data logistik/SPP/stok
-        for (let key in window) {
-            try {
-                if (window[key] && (typeof window[key] === 'object' || Array.isArray(window[key]))) {
-                    let str = JSON.stringify(window[key]);
-                    // Jika objek tersebut berisi data terkait logistik, SPP, atau barang
-                    if (str.includes("spp") || str.includes("barang") || str.includes("stok") || str.includes("Qty")) {
-                        allData[key] = window[key];
-                        found = true;
-                    }
-                }
-            } catch(e) {}
-        }
-
-        // 2. Ambil seluruh localStorage browser
-        let localBackup = {};
-        for (let i = 0; i < localStorage.length; i++) {
-            let k = localStorage.key(i);
-            try {
-                localBackup[k] = JSON.parse(localStorage.getItem(k));
-            } catch(e) {
-                localBackup[k] = localStorage.getItem(k);
-            }
-            found = true;
-        }
-        if (Object.keys(localBackup).length > 0) {
-            allData.localStorage_Backup = localBackup;
-        }
-
-        // Jika benar-benar kosong melompong
-        if (!found && Object.keys(allData).length === 0) {
-            alert("Tidak ada data ditemukan di memori aplikasi.");
+        if (!db || (!db.spp && !db.barangMasuk)) {
+            alert("Data aplikasi belum siap.");
             return;
         }
 
-        // Eksekusi Download JSON
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2));
-        let dlAnchor = document.createElement('a');
-        dlAnchor.setAttribute("href", dataStr);
-        dlAnchor.setAttribute("download", "LogistikPro_Universal_Backup_" + new Date().toISOString().slice(0, 10) + ".json");
-        document.body.appendChild(dlAnchor);
-        dlAnchor.click();
-        dlAnchor.remove();
+        let wb = XLSX.utils.book_new();
+        
+        // Tab SPP
+        let sppRows = [];
+        (db.spp || []).forEach(s => {
+            (s.items || []).forEach(i => {
+                let realTotal = 0;
+                (i.realisasi || []).forEach(r => realTotal += Number(r.qty) || 0);
+                sppRows.push({ "No SPP": s.nospp, "Tanggal": s.tglSpp, "Pengaju": s.pengaju, "Barang": i.namabarang, "Satuan": i.satuan, "Qty SPP": i.qty, "Realisasi": realTotal });
+            });
+        });
+        if (sppRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sppRows), "SPP");
 
-    } catch (err) {
-        console.error("Error:", err);
-        alert("Gagal export: " + err.message);
+        // Tab Barang Masuk
+        let barangMasuk = [];
+        (db.barangMasuk || []).forEach(bm => {
+            (bm.items || []).forEach(i => {
+                barangMasuk.push({ "Tanggal": bm.tanggal, "Vendor": bm.vendor, "Nama Barang": i.namabarang, "Qty": i.qty });
+            });
+        });
+        if (barangMasuk.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(barangMasuk), "Barang Masuk");
+
+        // Tab Stok Gudang
+        let stokRows = (typeof getStokGudangSummary === 'function' ? getStokGudangSummary() : []).map((st, i) => ({
+            "NO": i + 1, "Barang": st.namabarang, "Spesifikasi": st.spesifikasi, "Satuan": st.satuan, "Stok Gudang": st.saldo
+        }));
+        if (stokRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(stokRows), "Stok Gudang");
+
+        let filename = "Laporan_LogistikPro_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+
+        // Menggunakan XLSX.writeFile langsung yang didukung SheetJS untuk memicu unduhan web
+        XLSX.writeFile(wb, filename);
+
+    } catch (error) {
+        console.error("Gagal export:", error);
+        // Fallback jika gagal: berikan opsi salin data atau buka via browser
+        alert("WebView APK memblokir unduhan langsung. Silakan buka aplikasi ini melalui Google Chrome di HP untuk bisa export Excel dengan normal.");
     }
 }
-
 
         function importExcelData(event) {
     const file = event.target.files[0];
