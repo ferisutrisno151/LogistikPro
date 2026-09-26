@@ -1784,7 +1784,7 @@ async function saveStokKeluar(e) {
             dlAnchor.click();
             dlAnchor.remove();
         }
-async function exportExcelAll() {
+        async function exportExcelAll() {
     try {
         if (typeof XLSX === 'undefined') {
             alert('Library SheetJS (XLSX) belum dimuat!');
@@ -1793,7 +1793,7 @@ async function exportExcelAll() {
 
         const wb = XLSX.utils.book_new();
 
-        // 1. Sheet: SPP & Realisasi
+        // 1. Sheet: SPP & Realisasi (Mengikuti logika renderSppTable)
         let sppRows = [];
         let indexSpp = 1;
         let sppData = (typeof db !== 'undefined' && db.spp) ? db.spp : (typeof window.spp !== 'undefined' ? window.spp : []);
@@ -1803,8 +1803,7 @@ async function exportExcelAll() {
                 let noSppVal = s.noSpp || s.no_spp || s.noSPP || s.id || '-';
                 let tglVal = s.tglSpp || s.tanggal || s.tgl || '-';
                 let pengajuVal = s.pengaju || s.pemohon || s.nama_pengaju || '-';
-                let headerStatus = s.status || s.statusSpp || '-';
-                let headerKet = s.keterangan || s.catatan || '-';
+                let headerKet = s.keterangan || s.catatan || s.ket || '-';
 
                 let items = s.rincian || s.listBarang || s.items || [];
                 if (Array.isArray(items) && items.length > 0) {
@@ -1812,14 +1811,23 @@ async function exportExcelAll() {
                         let namaBarangVal = i.namaBarang || i.nama_barang || i.nama || i.barang || '-';
                         let spekVal = i.spesifikasi || i.spek || '-';
                         let satuanVal = i.satuan || i.sat || '-';
-                        let qtyVal = Number(i.qty || i.jumlah || 0);
+                        let reqQty = Number(i.qty || i.jumlah || 0);
 
+                        // Hitung total realisasi persis seperti pada aplikasi web Anda
                         let realTotal = 0;
-                        let realisasiArr = s.realisasi || s.history || s.pengeluaran || [];
+                        let realisasiArr = i.realisasi || [];
                         if (Array.isArray(realisasiArr)) {
                             realisasiArr.forEach(r => {
                                 realTotal += Number(r.qty || r.jumlah || 0);
                             });
+                        }
+
+                        // Penentuan status dinamis sesuai logika aplikasi Anda
+                        let statusVal = "Belum";
+                        if (reqQty > 0 && realTotal >= reqQty) {
+                            statusVal = "Selesai";
+                        } else if (realTotal > 0) {
+                            statusVal = "Sebagian";
                         }
 
                         sppRows.push({
@@ -1829,10 +1837,10 @@ async function exportExcelAll() {
                             "Yang Mengajukan": pengajuVal,
                             "Nama Barang": namaBarangVal,
                             "Spesifikasi": spekVal,
-                            "Qty": qtyVal,
+                            "Qty": reqQty,
                             "Sat": satuanVal,
                             "Total Realisasi": realTotal,
-                            "Status": i.status || headerStatus,
+                            "Status": statusVal,
                             "Keterangan": i.keterangan || i.ket || headerKet
                         });
                     });
@@ -1884,7 +1892,7 @@ async function exportExcelAll() {
         XLSX.utils.book_append_sheet(wb, wsBm, "Barang Masuk");
 
 
-        // 3. Sheet: Stok Barang (Sinkronisasi persis logika render tabel gudang Anda)
+        // 3. Sheet: Stok Barang (Sudah OK)
         let stokRows = [];
         let indexStok = 1;
         let stokList = [];
@@ -1933,7 +1941,7 @@ async function exportExcelAll() {
         XLSX.utils.book_append_sheet(wb, wsStok, "Stok Barang");
 
 
-        // 4. Sheet: Riwayat Pengeluaran Rill (Mengambil langsung dari db.stokKeluar)
+        // 4. Sheet: Riwayat Pengeluaran (Sudah OK)
         let keluarRows = [];
         let indexKeluar = 1;
         let keluarData = (typeof db !== 'undefined' && db.stokKeluar) ? db.stokKeluar : (typeof window.stokKeluar !== 'undefined' ? window.stokKeluar : []);
@@ -1965,8 +1973,7 @@ async function exportExcelAll() {
         alert("Terjadi kesalahan saat export file Excel: " + error.message);
     }
 }
-
- function importExcelData(event) {
+function importExcelData(event) {
     const file = event.target.files[0];
     if (!file) return;
 
