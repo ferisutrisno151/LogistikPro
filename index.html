@@ -45,18 +45,22 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .no-wrap-table th, .no-wrap-table td { white-space: nowrap; }
-        #authModal {
-  display: none; /* Wajib ada agar default-nya tersembunyi */
+}
+
+#authModal {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
-  z-index: 9999; /* Agar berada di lapisan paling atas */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
   justify-content: center;
   align-items: center;
 }
+
+
 
     </style>
     
@@ -64,25 +68,33 @@
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz4YG0NS3SXujxhrPMWZwpnJmdDP-ElFRveZf62FHtJRsrecEqM9kvXU3CC4j8rktSRoQ/exec";
 
   // Daftar nama yang bertindak sebagai Admin (langsung lolos tanpa verifikasi email)
-  const ADMIN_NAMES = ["ferisutrisno"]; // Hanya nama Anda yang lolos otomatis
+  const ADMIN_NAMES = [];
 
   window.addEventListener("DOMContentLoaded", () => {
+  // PAKSA TAMPILKAN MODAL SECARA MUTLAK DI AWAL UNTUK SEMUA KONDISI
+  const modal = document.getElementById("authModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+
   const savedName = localStorage.getItem("logistikpro_user");
-  
-  if (savedName) {
-    const namaLower = savedName.toLowerCase();
-    // Jika yang tersimpan adalah Admin, baru izinkan masuk
-    if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
-      document.getElementById("authModal").style.display = "none";
+
+if (savedName) {
+  const namaLower = savedName.toLowerCase();
+
+    // Jika tersimpan dan merupakan admin di dalam array
+    if (ADMIN_NAMES.length > 0 && ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
+      if (modal) modal.style.display = "none";
       return;
     }
   }
   
-  // Untuk semua kondisi lainnya (belum login / bukan admin), WAJIB TAMPILKAN modal
-  document.getElementById("authModal").style.display = "flex";
-  document.getElementById("namaUser").value = ""; // Kosongkan input
-  localStorage.removeItem("logistikpro_user");    // Bersihkan sesi non-admin
+  // Jika tidak ada data tersimpan / bukan admin, pastikan sesi dibersihkan dan modal tetap terbuka
+  localStorage.removeItem("logistikpro_user");
+  const inputUser = document.getElementById("namaUser");
+  if (inputUser) inputUser.value = "";
 });
+
 
 
 
@@ -168,23 +180,28 @@
       btn.disabled = false;
     });
   }
-</script>
-
-</script>
-
+  </script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <!-- MODAL VERIFIKASI AKSES (Pindahkan ke sini, di dalam body) -->
+  <div id="authModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
+      <h3>Verifikasi Pengguna</h3>
+      <p id="authText">Silakan masukkan nama lengkap Anda terlebih dahulu.</p>
+      <input type="text" id="namaUser" placeholder="Nama lengkap..." style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+      <button id="btnAkses" onclick="prosesAkses()" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px;">Masuk / Minta Akses</button>
+    </div>
+  </div>
 
-    <!-- HEADER / NAVBAR -->
-    <style>
+  <!-- HEADER / NAVBAR -->
+  <style>
     .main-header {
-    /* Tambahkan padding agar konten tidak tertutup status bar hp */
-    padding-top: env(safe-area-inset-top); 
-    /* Atau nilai tetap jika env() tidak didukung */
-    padding-top: 20px; 
-    background-color: white; /* Pastikan background putih agar bersih */
-   }
- </style>
+      padding-top: env(safe-area-inset-top);
+      padding-top: 20px;
+      background-color: white;
+    }
+  </style>
+
     <header class="main-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
     <div class="max-w-7xl mx-auto px-3 py-3 flex items-center justify-between">
         
