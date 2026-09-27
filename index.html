@@ -2064,7 +2064,20 @@ function getDeviceId() {
 
 // Cek status akses perangkat saat aplikasi dimuat
 function checkDeviceAccess() {
-    const devId = getDeviceId();
+    const devid = getDeviceId();
+    
+    // --- BYPASS KHUSUS ADMIN UTAMA ---
+    if (localStorage.getItem('is_admin') === 'true') {
+        const overlay = document.getElementById('accessControlOverlay');
+        if (overlay) overlay.classList.add('hidden');
+        const mainApp = document.querySelector('main') || document.body.firstElementChild;
+        if (mainApp) mainApp.style.display = 'block';
+        const adminMenu = document.getElementById('adminMenuContainer');
+        if (adminMenu) adminMenu.classList.remove('hidden');
+        return;
+    }
+    // ---------------------------------
+
     const overlay = document.getElementById('accessControlOverlay');
     const statusContainer = document.getElementById('accessStatusContainer');
     const waitingScreen = document.getElementById('waitingApprovalScreen');
@@ -2072,26 +2085,25 @@ function checkDeviceAccess() {
 
     if (!overlay) return;
 
-    // Cari apakah deviceId ini sudah ada di database access_requests
-    const requestData = db.access_requests ? db.access_requests.find(r => r.id === devId || r.deviceId === devId) : null;
+    const requestData = db.access_requests && db.access_requests.find(r => r.id === devid || r.deviceId === devid);
 
     if (!requestData) {
-        // Belum pernah minta akses -> Tampilkan form input nama
         overlay.classList.remove('hidden');
         statusContainer.classList.remove('hidden');
         waitingScreen.classList.add('hidden');
         rejectedScreen.classList.add('hidden');
     } else if (requestData.status === 'approved') {
-        // Sudah di-ACC -> Sembunyikan overlay, izinkan akses penuh
         overlay.classList.add('hidden');
-        document.getElementById('adminMenuContainer').classList.remove('hidden');
-        // Ditolak -> Tampilkan layar penolakan
+        const mainApp = document.querySelector('main') || document.body.firstElementChild;
+        if (mainApp) mainApp.style.display = 'block';
+        const adminMenu = document.getElementById('adminMenuContainer');
+        if (adminMenu) adminMenu.classList.remove('hidden');
+    } else if (requestData.status === 'rejected') {
         overlay.classList.remove('hidden');
         statusContainer.classList.add('hidden');
         waitingScreen.classList.add('hidden');
         rejectedScreen.classList.remove('hidden');
     } else {
-        // Pending / Menunggu persetujuan
         overlay.classList.remove('hidden');
         statusContainer.classList.add('hidden');
         waitingScreen.classList.remove('hidden');
