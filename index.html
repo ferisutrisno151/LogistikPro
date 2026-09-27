@@ -179,7 +179,7 @@
  </aside>
 
  <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+    <main id="appContainer" class="flex-1 max-w-7xl w-full mx-auto px-4 py-4">
 
         <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="space-y-6">
@@ -2292,7 +2292,10 @@ function hideDeviceRequestModal() {
         modal.classList.add('hidden');
     }
 }
-
+// Jalankan pengecekan akses otomatis begitu halaman selesai dimuat
+window.addEventListener('DOMContentLoaded', () => {
+    checkDeviceAccess();
+});
     </script>
     <!-- MODAL / LAYAR KONTROL AKSES -->
 <div id="accessControlOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4 hidden">
