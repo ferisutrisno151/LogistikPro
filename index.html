@@ -58,16 +58,19 @@
   
   if (savedName) {
     const namaLower = savedName.toLowerCase();
-    // Jika yang tersimpan adalah Admin, langsung izinkan masuk
+    // Jika yang tersimpan adalah Admin, baru izinkan masuk
     if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
       document.getElementById("authModal").style.display = "none";
       return;
     }
   }
   
-  // Jika bukan admin atau belum tersimpan, pastikan pop-up verifikasi wajib muncul
+  // Untuk semua kondisi lainnya (belum login / bukan admin), WAJIB TAMPILKAN modal
   document.getElementById("authModal").style.display = "flex";
+  document.getElementById("namaUser").value = ""; // Kosongkan input
+  localStorage.removeItem("logistikpro_user");    // Bersihkan sesi non-admin
 });
+
 
 
   function prosesAkses() {
