@@ -2215,17 +2215,13 @@ const ADMIN_DEVICE_ID = "ADMIN_151_FERI";
 async function checkDeviceAccess() {
     let deviceId = localStorage.getItem('device_id');
     
-    // Jika perangkat belum punya ID unik, buatkan secara otomatis
+    // Jika perangkat sama sekali belum punya ID unik di localStorage
     if (!deviceId) {
         deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         localStorage.setItem('device_id', deviceId);
-    }
-
-    // 1. ADMIN BYPASS: Jika Device ID cocok dengan Admin, berikan akses penuh selamanya
-    if (deviceId === ADMIN_DEVICE_ID) {
-        console.log("Admin Bypass aktif.");
-        hideDeviceRequestModal();
-        if (typeof showAdminUI === 'function') showAdminUI();
+        
+        // Perangkat baru otomatis dianggap belum di-acc, langsung tampilkan modal permintaan akses & hentikan fungsi
+        showDeviceRequestModal();
         return;
     }
 
