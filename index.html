@@ -51,15 +51,24 @@
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz4YG0NS3SXujxhrPMWZwpnJmdDP-ElFRveZf62FHtJRsrecEqM9kvXU3CC4j8rktSRoQ/exec";
 
   // Daftar nama yang bertindak sebagai Admin (langsung lolos tanpa verifikasi email)
-  const ADMIN_NAMES = ["feri", "ferisutrisno", "admin"]; 
+  const ADMIN_NAMES = ["ferisutrisno"]; // Hanya nama Anda yang lolos otomatis
 
   window.addEventListener("DOMContentLoaded", () => {
-    const savedName = localStorage.getItem("logistikpro_user");
-    if (savedName) {
-      document.getElementById("namaUser").value = savedName;
-      cekStatusAkses(savedName, true);
+  const savedName = localStorage.getItem("logistikpro_user");
+  
+  if (savedName) {
+    const namaLower = savedName.toLowerCase();
+    // Jika yang tersimpan adalah Admin, langsung izinkan masuk
+    if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
+      document.getElementById("authModal").style.display = "none";
+      return;
     }
-  });
+  }
+  
+  // Jika bukan admin atau belum tersimpan, pastikan pop-up verifikasi wajib muncul
+  document.getElementById("authModal").style.display = "flex";
+});
+
 
   function prosesAkses() {
     const nama = document.getElementById("namaUser").value.trim();
