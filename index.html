@@ -2238,36 +2238,51 @@ async function deleteAccessRequest(id) {
 const ADMIN_DEVICE_ID = "ADMIN_151_FERI";
 
 // Fungsi untuk mengecek akses perangkat secara Zero-Trust
-    async function checkDeviceAccess() {
-    let deviceId = localStorage.getItem('device_id');
-     // 1. ADMIN BYPASS. Cek apakah perangkat ini adalah Admin terlebih dahulu
-    if (deviceId === ADMIN_DEVICE_ID) {
-        console.log("Admin Bypass aktif.");
-        hideDeviceRequestModal();
+   function checkDeviceAccess() {
+    // --- BYPASS ADMIN WAJIB DI PALING ATAS ---
+    if (localStorage.getItem('is_admin') === 'true') {
+        const overlay = document.getElementById('accessControlOverlay');
+        if (overlay) overlay.classList.add('hidden');
+        const mainApp = document.querySelector('main') || document.body.firstElementChild;
+        if (mainApp) mainApp.style.display = 'block';
+        const adminMenu = document.getElementById('adminMenuContainer');
+        if (adminMenu) adminMenu.classList.remove('hidden');
         return;
     }
+    // ----------------------------------------
 
-    // 2. Jika belum punya ID dan bukan admin, baru buatkan ID unik
-    if (!deviceId) {
-        deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('device_id', deviceId);
-    }
+    const devid = getDeviceId();
+    const overlay = document.getElementById('accessControlOverlay');
+    const statusContainer = document.getElementById('accessStatusContainer');
+    const waitingScreen = document.getElementById('waitingApprovalScreen');
+    const rejectedScreen = document.getElementById('rejectedScreen');
 
-    // 3. ZERO-TRUST CHECK: Cek status izin ke Firestore collection 'access_requests'
-    try {
-        const docRef = doc(db, 'access_requests', deviceId);
-        const docSnap = await getDoc(docRef);
+    if (!overlay) return;
 
-        if (docSnap.exists() && docSnap.data().status === 'approved') {
-            // Sudah disetujui Admin -> Buka tampilan aplikasi
-            hideDeviceRequestModal();
-        } else {
-            // Belum terdaftar / belum di-acc / ditolak -> Kunci layar & tampilkan modal
-            showDeviceRequestModal();
-        }
-    } catch (error) {
-        console.error("Gagal memeriksa akses perangkat:", error);
-        showDeviceRequestModal();
+    // Pastikan database aman dari undefined
+    const requestData = (window.db && window.db.access_requests) ? window.db.access_requests.find(r => r.id === devid || r.deviceId === devid) : null;
+
+    if (!requestData) {
+        overlay.classList.remove('hidden');
+        statusContainer.classList.remove('hidden');
+        waitingScreen.classList.add('hidden');
+        rejectedScreen.classList.add('hidden');
+    } else if (requestData.status === 'approved') {
+        overlay.classList.add('hidden');
+        const mainApp = document.querySelector('main') || document.body.firstElementChild;
+        if (mainApp) mainApp.style.display = 'block';
+        const adminMenu = document.getElementById('adminMenuContainer');
+        if (adminMenu) adminMenu.classList.remove('hidden');
+    } else if (requestData.status === 'rejected') {
+        overlay.classList.remove('hidden');
+        statusContainer.classList.add('hidden');
+        waitingScreen.classList.add('hidden');
+        rejectedScreen.classList.remove('hidden');
+    } else {
+        overlay.classList.remove('hidden');
+        statusContainer.classList.add('hidden');
+        waitingScreen.classList.remove('hidden');
+        rejectedScreen.classList.add('hidden');
     }
 }
 
