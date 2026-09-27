@@ -2215,17 +2215,17 @@ const ADMIN_DEVICE_ID = "ADMIN_151_FERI";
 async function checkDeviceAccess() {
     let deviceId = localStorage.getItem('device_id');
     
-    // 1. Buat ID unik jika perangkat belum punya
-    if (!deviceId) {
-        deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        localStorage.setItem('device_id', deviceId);
-    }
-
-    // 2. ADMIN BYPASS: Jika Device ID cocok dengan Admin, langsung buka akses
+    // 1. ADMIN BYPASS: Cek apakah perangkat ini adalah Admin terlebih dahulu
     if (deviceId === ADMIN_DEVICE_ID) {
         console.log("Admin Bypass aktif.");
         hideDeviceRequestModal();
         return;
+    }
+
+    // 2. Jika belum punya ID dan bukan admin, baru buatkan ID unik
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('device_id', deviceId);
     }
 
     // 3. ZERO-TRUST CHECK: Cek status izin ke Firestore collection 'access_requests'
