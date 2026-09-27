@@ -2066,8 +2066,10 @@ function getDeviceId() {
 function checkDeviceAccess() {
     const devid = getDeviceId();
     
-    // --- BYPASS KHUSUS ADMIN UTAMA ---
-    if (localStorage.getItem('is_admin') === 'true') {
+    // [TAMBAHAN] Cek apakah ada parameter ?mode=admin di URL atau sudah ada is_admin di localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'admin' || localStorage.getItem('is_admin') === 'true' || devid === 'ISI_DEVICE_ID_HP_ANDA') {
+        localStorage.setItem('is_admin', 'true');
         const overlay = document.getElementById('accessControlOverlay');
         if (overlay) overlay.classList.add('hidden');
         const mainApp = document.querySelector('main') || document.body.firstElementChild;
@@ -2076,6 +2078,7 @@ function checkDeviceAccess() {
         if (adminMenu) adminMenu.classList.remove('hidden');
         return;
     }
+   
     // ---------------------------------
 
     const overlay = document.getElementById('accessControlOverlay');
