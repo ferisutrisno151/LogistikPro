@@ -2212,13 +2212,9 @@ async function deleteAccessRequest(id) {
 const ADMIN_DEVICE_ID = "ADMIN_151_FERI";
 
 // Fungsi untuk mengecek akses perangkat secara Zero-Trust
-async function checkDeviceAccess() {
-    // TAMBAHKAN BARIS INI: Memaksa HP admin langsung mengenali ID admin
-    localStorage.setItem('device_id', ADMIN_DEVICE_ID);
-
+    async function checkDeviceAccess() {
     let deviceId = localStorage.getItem('device_id');
-
-    // 1. ADMIN BYPASS. Cek apakah perangkat ini adalah Admin terlebih dahulu
+     // 1. ADMIN BYPASS. Cek apakah perangkat ini adalah Admin terlebih dahulu
     if (deviceId === ADMIN_DEVICE_ID) {
         console.log("Admin Bypass aktif.");
         hideDeviceRequestModal();
