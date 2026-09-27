@@ -167,7 +167,7 @@
         </nav>
         
             <!-- Tombol Panel Admin Akses -->
-    <div class="px-4 pb-2">
+    <div id="adminMenuContainer" class="px-4 pb-2 hidden">
         <button onclick="openAdminAccessPanel(); toggleSidebar();" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors border border-slate-700 shadow-sm">
             <i class="fas fa-shield-alt text-amber-400"></i> Panel Admin Akses
         </button>
@@ -2084,7 +2084,7 @@ function checkDeviceAccess() {
     } else if (requestData.status === 'approved') {
         // Sudah di-ACC -> Sembunyikan overlay, izinkan akses penuh
         overlay.classList.add('hidden');
-    } else if (requestData.status === 'rejected') {
+        document.getElementById('adminMenuContainer').classList.remove('hidden');
         // Ditolak -> Tampilkan layar penolakan
         overlay.classList.remove('hidden');
         statusContainer.classList.add('hidden');
