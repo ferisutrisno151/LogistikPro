@@ -2208,24 +2208,42 @@ async function deleteAccessRequest(id) {
     db.access_requests = db.access_requests.filter(r => (r.id !== id && r.deviceId !== id));
     renderAdminAccessList();
 }
+// Konfigurasi Admin Device ID Permanen (Ganti dengan Device ID admin Anda)
+const ADMIN_DEVICE_ID = "ADMIN_151_FERI"; 
 
-// Fungsi untuk mengecek akses perangkat dengan batasan waktu 8 jam
-function checkDeviceAccess() {
-    const deviceId = localStorage.getItem('device_id');
-    const accessExpiry = localStorage.getItem('access_expiry');
-    const now = new Date().getTime();
+// Fungsi untuk mengecek akses perangkat secara Zero-Trust
+async function checkDeviceAccess() {
+    let deviceId = localStorage.getItem('device_id');
+    
+    // Jika perangkat belum punya ID unik, buatkan secara otomatis
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('device_id', deviceId);
+    }
 
-    // Jika perangkat belum punya ID, belum di-ACC, atau sudah lewat dari 8 jam (expired)
-    if (!deviceId || !accessExpiry || now > parseInt(accessExpiry)) {
-        // Hapus data lama yang kedaluwarsa demi keamanan
-        localStorage.removeItem('device_id');
-        localStorage.removeItem('access_expiry');
-        
-        // Tampilkan modal/form permintaan nama untuk verifikasi ulang
-        showDeviceRequestModal();
-    } else {
-        // Jika masih dalam rentang waktu 8 jam, izinkan akses penuh ke aplikasi
+    // 1. ADMIN BYPASS: Jika Device ID cocok dengan Admin, berikan akses penuh selamanya
+    if (deviceId === ADMIN_DEVICE_ID) {
+        console.log("Admin Bypass aktif.");
         hideDeviceRequestModal();
+        if (typeof showAdminUI === 'function') showAdminUI();
+        return;
+    }
+
+    // 2. ZERO-TRUST CHECK: Cek status izin ke Firestore collection 'access_requests'
+    try {
+        const docRef = doc(db, 'access_requests', deviceId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data().status === 'approved') {
+            // Jika sudah di-acc oleh Admin
+            hideDeviceRequestModal();
+        } else {
+            // Jika belum terdaftar atau ditolak, tampilkan modal permintaan akses
+            showDeviceRequestModal();
+        }
+    } catch (error) {
+        console.error("Gagal memeriksa akses perangkat:", error);
+        showDeviceRequestModal();
     }
 }
 
