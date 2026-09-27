@@ -2113,16 +2113,25 @@ function checkDeviceAccess() {
 
 // Mengirim permintaan akses baru ke Firebase
 async function submitAccessRequest(event) {
-    event.preventDefault();
-    const nameInput = document.getElementById('regNameUser');
-    if (!nameInput) return;
+    if (event) event.preventDefault();
     
-    const name = nameInput.value.trim();
-    const deviceId = localStorage.getItem('device_id');
+    const nameInput = document.getElementById('regNameUser');
+    if (!nameInput) {
+        alert("Error: Elemen input nama dengan id 'regNameUser' tidak ditemukan di HTML.");
+        return;
+    }
 
+    const name = nameInput.value.trim();
     if (!name) {
         alert("Silakan masukkan nama lengkap terlebih dahulu.");
         return;
+    }
+
+    // Mengambil device id dengan fallback yang konsisten
+    let deviceId = localStorage.getItem('logistikpro_device_id') || localStorage.getItem('device_id');
+    if (!deviceId) {
+        deviceId = 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('logistikpro_device_id', deviceId);
     }
 
     try {
@@ -2138,12 +2147,16 @@ async function submitAccessRequest(event) {
             status: 'pending',
             requestTime: new Date().toISOString()
         });
-        
-        alert("Permintaan akses berhasil dikirim! Silakan tunggu persetujuan dari Admin.");
-        if (typeof checkDeviceAccess === 'function') checkDeviceAccess();
+
+        alert("Permintaan akses berhasil dikirim! Mohon tunggu persetujuan dari Admin.");
+        if (typeof checkDeviceAccess === 'function') {
+            checkDeviceAccess();
+        } else {
+            location.reload();
+        }
     } catch (err) {
         console.error("Gagal mengirim permintaan:", err);
-        alert("Gagal mengirim permintaan akses. Periksa koneksi internet Anda.");
+        alert("Gagal mengirim permintaan. Periksa koneksi internet Anda: " + err.message);
     }
 }
 
