@@ -2119,32 +2119,22 @@ function requestAccess() {
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
-            // Ambil URL dasar bersih (mengabaikan parameter lama jika ada)
             let baseUrl = window.location.href.split('?')[0];
             if (!baseUrl.endsWith('/')) {
                 baseUrl += '/';
             }
 
-            // Buat URL verifikasi unik untuk terima dan tolak
             const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            // Susun teks pesan WhatsApp dengan format yang aman dibaca WhatsApp
-            const waMessage = `*PERMINTAAN IZIN AKSES LOGISTIKPRO*\n\n` +
-                              `Nama: ${nameInput}\n` +
-                              `Status: Menunggu Konfirmasi\n\n` +
-                              `Silakan klik salah satu link di bawah ini:\n\n` +
-                              `TERIMA AKSES:\n${approvalUrl}\n\n` +
-                              `TOLAK AKSES:\n${rejectionUrl}`;
+            // TRIK: Tambahkan titik (.) di awal atau ubah susunan agar WhatsApp mematikan Preview Card
+            const waMessage = `._%0A*KONFIRMASI AKSES LOGISTIKPRO*%0ANama: ${nameInput}%0A%0ASilakan salin atau klik tautan eksekusi di bawah ini:%0A%0A[ KLIK DISINI UNTUK TERIMA ]%0A${approvalUrl}%0A%0A[ KLIK DISINI UNTUK TOLAK ]%0A${rejectionUrl}`;
 
-            // PENTING: Menggunakan encodeURIComponent agar link tidak berubah menjadi link utama APK
             const encodedMessage = encodeURIComponent(waMessage);
             const waUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodedMessage}`;
 
-            // Buka WhatsApp Admin
             window.open(waUrl, '_blank');
 
-            // Pantau status akses secara real-time
             listenToAccessStatus(deviceId);
         })
         .catch((error) => {
