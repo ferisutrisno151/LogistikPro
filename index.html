@@ -2091,6 +2091,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Ganti fungsi requestAccess() dengan kode yang sudah disempurnakan ini:
+
 function requestAccess() {
     const nameInput = document.getElementById('requesterName').value.trim();
     if (!nameInput) {
@@ -2119,7 +2120,6 @@ function requestAccess() {
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
-            // Ambil URL bersih tanpa index.html yang berlebihan
             let baseUrl = window.location.href.split('?')[0];
             if (!baseUrl.endsWith('/')) {
                 baseUrl += '/';
@@ -2128,8 +2128,8 @@ function requestAccess() {
             const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            // Format pesan diperbarui agar link benar-benar bersih dan bisa diklik terpisah
-            const waMessage = `PERMINTAAN IZIN AKSES LOGISTIKPRO%0A%0ANama: *${nameInput}*%0AStatus: Menunggu Konfirmasi%0A%0ASilakan klik salah satu link di bawah ini:%0A%0A✅ TERIMA:%0A${approvalUrl}%0A%0A❌ TOLAK:%0A${rejectionUrl}`;
+            // Format diperbarui: Tanpa emoji di baris link, dan disusun agar WhatsApp mendeteksinya sebagai URL murni
+            const waMessage = `*PERMINTAAN IZIN AKSES*%0ANama: ${nameInput}%0A%0ATerima Akses:%0A${approvalUrl}%0A%0ATolak Akses:%0A${rejectionUrl}`;
 
             window.open(`https://wa.me/${ADMIN_PHONE}?text=${waMessage}`, '_blank');
 
@@ -2140,7 +2140,6 @@ function requestAccess() {
             alert("Terjadi kesalahan koneksi database.");
         });
 }
-
 // 3. Cek status akses yang sudah tersimpan di database
 function checkExistingAccess(deviceId, savedName) {
     const db = window.fbFirestore.firestoreDb;
