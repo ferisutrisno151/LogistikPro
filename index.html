@@ -122,46 +122,65 @@ if (savedName) {
 }
 
 
-  function cekStatusAkses(nama, isAuto) {
-    const namaLower = nama.toLowerCase();
-    if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
-      localStorage.setItem("logistikpro_user", nama);
-      document.getElementById("authModal").style.display = "none";
-      return;
-    }
+function cekStatusAkses(nama, isAuto) {
+  const namaLower = nama.toLowerCase();
+  if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
+    localStorage.setItem("logistikpro_user", nama);
+    document.getElementById("authModal").style.display = "none";
+    return;
+  }
 
-    const btn = document.getElementById("btnAkses");
-    const infoText = document.getElementById("authText");
+  const btn = document.getElementById("btnAkses");
+  const infoText = document.getElementById("authText");
+  if (btn) {
     btn.innerText = "Memeriksa status...";
     btn.disabled = true;
+  }
 
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "check", nama: nama })
-    })
-    .then(() => {
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "check", name: nama })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.statusAkses === "Authorized") {
+      // Jika admin sudah klik Terima di email
+      localStorage.setItem("logistikpro_user", nama);
+      document.getElementById("authModal").style.display = "none";
+      alert("Akses berhasil disetujui!");
+    } else {
       if (!isAuto) {
         kirimPermintaanBaru(nama);
       } else {
-        btn.innerText = "Masuk / Minta Akses";
-        btn.disabled = false;
-        infoText.innerText = "Silakan klik tombol di bawah untuk mengirim izin akses ke Admin.";
+        if (btn) {
+          btn.innerText = "Cek Ulang Status";
+          btn.disabled = false;
+        }
+        if (infoText) {
+          infoText.innerText = "Belum disetujui admin. Silakan klik 'Cek Ulang Status' jika sudah klik terima di email.";
+        }
       }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Terjadi kesalahan koneksi. Coba lagi.");
-      btn.innerText = "Masuk / Minta Akses";
-      btn.disabled = false;
-    });
-  }
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    if (!isAuto) {
+      kirimPermintaanBaru(nama);
+    } else {
+      alert("Terjadi kesalahan koneksi atau format data.");
+      if (btn) {
+        btn.innerText = "Cek Ulang Status";
+        btn.disabled = false;
+      }
+    }
+  });
+}
 
-  function kirimPermintaanBaru(nama) {
+ function kirimPermintaanBaru(nama) {
   const btn = document.getElementById("btnAkses");
   const infoText = document.getElementById("authText");
-  
+
   if (!nama) {
     alert("Nama tidak boleh kosong!");
     return;
@@ -170,7 +189,7 @@ if (savedName) {
   if (infoText) {
     infoText.innerText = "⏳ Mengirim permintaan ke Admin...";
   }
-  
+
   if (btn) {
     btn.innerText = "Mengirim...";
     btn.disabled = true;
@@ -178,11 +197,11 @@ if (savedName) {
 
   fetch(WEB_APP_URL, {
     method: "POST",
-    mode: "no-cors",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify({ action: "request", name: nama })
   })
-  .then(() => {
+  .then(response => response.json())
+  .then(data => {
     alert("Permintaan akses berhasil dikirim ke Email Admin!");
     if (infoText) {
       infoText.innerText = "Menunggu persetujuan admin via email.";
@@ -191,7 +210,6 @@ if (savedName) {
       btn.innerText = "Cek Ulang Status";
       btn.disabled = false;
     }
-    localStorage.setItem("logistikpro_user", nama);
   })
   .catch(err => {
     console.error(err);
@@ -202,28 +220,6 @@ if (savedName) {
     }
   });
 }
-
-
-  </script>
-</head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
-  <!-- MODAL VERIFIKASI AKSES (Pindahkan ke sini, di dalam body) -->
-  <div id="authModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-    <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
-      <h3>Verifikasi Pengguna</h3>
-      <p id="authText">Silakan masukkan nama lengkap Anda terlebih dahulu.</p>
-      <input type="text" id="namaUser" placeholder="Nama lengkap..." style="width: 100%; padding: 10px; margin-bottom: 10px;" />
-      <button id="btnAkses" onclick="prosesAkses()" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px;">Masuk / Minta Akses</button>
-    </div>
-  </div>
-
-  <!-- HEADER / NAVBAR -->
-  <style>
-    .main-header {
-      padding-top: env(safe-area-inset-top);
-      padding-top: 20px;
-      background-color: white;
-    }
   </style>
 
     <header class="main-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
