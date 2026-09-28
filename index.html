@@ -2064,18 +2064,33 @@ function importExcelData(event) {
 // Ganti dengan nomor WhatsApp Admin Anda (format: 628xxxxxxxxxx)
 const ADMIN_PHONE = "6281242990636"; 
 
-// 1. Saat halaman pertama kali dibuka
+// Tangkap parameter URL saat halaman dibuka dari link WhatsApp Admin
 window.addEventListener('DOMContentLoaded', () => {
-    // Cek apakah Admin sedang mengklik link Terima/Tolak dari WhatsApp
     const urlParams = new URLSearchParams(window.location.search);
     const approveId = urlParams.get('approve');
     const rejectId = urlParams.get('reject');
-    const newStatus = urlParams.get('status');
 
-    if ((approveId || rejectId) && newStatus) {
-        handleAdminDecision(approveId || rejectId, newStatus);
-        return;
+    if (window.fbFirestore && window.fbFirestore.firestoreDb) {
+        const db = window.fbFirestore.firestoreDb;
+        const { doc, updateDoc } = window.fbFirestore;
+
+        if (approveId) {
+            updateDoc(doc(db, "access_requests", approveId), { status: 'approved' })
+                .then(() => {
+                    alert("Akses Berhasil Disetujui!");
+                    window.location.href = window.location.pathname; // Bersihkan parameter URL
+                })
+                .catch((err) => console.error("Gagal approve:", err));
+        } else if (rejectId) {
+            updateDoc(doc(db, "access_requests", rejectId), { status: 'rejected' })
+                .then(() => {
+                    alert("Akses Ditolak.");
+                    window.location.href = window.location.pathname;
+                })
+                .catch((err) => console.error("Gagal reject:", err));
+        }
     }
+});
 
     // Cek apakah perangkat ini sudah pernah diizinkan sebelumnya
     const deviceId = localStorage.getItem('logistikpro_device_id');
@@ -2119,20 +2134,17 @@ function requestAccess() {
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
-            // Memastikan URL mengarah langsung ke index.html secara absolut
             let baseUrl = window.location.href.split('?')[0];
             if (!baseUrl.endsWith('.html')) {
                 if (!baseUrl.endsWith('/')) baseUrl += '/';
                 baseUrl += 'index.html';
             }
 
-            const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
-            const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
+            const approvalUrl = baseUrl + "?approve=" + deviceId;
+            const rejectionUrl = baseUrl + "?reject=" + deviceId;
             
-            // Susunan teks menggunakan \n murni agar terbaca sebagai baris baru oleh encodeURIComponent
             const waMessage = "PERMINTAAN IZIN AKSES LOGISTIKPRO\n\nNama: " + nameInput + "\nStatus: Menunggu Konfirmasi\n\nTERIMA AKSES:\n" + approvalUrl + "\n\nTOLAK AKSES:\n" + rejectionUrl;
 
-            // Encode pesan dengan aman
             const waUrl = "https://wa.me/" + ADMIN_PHONE + "?text=" + encodeURIComponent(waMessage);
 
             window.open(waUrl, '_blank');
