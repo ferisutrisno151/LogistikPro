@@ -45,20 +45,163 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .no-wrap-table th, .no-wrap-table td { white-space: nowrap; }
+}
+
+#authModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
     </style>
+    
+  <script>
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOFmsYTNL-CDVvNmNTzN4EX9_F_zHsxz70USTxvxiT22zqi5I7nIUaVS4CXq1k6TEE-Q/exec";
+
+  // Daftar nama yang bertindak sebagai Admin (langsung lolos tanpa verifikasi email)
+  const ADMIN_NAMES = [];
+
+  window.addEventListener("DOMContentLoaded", () => {
+  // PAKSA TAMPILKAN MODAL SECARA MUTLAK DI AWAL UNTUK SEMUA KONDISI
+  const modal = document.getElementById("authModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+
+  const savedName = localStorage.getItem("logistikpro_user");
+
+if (savedName) {
+  const namaLower = savedName.toLowerCase();
+
+    // Jika tersimpan dan merupakan admin di dalam array
+    if (ADMIN_NAMES.length > 0 && ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
+      if (modal) modal.style.display = "none";
+      return;
+    }
+  }
+  
+  // Jika tidak ada data tersimpan / bukan admin, pastikan sesi dibersihkan dan modal tetap terbuka
+  localStorage.removeItem("logistikpro_user");
+  const inputUser = document.getElementById("namaUser");
+  if (inputUser) inputUser.value = "";
+});
+
+
+
+
+  function prosesAkses() {
+    const nama = document.getElementById("namaUser").value.trim();
+    if (!nama) {
+      alert("Silakan masukkan nama lengkap Anda terlebih dahulu!");
+      return;
+    }
+
+    // Cek apakah nama yang dimasukkan termasuk Admin
+    const namaLower = nama.toLowerCase();
+    const isAdmin = ADMIN_NAMES.some(adm => namaLower.includes(adm));
+
+    if (isAdmin) {
+      // Jika Admin, langsung izinkan masuk tanpa cek spreadsheet / kirim email
+      localStorage.setItem("logistikpro_user", nama);
+      document.getElementById("authModal").style.display = "none";
+      return;
+    }
+
+    cekStatusAkses(nama, false);
+  }
+
+  function cekStatusAkses(nama, isAuto) {
+    const namaLower = nama.toLowerCase();
+    if (ADMIN_NAMES.some(adm => namaLower.includes(adm))) {
+      localStorage.setItem("logistikpro_user", nama);
+      document.getElementById("authModal").style.display = "none";
+      return;
+    }
+
+    const btn = document.getElementById("btnAkses");
+    const infoText = document.getElementById("authText");
+    btn.innerText = "Memeriksa status...";
+    btn.disabled = true;
+
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "check", nama: nama })
+    })
+    .then(() => {
+      if (!isAuto) {
+        kirimPermintaanBaru(nama);
+      } else {
+        btn.innerText = "Masuk / Minta Akses";
+        btn.disabled = false;
+        infoText.innerText = "Silakan klik tombol di bawah untuk mengirim izin akses ke Admin.";
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Terjadi kesalahan koneksi. Coba lagi.");
+      btn.innerText = "Masuk / Minta Akses";
+      btn.disabled = false;
+    });
+  }
+
+  function kirimPermintaanBaru(nama) {
+    const btn = document.getElementById("btnAkses");
+    const infoText = document.getElementById("authText");
+    btn.innerText = "Mengirim permintaan ke Admin...";
+
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "request", nama: nama })
+    })
+    .then(() => {
+      alert("Permintaan akses berhasil dikirim ke Email Admin! Silakan tunggu konfirmasi persetujuan.");
+      infoText.innerText = "Menunggu persetujuan admin via email. Jika sudah disetujui, buka ulang halaman ini.";
+      btn.innerText = "Cek Ulang Status";
+      btn.disabled = false;
+      localStorage.setItem("logistikpro_user", nama);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Gagal mengirim permintaan.");
+      btn.innerText = "Masuk / Minta Akses";
+      btn.disabled = false;
+    });
+  }
+  </script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <!-- MODAL VERIFIKASI AKSES (Pindahkan ke sini, di dalam body) -->
+  <div id="authModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
+      <h3>Verifikasi Pengguna</h3>
+      <p id="authText">Silakan masukkan nama lengkap Anda terlebih dahulu.</p>
+      <input type="text" id="namaUser" placeholder="Nama lengkap..." style="width: 100%; padding: 10px; margin-bottom: 10px;" />
+      <button id="btnAkses" onclick="prosesAkses()" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px;">Masuk / Minta Akses</button>
+    </div>
+  </div>
 
-    <!-- HEADER / NAVBAR -->
-    <style>
+  <!-- HEADER / NAVBAR -->
+  <style>
     .main-header {
-    /* Tambahkan padding agar konten tidak tertutup status bar hp */
-    padding-top: env(safe-area-inset-top); 
-    /* Atau nilai tetap jika env() tidak didukung */
-    padding-top: 20px; 
-    background-color: white; /* Pastikan background putih agar bersih */
-   }
- </style>
+      padding-top: env(safe-area-inset-top);
+      padding-top: 20px;
+      background-color: white;
+    }
+  </style>
+
     <header class="main-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
     <div class="max-w-7xl mx-auto px-3 py-3 flex items-center justify-between">
         
