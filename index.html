@@ -2028,5 +2028,114 @@ function importExcelData(event) {
     reader.readAsArrayBuffer(file);
 }
     </script>
+    <!-- MODAL PERMINTAAN IZIN AKSES VIA WHATSAPP -->
+<div id="approvalModal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-2xl w-96 shadow-2xl border border-slate-200">
+        <div class="text-center mb-4">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-bold">
+                📱
+            </div>
+            <h3 class="font-bold text-lg text-slate-800">Otoritas Akses LogistikPro</h3>
+            <p class="text-xs text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses ke Admin via WhatsApp.</p>
+        </div>
+        
+        <!-- Form Input Nama -->
+        <div id="formRequestSection" class="space-y-3">
+            <div>
+                <label class="text-xs font-semibold text-slate-600">Nama Lengkap / Rekan Kerja</label>
+                <input type="text" id="requesterName" placeholder="Contoh: Budi (Bagian Gudang)" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </div>
+            <button onclick="kirimIzinWhatsApp()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Permintaan ke WhatsApp Admin
+            </button>
+        </div>
+
+        <!-- Bagian Instruksi Setelah Kirim WA -->
+        <div id="waitingSection" class="text-center py-3 hidden space-y-3">
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-xs text-emerald-800">
+                Pesan WhatsApp telah disiapkan. Silakan kirim pesan tersebut ke Admin, lalu tunggu hingga Admin memberikan akses.
+            </div>
+            <button onclick="simpanAksesManual()" class="w-full bg-blue-600 text-white py-2 rounded-xl text-xs font-semibold hover:bg-blue-700 transition">
+                Saya Sudah Diizinkan oleh Admin (Masuk Aplikasi)
+            </button>
+            <button onclick="resetFormIzin()" class="text-xs text-slate-400 underline">
+                Ganti Nama / Ulangi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// NOMOR WA ADMIN
+const NOMOR_ADMIN_WA = "6281242990636"; 
+
+document.addEventListener("DOMContentLoaded", function() {
+    periksaSesiAksesWA();
+});
+
+function periksaSesiAksesWA() {
+    const waktuIzin = localStorage.getItem("wa_access_granted_time");
+    const roleUser = localStorage.getItem("userRole");
+
+    // Jika Anda login sebagai Admin, bebas langsung masuk
+    if (roleUser === "admin") {
+        document.getElementById("approvalModal").classList.add("hidden");
+        return;
+    }
+
+    if (waktuIzin) {
+        const waktuSekarang = new Date().getTime();
+        const selisihJam = (waktuSekarang - parseInt(waktuIzin)) / (1000 * 60 * 60);
+
+        // Batasan sesi aktif selama 8 jam
+        if (selisihJam < 8) {
+            document.getElementById("approvalModal").classList.add("hidden");
+            return;
+        } else {
+            // Jika lewat 8 jam, hapus sesi
+            localStorage.removeItem("wa_access_granted_time");
+            localStorage.removeItem("requester_name");
+        }
+    }
+
+    // Tampilkan modal jika belum ada izin
+    document.getElementById("approvalModal").classList.remove("hidden");
+}
+
+function kirimIzinWhatsApp() {
+    const nama = document.getElementById("requesterName").value.trim();
+    if (!nama) {
+        alert("Silakan masukkan nama Anda terlebih dahulu!");
+        return;
+    }
+
+    localStorage.setItem("requester_name", nama);
+
+    // Format pesan otomatis ke WhatsApp Anda
+    const pesan = `Halo Admin, saya *${nama}* meminta izin akses untuk masuk dan mengedit data di aplikasi *LogistikPro* (APK). Mohon persetujuannya. Terima kasih.`;
+    const urlWA = `https://wa.me/${NOMOR_ADMIN_WA}?text=${encodeURIComponent(pesan)}`;
+
+    // Buka WhatsApp Admin di HP rekan kerja
+    window.open(urlWA, "_blank");
+
+    // Sembunyikan form, tampilkan instruksi tombol konfirmasi masuk
+    document.getElementById("formRequestSection").classList.add("hidden");
+    document.getElementById("waitingSection").classList.remove("hidden");
+}
+
+function simpanAksesManual() {
+    // Tombol ini ditekan rekan kerja setelah Anda ACC via WA
+    // Timer 8 jam mulai dihitung dari sini
+    localStorage.setItem("wa_access_granted_time", new Date().getTime());
+    document.getElementById("approvalModal").classList.add("hidden");
+    alert("Akses diizinkan! Selamat bekerja.");
+    location.reload();
+}
+
+function resetFormIzin() {
+    document.getElementById("waitingSection").classList.add("hidden");
+    document.getElementById("formRequestSection").classList.remove("hidden");
+}
+</script>
 </body>
 </html>
