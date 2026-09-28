@@ -2119,7 +2119,7 @@ function requestAccess() {
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
-            // Perbaikan penulisan URL agar mengarah langsung ke file index.html GitHub Pages
+            // Memastikan URL mengarah langsung ke index.html secara absolut
             let baseUrl = window.location.href.split('?')[0];
             if (!baseUrl.endsWith('.html')) {
                 if (!baseUrl.endsWith('/')) baseUrl += '/';
@@ -2129,11 +2129,11 @@ function requestAccess() {
             const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            // Format pesan WhatsApp bersih
-            const waMessage = `PERMINTAAN IZIN AKSES LOGISTIKPRO\n\nNama: ${nameInput}\n\nTERIMA AKSES:\n${approvalUrl}\n\nTOLAK AKSES:\n${rejectionUrl}`;
+            // Susunan teks menggunakan \n murni agar terbaca sebagai baris baru oleh encodeURIComponent
+            const waMessage = "PERMINTAAN IZIN AKSES LOGISTIKPRO\n\nNama: " + nameInput + "\nStatus: Menunggu Konfirmasi\n\nTERIMA AKSES:\n" + approvalUrl + "\n\nTOLAK AKSES:\n" + rejectionUrl;
 
-            const encodedMessage = encodeURIComponent(waMessage);
-            const waUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodedMessage}`;
+            // Encode pesan dengan aman
+            const waUrl = "https://wa.me/" + ADMIN_PHONE + "?text=" + encodeURIComponent(waMessage);
 
             window.open(waUrl, '_blank');
 
