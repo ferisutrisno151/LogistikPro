@@ -2125,14 +2125,22 @@ function requestAccess() {
                 baseUrl += '/';
             }
 
-            const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
+            // Pastikan link menyertakan parameter unik (misal: ?approve=token_unik_user)
+const approvalLink = `${window.location.origin}${window.location.pathname}?approve=${tokenUnikUser}`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            // Format diperbarui: Tanpa emoji di baris link, dan disusun agar WhatsApp mendeteksinya sebagai URL murni
-            const waMessage = `*PERMINTAAN IZIN AKSES*%0ANama: ${nameInput}%0A%0ATerima Akses:%0A${approvalUrl}%0A%0ATolak Akses:%0A${rejectionUrl}`;
+            // Teks pesan yang akan dikirim ke WhatsApp Admin
+const pesanWhatsApp = `LogistikPro - Monitoring System\n\n` +
+  `PERMINTAAN IZIN AKSES LOGISTIKPRO\n` +
+  `Nama: ${namaUser}\n` +
+  `Status: Menunggu Konfirmasi\n\n` +
+  `Silakan klik link di bawah ini untuk menyetujui:\n` +
+  `TERIMA AKSES:\n${approvalLink}`;
+            // PENTING: Gunakan encodeURIComponent agar format URL dan parameternya tidak rusak saat dibuka di WhatsApp
+const waUrl = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesanWhatsApp)}`;
 
-            window.open(`https://wa.me/${ADMIN_PHONE}?text=${waMessage}`, '_blank');
-
+// Buka link WhatsApp
+window.open(waUrl, '_blank');
             listenToAccessStatus(deviceId);
         })
         .catch((error) => {
