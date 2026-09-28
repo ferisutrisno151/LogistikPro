@@ -68,7 +68,8 @@
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOFmsYTNL-CDVvNmNTzN4EX9_F_zHsxz70USTxvxiT22zqi5I7nIUaVS4CXq1k6TEE-Q/exec";
 
   // Daftar nama yang bertindak sebagai Admin (langsung lolos tanpa verifikasi email)
-  const ADMIN_NAMES = [];
+  const ADMIN_NAMES = ["feri sutrisno", "ferisutrisno"];
+
 
   window.addEventListener("DOMContentLoaded", () => {
   // PAKSA TAMPILKAN MODAL SECARA MUTLAK DI AWAL UNTUK SEMUA KONDISI
@@ -99,25 +100,27 @@ if (savedName) {
 
 
   function prosesAkses() {
-    const nama = document.getElementById("namaUser").value.trim();
-    if (!nama) {
-      alert("Silakan masukkan nama lengkap Anda terlebih dahulu!");
-      return;
-    }
-
-    // Cek apakah nama yang dimasukkan termasuk Admin
-    const namaLower = nama.toLowerCase();
-    const isAdmin = ADMIN_NAMES.some(adm => namaLower.includes(adm));
-
-    if (isAdmin) {
-      // Jika Admin, langsung izinkan masuk tanpa cek spreadsheet / kirim email
-      localStorage.setItem("logistikpro_user", nama);
-      document.getElementById("authModal").style.display = "none";
-      return;
-    }
-
-    cekStatusAkses(nama, false);
+  const nameInput = document.getElementById("namaUser"); // Perhatikan huruf U besar
+  if (!nameInput) return;
+  
+  const nama = nameInput.value.trim();
+  if (!nama) {
+    alert("Silakan masukkan nama lengkap Anda terlebih dahulu!");
+    return;
   }
+  
+  const namaLower = nama.toLowerCase();
+  const isAdmin = ADMIN_NAMES.some(adm => namaLower.includes(adm));
+  
+  if (isAdmin) {
+    localStorage.setItem("logistikpro_user", nama);
+    document.getElementById("authModal").style.display = "none";
+    return;
+  }
+  
+  kirimPermintaanBaru(nama);
+}
+
 
   function cekStatusAkses(nama, isAuto) {
     const namaLower = nama.toLowerCase();
@@ -156,30 +159,51 @@ if (savedName) {
   }
 
   function kirimPermintaanBaru(nama) {
-    const btn = document.getElementById("btnAkses");
-    const infoText = document.getElementById("authText");
-    btn.innerText = "Mengirim permintaan ke Admin...";
+  const btn = document.getElementById("btnAkses");
+  const infoText = document.getElementById("authText");
+  
+  if (!nama) {
+    alert("Nama tidak boleh kosong!");
+    return;
+  }
 
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "request", nama: nama })
-    })
-    .then(() => {
-      alert("Permintaan akses berhasil dikirim ke Email Admin! Silakan tunggu konfirmasi persetujuan.");
-      infoText.innerText = "Menunggu persetujuan admin via email. Jika sudah disetujui, buka ulang halaman ini.";
+  if (infoText) {
+    infoText.innerText = "⏳ Mengirim permintaan ke Admin...";
+  }
+  
+  if (btn) {
+    btn.innerText = "Mengirim...";
+    btn.disabled = true;
+  }
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "request", name: nama })
+  })
+  .then(() => {
+    alert("Permintaan akses berhasil dikirim ke Email Admin!");
+    if (infoText) {
+      infoText.innerText = "Menunggu persetujuan admin via email.";
+    }
+    if (btn) {
       btn.innerText = "Cek Ulang Status";
       btn.disabled = false;
-      localStorage.setItem("logistikpro_user", nama);
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Gagal mengirim permintaan.");
+    }
+    localStorage.setItem("logistikpro_user", nama);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Gagal mengirim permintaan.");
+    if (btn) {
       btn.innerText = "Masuk / Minta Akses";
       btn.disabled = false;
-    });
-  }
+    }
+  });
+}
+
+
   </script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
