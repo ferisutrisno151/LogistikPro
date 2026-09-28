@@ -2091,7 +2091,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Ganti fungsi requestAccess() dengan kode yang sudah disempurnakan ini:
-
 function requestAccess() {
     const nameInput = document.getElementById('requesterName').value.trim();
     if (!nameInput) {
@@ -2120,27 +2119,32 @@ function requestAccess() {
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
+            // Ambil URL dasar bersih (mengabaikan parameter lama jika ada)
             let baseUrl = window.location.href.split('?')[0];
             if (!baseUrl.endsWith('/')) {
                 baseUrl += '/';
             }
 
-            // Pastikan link menyertakan parameter unik (misal: ?approve=token_unik_user)
-const approvalLink = `${window.location.origin}${window.location.pathname}?approve=${tokenUnikUser}`;
+            // Buat URL verifikasi unik untuk terima dan tolak
+            const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            // Teks pesan yang akan dikirim ke WhatsApp Admin
-const pesanWhatsApp = `LogistikPro - Monitoring System\n\n` +
-  `PERMINTAAN IZIN AKSES LOGISTIKPRO\n` +
-  `Nama: ${namaUser}\n` +
-  `Status: Menunggu Konfirmasi\n\n` +
-  `Silakan klik link di bawah ini untuk menyetujui:\n` +
-  `TERIMA AKSES:\n${approvalLink}`;
-            // PENTING: Gunakan encodeURIComponent agar format URL dan parameternya tidak rusak saat dibuka di WhatsApp
-const waUrl = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesanWhatsApp)}`;
+            // Susun teks pesan WhatsApp dengan format yang aman dibaca WhatsApp
+            const waMessage = `*PERMINTAAN IZIN AKSES LOGISTIKPRO*\n\n` +
+                              `Nama: ${nameInput}\n` +
+                              `Status: Menunggu Konfirmasi\n\n` +
+                              `Silakan klik salah satu link di bawah ini:\n\n` +
+                              `TERIMA AKSES:\n${approvalUrl}\n\n` +
+                              `TOLAK AKSES:\n${rejectionUrl}`;
 
-// Buka link WhatsApp
-window.open(waUrl, '_blank');
+            // PENTING: Menggunakan encodeURIComponent agar link tidak berubah menjadi link utama APK
+            const encodedMessage = encodeURIComponent(waMessage);
+            const waUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodedMessage}`;
+
+            // Buka WhatsApp Admin
+            window.open(waUrl, '_blank');
+
+            // Pantau status akses secara real-time
             listenToAccessStatus(deviceId);
         })
         .catch((error) => {
@@ -2148,6 +2152,7 @@ window.open(waUrl, '_blank');
             alert("Terjadi kesalahan koneksi database.");
         });
 }
+
 // 3. Cek status akses yang sudah tersimpan di database
 function checkExistingAccess(deviceId, savedName) {
     const db = window.fbFirestore.firestoreDb;
