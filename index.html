@@ -2090,7 +2090,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 2. Fungsi saat rekan klik tombol kirim WhatsApp
+// Ganti fungsi requestAccess() dengan kode yang sudah disempurnakan ini:
 function requestAccess() {
     const nameInput = document.getElementById('requesterName').value.trim();
     if (!nameInput) {
@@ -2098,7 +2098,6 @@ function requestAccess() {
         return;
     }
 
-    // Buat atau ambil ID unik perangkat ini
     let deviceId = localStorage.getItem('logistikpro_device_id');
     if (!deviceId) {
         deviceId = 'dev_' + Math.random().toString(36).substring(2, 11);
@@ -2108,31 +2107,32 @@ function requestAccess() {
 
     const accessData = {
         name: nameInput,
-        status: 'pending', // Status awal: Menunggu
+        status: 'pending',
         timestamp: Date.now()
     };
 
     const db = window.fbFirestore.firestoreDb;
     const { doc, setDoc } = window.fbFirestore;
 
-    // Simpan ke Firestore dengan status 'pending'
     setDoc(doc(db, "access_requests", deviceId), accessData)
         .then(() => {
-            // Ubah tampilan modal menjadi "Menunggu..." (Aplikasi tetap terkunci)
             document.getElementById('formState').classList.add('hidden');
             document.getElementById('waitingState').classList.remove('hidden');
 
-            // Buat link interaktif untuk Admin
-            const baseUrl = window.location.href.split('?')[0];
+            // Ambil URL bersih tanpa index.html yang berlebihan
+            let baseUrl = window.location.href.split('?')[0];
+            if (!baseUrl.endsWith('/')) {
+                baseUrl += '/';
+            }
+
             const approvalUrl = `${baseUrl}?approve=${deviceId}&status=approved`;
             const rejectionUrl = `${baseUrl}?reject=${deviceId}&status=rejected`;
             
-            const waMessage = `Halo Admin, saya *${nameInput}* meminta izin akses untuk masuk dan mengedit data di aplikasi LogistikPro.%0A%0ASilakan klik tombol di bawah:%0A%0A✅ *TERIMA AKSES:*%0A${approvalUrl}%0A%0A❌ *TOLAK AKSES:*%0A${rejectionUrl}`;
+            // Format pesan diperbarui agar link benar-benar bersih dan bisa diklik terpisah
+            const waMessage = `PERMINTAAN IZIN AKSES LOGISTIKPRO%0A%0ANama: *${nameInput}*%0AStatus: Menunggu Konfirmasi%0A%0ASilakan klik salah satu link di bawah ini:%0A%0A✅ TERIMA:%0A${approvalUrl}%0A%0A❌ TOLAK:%0A${rejectionUrl}`;
 
-            // Buka WhatsApp Admin
             window.open(`https://wa.me/${ADMIN_PHONE}?text=${waMessage}`, '_blank');
 
-            // Mulai mendengarkan perubahan status dari database secara real-time
             listenToAccessStatus(deviceId);
         })
         .catch((error) => {
