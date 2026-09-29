@@ -750,7 +750,7 @@
         </div>
     </div>
 </div>
-    <!-- MODAL OTORISASI AKSES MASUK (UNTUK REKAN KERJA) -->
+   <!-- MODAL OTORISASI AKSES MASUK -->
 <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
     <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 transform transition-all">
         <div class="text-center mb-6">
@@ -761,18 +761,35 @@
             <p class="text-sm text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses kepada Admin.</p>
         </div>
 
-        <!-- Form Input Nama -->
+        <!-- Form Input Nama (Untuk Rekan Kerja) -->
         <div id="formRequestSection">
             <div class="mb-4">
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">Nama Lengkap / Rekan Kerja</label>
                 <input type="text" id="requesterName" placeholder="Contoh: Budi (Tim Logistik)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 text-sm">
             </div>
-            <button onclick="requestAccess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 text-sm">
+            <button onclick="requestAccess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 text-sm mb-4">
                 <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Permintaan via WhatsApp
             </button>
+
+            <!-- TOMBOL KHUSUS LOGIN ADMIN DENGAN EMAIL -->
+            <div class="border-t pt-3 text-center">
+                <button onclick="showAdminLoginDirect()" class="text-xs text-blue-600 hover:underline font-semibold">
+                    <i class="fa-solid fa-user-shield mr-1"></i> Masuk sebagai Admin (ferisutrisno12345@gmail.com)
+                </button>
+            </div>
         </div>
 
-        <!-- Status Menunggu Persetujuan (Hidden Default) -->
+        <!-- Form Input Email Khusus Admin (Hidden Default) -->
+        <div id="adminDirectSection" class="hidden">
+            <div class="mb-4">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">Verifikasi Email Admin</label>
+                <input type="email" id="adminEmailInput" placeholder="ferisutrisno12345@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 text-sm">
+            </div>
+            <button onclick="verifyAdminEmail()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl text-sm mb-2">Konfirmasi Email Admin</button>
+            <button onclick="backToRegularForm()" class="w-full text-xs text-slate-500 hover:underline py-1">Kembali</button>
+        </div>
+
+        <!-- Status Menunggu Persetujuan -->
         <div id="waitingSection" class="text-center py-6 hidden">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-4"></div>
             <h4 class="text-base font-bold text-slate-700">Menunggu Konfirmasi Admin...</h4>
@@ -781,7 +798,6 @@
         </div>
     </div>
 </div>
-
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
         let db = {
@@ -1843,6 +1859,11 @@ window.addEventListener('firebase-ready', () => {
 });
 
 async function checkAccessStatus(db, docRefFn, getDocFn, onSnapshotFn) {
+    // Cek otomatis apakah perangkat ini sudah berstatus Admin
+if (localStorage.getItem("logistikpro_is_admin") === "true") {
+    // Langsung izinkan masuk, modal tidak akan muncul
+    document.getElementById("authModal").classList.add('hidden');
+}
     const docRef = docRefFn(db, "permissions", deviceId);
     
     // Real-time listener untuk memantau perubahan status dari admin
@@ -1903,7 +1924,26 @@ async function requestAccess() {
     const waUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
 }
+function showAdminLoginDirect() {
+    document.getElementById("formRequestSection").classList.add('hidden');
+    document.getElementById("adminDirectSection").classList.remove('hidden');
+}
 
+function backToRegularForm() {
+    document.getElementById("adminDirectSection").classList.add('hidden');
+    document.getElementById("formRequestSection").classList.remove('hidden');
+}
+
+function verifyAdminEmail() {
+    const inputEmail = document.getElementById("adminEmailInput").value.trim();
+    if (inputEmail === "ferisutrisno12345@gmail.com") {
+        // Set perangkat ini sebagai Admin permanen di browser
+        localStorage.setItem("logistikpro_is_admin", "true");
+        document.getElementById("authModal").classList.add('hidden');
+        alert("Berhasil masuk sebagai Admin!");
+    } else {
+        alert("Email Admin salah! Gunakan ferisutrisno12345@gmail.com");
+    }
 function cancelRequest() {
     document.getElementById("formRequestSection").classList.remove('hidden');
     document.getElementById("waitingSection").classList.add('hidden');
