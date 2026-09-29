@@ -750,6 +750,37 @@
         </div>
     </div>
 </div>
+    <!-- MODAL OTORISASI AKSES MASUK (UNTUK REKAN KERJA) -->
+<div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 transform transition-all">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">Otoritas Akses LogistikPro</h3>
+            <p class="text-sm text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses kepada Admin.</p>
+        </div>
+
+        <!-- Form Input Nama -->
+        <div id="formRequestSection">
+            <div class="mb-4">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">Nama Lengkap / Rekan Kerja</label>
+                <input type="text" id="requesterName" placeholder="Contoh: Budi (Tim Logistik)" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 text-sm">
+            </div>
+            <button onclick="requestAccess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 text-sm">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Permintaan via WhatsApp
+            </button>
+        </div>
+
+        <!-- Status Menunggu Persetujuan (Hidden Default) -->
+        <div id="waitingSection" class="text-center py-6 hidden">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-4"></div>
+            <h4 class="text-base font-bold text-slate-700">Menunggu Konfirmasi Admin...</h4>
+            <p class="text-xs text-slate-500 mt-2">Permintaan telah dikirim. Mohon tunggu hingga Admin menyetujui akses Anda.</p>
+            <button onclick="cancelRequest()" class="mt-5 text-xs text-red-500 hover:underline font-medium">Batalkan / Ganti Nama</button>
+        </div>
+    </div>
+</div>
 
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
@@ -1795,6 +1826,88 @@ async function saveStokKeluar(e) {
                 });
             }
         }
+        // Konfigurasi Nomor WhatsApp Admin (Ganti dengan nomor Anda, format internasional tanpa 0 di depan, contoh: 628123456789)
+const ADMIN_PHONE = "628123456789"; 
+
+// Generate ID unik untuk perangkat/sesi rekan kerja
+let deviceId = localStorage.getItem("logistikpro_device_id");
+if (!deviceId) {
+    deviceId = "dev_" + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem("logistikpro_device_id", deviceId);
+}
+
+// Cek status otorisasi saat aplikasi pertama kali dimuat
+window.addEventListener('firebase-ready', () => {
+    const { firestoreDb, doc, getDoc, onSnapshot } = window.fbFirestore;
+    checkAccessStatus(firestoreDb, doc, getDoc, onSnapshot);
+});
+
+async function checkAccessStatus(db, docRefFn, getDocFn, onSnapshotFn) {
+    const docRef = docRefFn(db, "permissions", deviceId);
+    
+    // Real-time listener untuk memantau perubahan status dari admin
+    onSnapshotFn(docRef, (docSnap) => {
+        const modal = document.getElementById("authModal");
+        const formSec = document.getElementById("formRequestSection");
+        const waitSec = document.getElementById("waitingSection");
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const now = new Date().getTime();
+            
+            // Cek apakah status 'approved' dan belum lewat 8 jam (8 * 3600 * 1000 ms)
+            if (data.status === 'approved' && (now - data.approvedAt < 8 * 3600 * 1000)) {
+                modal.classList.add('hidden'); // Sembunyikan modal, beri akses penuh
+            } else if (data.status === 'rejected') {
+                alert("Akses ditolak oleh Admin.");
+                document.body.innerHTML = "<div class='flex h-screen items-center justify-center text-center p-6'><h1 class='text-xl font-bold text-red-600'>Akses Ditolak oleh Admin. Silakan tutup aplikasi.</h1></div>";
+            } else {
+                // Masih pending atau expired > 8 jam
+                modal.classList.remove('hidden');
+                formSec.classList.remove('hidden');
+                waitSec.classList.add('hidden');
+            }
+        } else {
+            // Belum pernah request sama sekali, tampilkan form
+            modal.classList.remove('hidden');
+            formSec.classList.remove('hidden');
+            waitSec.classList.add('hidden');
+        }
+    });
+}
+
+async function requestAccess() {
+    const nameInput = document.getElementById("requesterName").value.trim();
+    if (!nameInput) {
+        alert("Silakan masukkan nama Anda terlebih dahulu!");
+        return;
+    }
+
+    const { firestoreDb, doc, setDoc } = window.fbFirestore;
+    const docRef = doc(firestoreDb, "permissions", deviceId);
+
+    // Simpan data request ke Firestore dengan status pending
+    await setDoc(docRef, {
+        name: nameInput,
+        deviceId: deviceId,
+        status: 'pending',
+        requestedAt: new Date().getTime()
+    }, { merge: true });
+
+    // Ubah tampilan modal menjadi "Menunggu"
+    document.getElementById("formRequestSection").classList.add('hidden');
+    document.getElementById("waitingSection").classList.remove('hidden');
+
+    // Buat pesan WhatsApp otomatis ke Admin
+    const message = `Halo Admin, rekan atas nama *${nameInput}* meminta izin akses masuk ke aplikasi LogistikPro.\n\nSilakan buka Panel Admin di aplikasi untuk menyetujui atau menolak.`;
+    const waUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+}
+
+function cancelRequest() {
+    document.getElementById("formRequestSection").classList.remove('hidden');
+    document.getElementById("waitingSection").classList.add('hidden');
+}
         // PIN Rahasia Admin (Bisa Anda ubah sesuai keinginan)
 const ADMIN_PIN = "151151"; 
 
