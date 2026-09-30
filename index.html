@@ -719,39 +719,35 @@
             </div>
         </div>
     </div>
-    <!-- ========================================================== -->
-    <!-- MODAL OTORITAS AKSES / LOGIN & PERSETUJUAN ADMIN          -->
-    <!-- ========================================================== -->
-    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-slate-800">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="text-xl font-bold">Otoritas Akses LogistikPro</h3>
-                <p class="text-xs text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses kepada Admin.</p>
-            </div>
-
-            <!-- Form Input Nama -->
-            <div id="authFormSection">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Nama Lengkap / Rekan Kerja</label>
-                    <input type="text" id="authUserName" placeholder="Contoh: Budi Santoso" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 text-sm">
-                </div>
-                <button onclick="requestAccess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-200 text-sm shadow-lg shadow-blue-500/35">
-                    Kirim Permintaan Akses
-                </button>
-            </div>
-
-            <!-- Status Menunggu Persetujuan -->
-            <div id="authWaitingSection" class="text-center hidden py-4">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent mb-3"></div>
-                <p class="text-sm font-semibold text-slate-700">Permintaan terkirim ke Admin.</p>
-                <p class="text-xs text-slate-500 mt-1">Mohon tunggu sebentar, layar akan otomatis terbuka jika disetujui.</p>
-                <button onclick="cancelRequest()" class="mt-4 text-xs text-red-500 hover:underline font-semibold">Batalkan / Ganti Nama</button>
-            </div>
+    <!-- MODAL OTORISASI / PERMINTAAN AKSES -->
+<div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full mx-4">
+        
+        <!-- Bagian Form Input Nama -->
+        <div id="authFormSection">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Akses Terbatas LogistikPro</h3>
+            <p class="text-sm text-gray-600 mb-4">Silakan masukkan nama Anda untuk mengajukan izin akses kepada Administrator.</p>
+            
+            <input type="text" id="userNameInput" placeholder="Masukkan Nama Lengkap" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <button id="submitAccessBtn" onclick="submitAccessRequest()" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition font-medium">
+                Kirim Permintaan Akses
+            </button>
         </div>
+
+        <!-- Bagian Menunggu Persetujuan Admin -->
+        <div id="authWaitingSection" class="hidden text-center py-4">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-3"></div>
+            <h4 class="text-lg font-semibold text-gray-800">Menunggu Persetujuan</h4>
+            <p class="text-sm text-gray-600 mt-1">Permintaan Anda telah dikirim ke Admin. Harap tunggu sebentar...</p>
+            
+            <button onclick="cancelRequest()" class="mt-4 text-sm text-red-600 hover:underline">
+                Batalkan / Ganti Nama
+            </button>
+        </div>
+
     </div>
+</div>
 
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
