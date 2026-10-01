@@ -2028,7 +2028,8 @@ function importExcelData(event) {
     reader.readAsArrayBuffer(file);
 }
        <!-- MODAL LOGIN / OTORITAS AKSES -->
-<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+```[cite: 5]
     <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl mx-4">
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 text-xl">
@@ -2087,15 +2088,17 @@ window.handleLogin = function(event) {
 // Cek status login saat halaman pertama kali dimuat
 document.addEventListener("DOMContentLoaded", () => {
     const isAuth = sessionStorage.getItem('isAuthorized');
+    const modal = document.getElementById('loginModal');
+    
     if (isAuth === 'true') {
-        document.getElementById('loginModal').classList.add('hidden');
+        // Jika sudah login, pastikan modal disembunyikan
+        modal.classList.add('hidden');
+    } else {
+        // Jika belum login, tampilkan modal untuk meminta password
+        modal.classList.remove('hidden');
     }
 });
-        if (sessionStorage.getItem('isAuthorized') !== 'true') {
-    document.getElementById('loginModal').classList.remove('hidden');
-    alert("Silakan masukkan password otoritas terlebih dahulu!");
-    return;
-}
+```[cite: 5]
     </script>
 </body>
 </html>
