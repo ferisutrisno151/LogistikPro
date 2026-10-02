@@ -2078,7 +2078,7 @@ function importExcelData(event) {
 
 <script>
 // URL Web App Google Apps Script Anda
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-wKHiOWqHbXiT4m49WrfCdi0LazwFXLTNL2t3eEjfjNvWOxF1KXALx43nXUbxi2d4/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrjrSTBdMqmqWr-8KZJ9Kf2t023XgObpm4uI3f6CCyAnoSmBCUZVhNtflHRTD4qPMfBw/exec";
 
 // Fungsi yang dipanggil saat tombol "Kirim Permintaan Izin" diklik
 function requestAccess() {
@@ -2095,17 +2095,20 @@ function requestAccess() {
     document.getElementById('waitingSection').classList.remove('hidden');
     document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
 
+    // Mengirim data tanpa no-cors agar payload terbaca oleh Apps Script
     fetch(SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // Menggunakan text/plain menghindari preflight CORS error di Apps Script
         body: JSON.stringify({ name: userName, sessionId: sessionId })
-    }).then(() => {
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.label("Terkirim:", data);
         mulaiCekStatus(sessionId);
-    }).catch(err => {
-        alert("Gagal mengirim permintaan. Periksa koneksi internet Anda.");
-        document.getElementById('formSection').classList.remove('hidden');
-        document.getElementById('waitingSection').classList.add('hidden');
+    })
+    .catch(err => {
+        console.log("Memulai pengecekan status...");
+        mulaiCekStatus(sessionId);
     });
 }
 
