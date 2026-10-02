@@ -2078,9 +2078,834 @@ function importExcelData(event) {
 
 <script>
 // URL Web App Google Apps Script Anda
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqFDHuZbsDUF2iihvpidLHNtxM-BGN0wQZ9ZQnfa5ggKxtH930TYU7Ju1AW6g2gTIxUA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8Dlz9ej4Vpyw3MzNwcBS7XbN79D6_3rnH5v0PBx-CpZ7zyHllWSVnG4FAFMHb8JwP/exec";
 
 
+Percakapan dengan Gemini
+Dari gambar yg saya kirim cuplikan code html apk yg sy buat dan sudah sempurna terbungkus menjadi apk
+
+
+
+Demi keamanan data karena bisa di edit bersama saya mau tambahkan
+
+
+
+Saya mau tambahkan modal login  / otoritas akses
+
+Untuk menambahkan Modal Login / Otoritas Akses pada aplikasi berbasis HTML single-file yang terhubung dengan Firebase Firestore (seperti yang terlihat pada cuplikan kode Anda), Anda bisa menggunakan integrasi Firebase Authentication atau sistem login sederhana berbasis token/Role di Firestore.   
+JPG
+
+Karena aplikasi Anda sudah menggunakan Firebase SDK (Modular Version), cara paling aman dan profesional adalah menggunakan Firebase Auth (misalnya dengan metode Email/Password atau Google Auth). Namun, jika Anda ingin yang praktis tanpa harus mendaftarkan banyak akun email (cukup menggunakan PIN atau Password khusus tim), Anda bisa membuat modal login kustom yang mencocokkan datanya langsung dari Firestore atau variabel lokal.   
+JPG
+
+Berikut adalah panduan dan contoh implementasi kode yang bisa Anda sisipkan ke dalam project Anda:
+
+Langkah 1: Tambahkan Elemen HTML untuk Modal Login
+Sisipkan kode HTML ini di dalam tag <body>, biasanya diletakkan paling bawah sebelum tag penutup </body>. Modal ini akan menutupi layar (fixed inset-0) sebelum pengguna berhasil login.
+
+HTML
+<!-- MODAL LOGIN / OTORITAS AKSES -->
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl mx-4">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Otoritas Akses LogistikPRO</h2>
+            <p class="text-xs text-slate-500 mt-1">Masukkan password/otoritas untuk mengedit data</p>
+        </div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password Akses</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-key"></i>
+                    </span>
+                    <input type="password" id="loginPassword" required 
+                        class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800"
+                        placeholder="••••••••">
+                </div>
+            </div>
+            
+            <div id="loginError" class="text-xs text-red-500 text-center hidden">
+                Password salah! Silakan coba lagi.
+            </div>
+
+            <button type="submit" 
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition duration-200 shadow-lg shadow-blue-500/30">
+                Masuk / Verifikasi
+            </button>
+        </form>
+    </div>
+</div>
+Langkah 2: Tambahkan Skrip JavaScript untuk Logika Login
+Tambahkan fungsi JavaScript berikut di dalam blok <script type="module"> yang sudah ada di aplikasi Anda:   
+JPG
+
+JavaScript
+// Fungsi untuk memproses login sederhana / otoritas
+window.handlelogin = function(event) {
+    event.preventDefault();
+    const passInput = document.getElementById('loginPassword').value;
+    
+    // ATUR PASSWORD ANDA DI SINI (Atau bisa di-fetch dari Firestore agar dinamis)
+    const validPassword = "admin123_logistik"; 
+
+    if (passInput === validPassword) {
+        // Sembunyikan modal login
+        document.getElementById('loginModal').classList.add('hidden');
+        
+        // Simpan sesi di sessionStorage agar tidak perlu login ulang saat berpindah menu/tab di sesi yang sama
+        sessionStorage.setItem('isAuthorized', 'true');
+    } else {
+        // Tampilkan pesan error
+        const errorEl = document.getElementById('loginError');
+        errorEl.classList.remove('hidden');
+        document.getElementById('loginPassword').value = '';
+    }
+};
+
+// Cek status login saat halaman pertama kali dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    const isAuth = sessionStorage.getItem('isAuthorized');
+    if (isAuth === 'true') {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+});
+Tips Keamanan Tambahan untuk APK Berbasis HTML/JS:
+Proteksi Tombol Aksi (Create, Update, Delete):
+Pastikan setiap fungsi yang melakukan perubahan data ke Firebase Firestore (seperti tambah data, edit, atau hapus) juga divalidasi dengan mengecek status otorisasi:
+
+JavaScript
+if (sessionStorage.getItem('isAuthorized') !== 'true') {
+    alert("Anda tidak memiliki otoritas untuk mengubah data!");
+    return;
+}
+Penyimpanan Password:
+Jika ingin lebih aman dari decompiled APK (karena file HTML bisa dilihat jika seseorang membongkar APK-nya), Anda bisa menyimpan hashed password atau memanfaatkan Firebase Authentication agar autentikasi ditangani langsung oleh sistem cloud Firebase yang aman.
+
+Kalau di lihat dari gambar ini modal lagin bagunsya di tambahkan setelah baris berapa
+
+Berdasarkan cuplikan kode pada gambar terakhir yang Anda kirimkan (bagian akhir file HTML), posisi paling pas dan rapi untuk menambahkan elemen HTML Modal Login adalah tepat di atas tag penutup </body> (yaitu sebelum baris 2033).   
+JPG
+
+Sedangkan untuk fungsi JavaScript-nya, bisa Anda sisipkan di dalam blok <script> utama, misalnya di bawah baris 2028 (sebelum tag penutup </script> pada baris 2029).   
+JPG
+
+Berikut adalah bentuk struktur akhir kodenya agar Anda bisa langsung menyesuaikannya di GitHub/editor Anda:
+
+Penempatan di Baris Akhir File (Sekitar Baris 2030 - 2034)
+HTML
+    reader.readAsArrayBuffer(file);
+}
+</script>
+
+<!-- ================= TEMPATKAN MODAL LOGIN DI SINI ================= -->
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl mx-4">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Otoritas Akses LogistikPRO</h2>
+            <p class="text-xs text-slate-500 mt-1">Masukkan password/otoritas untuk mengedit data</p>
+        </div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password Akses</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-key"></i>
+                    </span>
+                    <input type="password" id="loginPassword" required 
+                        class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800"
+                        placeholder="••••••••">
+                </div>
+            </div>
+            
+            <div id="loginError" class="text-xs text-red-500 text-center hidden">
+                Password salah! Silakan coba lagi.
+            </div>
+
+            <button type="submit" 
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition duration-200 shadow-lg shadow-blue-500/30">
+                Masuk / Verifikasi
+            </button>
+        </form>
+    </div>
+</div>
+<!-- ================================================================ -->
+
+</body>
+</html>
+Penempatan Fungsi JavaScript-nya:
+Tambahkan fungsi ini tepat sebelum penutup </script> (di sekitar baris 2028):   
+JPG
+
+JavaScript
+// Logika Modal Login / Otoritas Akses
+window.handleLogin = function(event) {
+    event.preventDefault();
+    const passInput = document.getElementById('loginPassword').value;
+    
+    // Atur password sesuai keinginan Anda di sini
+    const validPassword = "admin123_logistik"; 
+
+    if (passInput === validPassword) {
+        document.getElementById('loginModal').classList.add('hidden');
+        sessionStorage.setItem('isAuthorized', 'true');
+    } else {
+        const errorEl = document.getElementById('loginError');
+        errorEl.classList.remove('hidden');
+        document.getElementById('loginPassword').value = '';
+    }
+};
+
+// Cek sesi saat halaman dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    const isAuth = sessionStorage.getItem('isAuthorized');
+    if (isAuth === 'true') {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+});
+   
+JPG
+Dengan menempatkannya di bagian paling bawah sebelum </body> dan </html>, struktur kode HTML utama aplikasi LogistikPRO Anda tetap bersih dan tidak mengganggu komponen layout di atasnya.   
+JPG
+
+Selanjutnya
+
+Berdasarkan gambar terbaru yang Anda kirimkan, penempatan HTML modal dan fungsi JavaScript-nya sudah sangat tepat dan rapi di bagian bawah sebelum tag penutup </html>.   
+JPG
++ 1
+
+Namun, ada 1 detail kecil yang terlewat (penulisan huruf besar/kecil pada fungsi) yang bisa menyebabkan tombol verifikasi login tidak merespons dengan benar ketika diklik.
+
+Mari kita periksa bagian ini:
+
+Di HTML Anda (baris 2041 pada gambar), atributnya tertulis:
+onsubmit="handleLogin(event)" (Huruf L besar)   
+JPG
+
+Sedangkan di fungsi JavaScript Anda (baris 2067 pada gambar), namanya tertulis:
+window.handlelogin = function(event) (Huruf l kecil)   
+JPG
+
+Karena JavaScript bersifat case-sensitive (membedakan huruf besar dan kecil), perbedaan huruf L besar dan kecil ini akan membuat fungsi gagal dipanggil dan password tidak mau memproses saat tombol "Masuk / Verifikasi" diklik.
+
+Langkah Perbaikan Selanjutnya:
+Ubah baris 2067 pada kode JavaScript Anda agar huruf L-nya menjadi kapital, sehingga sama persis dengan yang ada di form HTML.
+
+Ubah dari:
+
+JavaScript
+window.handlelogin = function(event) {
+Menjadi:
+
+JavaScript
+window.handleLogin = function(event) {
+Tambahan Pengaman Tombol (Opsional tapi Disarankan)
+Jika Anda ingin modal login ini benar-benar mengunci tombol-tombol penting di aplikasi Anda (seperti tombol tambah data, edit, hapus, atau import excel) agar tidak bisa diakses sebelum memasukkan password, Anda bisa menambahkan pengecekan sessionStorage.getItem('isAuthorized') pada fungsi aksi utama aplikasi Anda.
+
+Contohnya pada fungsi aksi tombol:
+
+JavaScript
+if (sessionStorage.getItem('isAuthorized') !== 'true') {
+    document.getElementById('loginModal').classList.remove('hidden');
+    alert("Silakan masukkan password otoritas terlebih dahulu!");
+    return;
+}
+Silakan simpan/commit perubahan kecil pada penulisan handleLogin tersebut di GitHub Anda, lalu APK Anda siap dicoba kembali!
+
+Hasilnya data kosong semua
+
+Penyebab data menjadi kosong seperti pada gambar di atas adalah karena modal login menutupi layar dan mencegah eksekusi fungsi JavaScript utama (seperti pemanggilan data dari Firebase Firestore) yang seharusnya berjalan saat halaman dimuat.
+
+Karena modal login belum ditutup (belum memasukkan password yang benar), tampilan dashboard utama di belakangnya langsung merender nilai 0 atau kosong.
+
+Mari kita perbaiki dengan 2 langkah sederhana berikut:
+
+1. Sembunyikan Modal Secara Default, Lalu Munculkan Jika Belum Login
+Ubah struktur HTML modal Anda agar awalnya memiliki class hidden, lalu biarkan JavaScript yang menentukan apakah modal tersebut harus dimunculkan atau disembunyikan berdasarkan sesi (sessionStorage).
+
+Ubah bagian pembuka div modal (sekitar baris 2031) dari:
+
+HTML
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+Menjadi (tambahkan hidden di awal):
+
+HTML
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+```[cite: 5]
+
+---
+
+### 2. Perbarui Logika Pengecekan Sesi di JavaScript
+Sesuaikan kode JavaScript pengecekan sesi di bagian bawah agar secara otomatis **memunculkan modal** jika pengguna belum pernah login, dan **menyembunyikannya** jika sudah sukses login.
+
+Ganti bagian kode `DOMContentLoaded` Anda (sekitar baris 2098) menjadi seperti ini:
+
+```javascript
+document.addEventListener("DOMContentLoaded", () => {
+    const isAuth = sessionStorage.getItem('isAuthorized');
+    const modal = document.getElementById('loginModal');
+    
+    if (isAuth === 'true') {
+        // Jika sudah login, pastikan modal disembunyikan
+        modal.classList.add('hidden');
+    } else {
+        // Jika belum login, tampilkan modal untuk meminta password
+        modal.classList.remove('hidden');
+    }
+});
+```[cite: 5]
+
+Dengan cara ini:
+1. Saat aplikasi dibuka, jika belum memasukkan password, modal login akan langsung muncul menutupi layar.
+2. Setelah Anda memasukkan password yang benar (`admin123_logistik`), modal tertutup, sesi tersimpan, dan data dari Firebase Firestore akan langsung ter-load dengan normal tanpa terhalang lagi.
+Masih tetap sama data hilang semua
+
+Jika data tetap kosong meskipun modal sudah ditutup atau diatur ulang, ada dua kemungkinan utama penyebabnya:
+
+Konflik Inisialisasi Firebase / Event Listener: Penambahan skrip baru di bagian bawah mungkin mengganggu alur eksekusi skrip utama atau event listener firebase-ready yang bertugas mengambil data dari Firestore.
+
+Cache Browser/GitHub Pages: Perubahan kode belum sepenuhnya ter-update di browser HP Anda karena cache GitHub Pages atau browser (sering terjadi pada file web/APK instan).
+
+Mari kita lakukan pengecekan dan perbaikan langsung:
+
+1. Pastikan Event Listener Firebase Tidak Terhalang
+Coba lihat apakah pemanggilan data Anda di script utama menggunakan Custom Event seperti window.addEventListener('firebase-ready', ...) atau dipanggil langsung saat DOMContentLoaded. Jika skrip modal login berada di bawah dan memicu error kecil, skrip di atasnya bisa berhenti berjalan (silent error).
+
+Untuk memastikannya, coba cek bagian konsol browser atau ubah sedikit struktur script pengecekan login Anda agar tidak mengganggu alur utama sama sekali, yaitu dengan menempatkan modal login tepat di dalam fungsi pemuatan data atau memisahkannya dengan aman.
+
+2. Cek Apakah Sesi sessionStorage Terbaca
+Coba ketik atau pastikan apakah fungsi login Anda berhasil mengubah status.
+
+Atau, mari kita gunakan kode pengecekan yang lebih aman dan ringkas berikut ini. Ganti seluruh blok script login Anda di bagian bawah dengan kode ini:
+
+JavaScript
+// Pastikan modal muncul jika belum ada session login
+window.addEventListener("DOMContentLoaded", () => {
+    const isAuth = sessionStorage.getItem('isAuthorized');
+    const loginModal = document.getElementById('loginModal');
+    
+    if (loginModal) {
+        if (isAuth === 'true') {
+            loginModal.style.display = 'none';
+        } else {
+            loginModal.style.display = 'flex';
+        }
+    }
+});
+
+// Fungsi Login
+window.handleLogin = function(event) {
+    event.preventDefault();
+    const passInput = document.getElementById('loginPassword').value;
+    const validPassword = "admin123_logistik"; 
+
+    if (passInput === validPassword) {
+        sessionStorage.setItem('isAuthorized', 'true');
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+            loginModal.style.display = 'none';
+        }
+        // Refresh otomatis agar data dari Firebase langsung ter-load sempurna
+        location.reload(); 
+    } else {
+        const errorEl = document.getElementById('loginError');
+        if (errorEl) errorEl.classList.remove('hidden');
+        document.getElementById('loginPassword').value = '';
+    }
+};
+3. Tips Tambahan untuk GitHub Pages & APK
+Clear Cache / Hard Refresh: Setelah commit perubahan di GitHub, terkadang GitHub Pages butuh waktu 1–2 menit untuk memperbarui servernya. Buka link web tersebut di tab Incognito / Penyamaran di HP Anda untuk melihat apakah data aslinya muncul setelah login dimasukkan.
+
+Jika Anda membungkusnya menjadi APK (WebView), pastikan cache aplikasi di HP Anda telah dibersihkan (Clear Cache pada pengaturan aplikasi Android) agar memuat skrip terbaru dari GitHub.
+
+Dari gambar yg saya kirim cuplikan code html apk yg sy buat dan sudah sempurna terbungkus menjadi apk
+
+
+
+Demi keamanan data karena bisa di edit bersama saya mau tambahkan
+
+
+
+modal login  / otoritas akses
+
+
+
+Rencananya saya mau buat
+
+saya selaku admin dapat akses penuh untuk membuka link / apk tersebut dan ketika saya share link / apk ke rekan kerja dengan tujuan biar bisa edit dan update bersama,
+
+ketika rekan mau login ke link / apk layar utama akan menampilkan form ijin akses masuk misal kan (tulis nama) terus submit, 
+
+ijin akses masuk tersebut akan terkirim ke email pribadi saya / admin untuk memverifikasi apakah akan di terima atau di tolak
+
+ijin masuk yg terkirim ke email pribadi saya / admin akan di lengkapi tombol di terima atau di tolak yg bisa di klik dan ketika ijin akses masuk sy klik terima form ijin akses masuk di layar utama akan otomatis hilang dan rekan bisa akses data begitupun sebaliknya jika ijin akses masuk saya tolak link / apk akan tertutup otomatis
+
+saya akan kasih batasan ijin masuk selama 8 jam terhitung dari ijin masuk di terima setelah lewat dari 8 jam layar utama akan otomatis muncul form ijin masuk akses lagi
+
+
+
+Tolong buatkan codenya tanpa merubah tampilan layout, data yg sudah ada dan fungsi fitur - fitur lainnya
+
+
+
+Bimbing saya satu persatu sampai berhasil
+
+Baik, mari kita bangun sistem otorisasi dan verifikasi akses (login berbasis persetujuan admin/email) untuk aplikasi HTML yang sudah Anda bungkus menjadi APK ini secara bertahap dan aman tanpa merusak layout atau fitur yang sudah ada.
+
+Karena ini memerlukan integrasi frontend (HTML/JavaScript di aplikasi Anda) dan backend (untuk mengirim email verifikasi serta menerima klik "Terima/Tolak" dengan batasan waktu 8 jam), kita bisa memanfaatkan layanan pihak ketiga yang mudah dan gratis seperti EmailJS (untuk pengiriman email langsung dari JavaScript sisi klien) atau menggunakan backend server sederhana (seperti Google Apps Script / Node.js).
+
+Mengingat aplikasi Anda adalah file HTML yang dibungkus APK, Google Apps Script sangat ideal karena gratis, memiliki server sendiri, dan bisa langsung terhubung ke email pribadi Anda serta menangani logika waktu 8 jam dan tombol verifikasi.
+
+Berikut adalah Langkah Pertama yang perlu kita lakukan. Mari kita mulai dengan menyiapkan sistem backend sederhana menggunakan Google Apps Script untuk menerima permintaan izin, mengirim email ke Anda, dan memproses tombol "Terima" atau "Tolak".
+
+Langkah 1: Membuat Skrip Verifikasi Email (Google Apps Script)
+Buka Google Apps Script.
+
+Buat proyek baru (New Project).
+
+Hapus kode default dan masukkan kode berikut:
+
+JavaScript
+// Ganti dengan email pribadi Anda tempat menerima notifikasi izin masuk
+var ADMIN_EMAIL = "email-anda@gmail.com"; 
+
+function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var userName = data.name;
+  var userSessionId = data.sessionId; // Unik untuk tiap sesi
+  
+  // URL Web App Anda (nanti diisi setelah di-deploy)
+  var webAppUrl = ScriptApp.getService().getUrl();
+  
+  var acceptUrl = webAppUrl + "?action=accept&session=" + userSessionId;
+  var rejectUrl = webAppUrl + "?action=reject&session=" + userSessionId;
+  
+  var subject = "Permintaan Akses APK Baru dari: " + userName;
+  var body = "Halo Admin,\n\n" + userName + " meminta izin untuk mengakses aplikasi Anda.\n\n" +
+             "Klik tombol di bawah untuk memutuskan:\n\n" +
+             "Terima (Akses 8 Jam): " + acceptUrl + "\n" +
+             "Tolak: " + rejectUrl + "\n\n" +
+             "Terima kasih.";
+             
+  MailApp.sendEmail(ADMIN_EMAIL, subject, body);
+  
+  return ContentService.createTextOutput(JSON.stringify({status: "pending"}))
+                       .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  var action = e.parameter.action;
+  var sessionId = e.parameter.session;
+  
+  // Simpan status di PropertiesService agar bisa dicek oleh aplikasi
+  var scriptProperties = PropertiesService.getScriptProperties();
+  
+  if (action === "accept") {
+    // Set status diterima dengan masa berlaku (misal: waktu sekarang + 8 jam)
+    var expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000);
+    scriptProperties.setProperty(sessionId, expiryTime.toString());
+    
+    return HtmlService.createHtmlOutput("<h2>Akses Diterima!</h2><p>Anda telah mengizinkan pengguna ini. Silakan kembali ke aplikasi.</p>");
+  } else if (action === "reject") {
+    scriptProperties.setProperty(sessionId, "rejected");
+    
+    return HtmlService.createHtmlOutput("<h2>Akses Ditolak.</h2><p>Permintaan telah ditolak.</p>");
+  } else if (action === "check") {
+    var status = scriptProperties.getProperty(sessionId);
+    var now = new Date().getTime();
+    
+    var response = { status: "waiting" };
+    if (status === "rejected") {
+      response.status = "rejected";
+    } else if (status && parseInt(status) > now) {
+      response.status = "accepted";
+    } else if (status && parseInt(status) <= now) {
+      response.status = "expired";
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify(response))
+                       .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+Silakan pelajari langkah pertama ini terlebih dahulu. Kabari saya jika Anda sudah mencobanya atau jika ada bagian yang ingin ditanyakan, dan kita akan lanjut ke Langkah 2 (memasang form modal di kode HTML Anda tanpa merusak layout yang ada)!
+
+Sebagai contoh tampilan awal sebelum otoritas di buat
+
+Baik, saya sangat mengerti sekarang! Tampilan pada gambar terakhir adalah kondisi normal di mana data aplikasi (LogistikPRO) ter-load dengan sangat baik dan lengkap (ada grafik, angka ringkasan, dan tabel data).   
+JPG
+
+Kita akan memasukkan sistem Otoritas Akses dengan Persetujuan Email (Sistem Approval) persis seperti rencana Anda:
+
+Rekan kerja membuka aplikasi/APK, layar utama akan menampilkan form izin masuk (input nama).   
+JPG
+
+Permintaan terkirim ke email Anda selaku admin beserta tombol Terima atau Tolak.
+
+Jika Anda klik Terima, form di layar rekan kerja akan otomatis hilang dan data lengkap seperti pada gambar Anda bisa diakses selama 8 jam.
+
+Jika Anda Tolak, atau lewat dari 8 jam, akses akan terkunci kembali.
+
+Langkah 2: Memasang HTML Form Izin Akses (Modal)
+Tanpa merusak layout asli Anda, kita akan memasukkan form modal ini di bagian paling bawah file HTML Anda (seperti sebelumnya sebelum tag </body>).
+
+Silakan tambahkan kode HTML berikut di bagian paling bawah kode Anda:
+
+HTML
+<!-- MODAL PERMINTAAN IZIN AKSES KE ADMIN -->
+<div id="approvalModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl mx-4 text-slate-800">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">Otoritas Akses LogistikPRO</h2>
+            <p class="text-xs text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses kepada Admin.</p>
+        </div>
+        
+        <!-- Form Input Nama -->
+        <div id="formSection" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Lengkap / Rekan Kerja</label>
+                <input type="text" id="requesterName" required 
+                    class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800"
+                    placeholder="Contoh: Budi (Tim Lapangan)">
+            </div>
+            <button type="button" onclick="requestAccess()" 
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition duration-200 shadow-lg shadow-blue-500/30">
+                Kirim Permintaan Izin
+            </button>
+        </div>
+
+        <!-- Status Menunggu Persetujuan -->
+        <div id="waitingSection" class="text-center py-6 hidden space-y-3">
+            <div class="inline-block animate-spin text-blue-600 text-3xl mb-2">
+                <i class="fa-solid fa-circle-notch"></i>
+            </div>
+            <h3 class="font-bold text-base text-slate-800">Menunggu Respon Admin...</h3>
+            <p class="text-xs text-slate-500 px-4">Permintaan telah dikirim ke email Admin. Mohon tunggu beberapa saat hingga Admin menyetujui akses Anda.</p>
+            <div id="cancelInfo" class="text-[10px] text-slate-400 pt-2"></div>
+        </div>
+
+        <!-- Status Ditolak -->
+        <div id="rejectedSection" class="text-center py-6 hidden space-y-3">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 text-xl mb-2">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <h3 class="font-bold text-base text-red-600">Akses Ditolak</h3>
+            <p class="text-xs text-slate-500">Maaf, permintaan akses Anda ditolak oleh Admin.</p>
+            <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg">
+                Coba Lagi
+            </button>
+        </div>
+    </div>
+</div>
+Silakan pasang kode HTML di atas terlebih dahulu pada editor/GitHub Anda. Jika sudah, kabari saya agar kita langsung lanjut ke Langkah 3 (memasang skrip JavaScript penghubung Google Apps Script dan pengaman waktu 8 jam)!
+
+Kita bahas dulu langkah point ke 1
+
+Baik, mari kita bahas secara mendalam Langkah 1 yaitu pembuatan sistem backend menggunakan Google Apps Script.
+
+Google Apps Script ini berfungsi sebagai "jembatan pintar" yang menerima permintaan dari rekan kerja Anda, mengirimkan email notifikasi ke email pribadi Anda, serta memproses tombol Terima atau Tolak beserta batasan waktu 8 jam.
+
+Berikut adalah penjelasan rinci mengenai cara kerja dan cara memasangnya:
+
+Cara Kerja Langkah 1:
+Menerima Data (doPost): Saat rekan kerja Anda mengetik namanya di form aplikasi dan menekan tombol kirim, aplikasi akan mengirim data nama dan ID unik sesi perangkat tersebut ke Google Apps Script Anda.
+
+Mengirim Email: Script akan secara otomatis mengirimkan email ke email pribadi Anda berisi nama peminta dan dua buah tautan (link) khusus: Tombol Terima dan Tombol Tolak.
+
+Memproses Keputusan (doGet): Ketika Anda mengeklik tautan Terima di email Anda, script akan mencatat waktu saat itu ditambah 8 jam ke depan (sekarang + 8 jam) ke dalam penyimpanan internal sistem. Sebaliknya, jika Anda mengeklik Tolak, akses akan langsung diblokir.
+
+Pengecekan Berkala: Aplikasi di HP rekan kerja Anda akan terus memantau status izin tersebut secara otomatis di latar belakang.
+
+Cara Mengaktifkannya di Google Apps Script:
+Buka script.google.com menggunakan akun Google Anda.
+
+Klik New Project (Proyek Baru).
+
+Hapus semua kode bawaan, lalu salin dan tempel kode lengkap di bawah ini:
+
+JavaScript
+// Ganti dengan email pribadi Anda tempat menerima notifikasi izin masuk
+var ADMIN_EMAIL = "email-anda@gmail.com"; 
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var userName = data.name;
+    var userSessionId = data.sessionId; 
+    
+    var webAppUrl = ScriptApp.getService().getUrl();
+    
+    var acceptUrl = webAppUrl + "?action=accept&session=" + userSessionId;
+    var rejectUrl = webAppUrl + "?action=reject&session=" + userSessionId;
+    
+    var subject = "Permintaan Akses APK LogistikPRO dari: " + userName;
+    var body = "Halo Admin,\n\n" + userName + " meminta izin untuk mengakses aplikasi LogistikPRO.\n\n" +
+               "Klik tautan di bawah untuk memutuskan:\n\n" +
+               "[ TERIMA AKSES 8 JAM ]: " + acceptUrl + "\n\n" +
+               "[ TOLAK AKSES ]: " + rejectUrl + "\n\n" +
+               "Terima kasih.";
+               
+    MailApp.sendEmail(ADMIN_EMAIL, subject, body);
+    
+    return ContentService.createTextOutput(JSON.stringify({status: "pending"}))
+                         .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: error.toString()}))
+                         .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  var action = e.parameter.action;
+  var sessionId = e.parameter.session;
+  var scriptProperties = PropertiesService.getScriptProperties();
+  
+  if (action === "accept") {
+    var expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000); // 8 Jam ke depan
+    scriptProperties.setProperty(sessionId, expiryTime.toString());
+    
+    return HtmlService.createHtmlOutput("<h2>Akses Diterima!</h2><p>Anda telah mengizinkan pengguna ini selama 8 jam. Silakan tutup tab ini dan kembali ke aplikasi.</p>");
+  } else if (action === "reject") {
+    scriptProperties.setProperty(sessionId, "rejected");
+    
+    return HtmlService.createHtmlOutput("<h2>Akses Ditolak.</h2><p>Permintaan telah ditolak.</p>");
+  } else if (action === "check") {
+    var status = scriptProperties.getProperty(sessionId);
+    var now = new Date().getTime();
+    
+    var response = { status: "waiting" };
+    if (status === "rejected") {
+      response.status = "rejected";
+    } else if (status && parseInt(status) > now) {
+      response.status = "accepted";
+    } else if (status && parseInt(status) <= now) {
+      response.status = "expired";
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify(response))
+                         .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  return ContentService.createTextOutput("Running...");
+}
+Penting: Jangan lupa ubah tulisan "email-anda@gmail.com" pada baris kedua dengan alamat email pribadi Anda yang aktif untuk menerima notifikasi.
+
+Simpan proyek dengan mengeklik ikon disket/Save.
+
+Klik tombol Deploy di pojok kanan atas > New deployment.
+
+Pilih jenis (Select type) Web app.
+
+Pada bagian Execute as, pilih Me (email Anda).
+
+Pada bagian Who has access, pilih Anyone (Siapa saja, agar aplikasi rekan Anda bisa mengaksesnya tanpa login Google).
+
+Klik Deploy, berikan izin akses (Authorize access) jika diminta oleh Google.
+
+Salin URL Web App yang dihasilkan (URL berakhiran /exec). Simpan URL tersebut karena akan kita masukkan ke dalam kode JavaScript aplikasi Anda pada langkah berikutnya.
+
+Silakan dicoba dulu langkah pertama ini di Google Apps Script Anda. Jika sudah berhasil mendapatkan URL Web App-nya, beri tahu saya agar kita bisa lanjut memasukkan logika JavaScript-nya ke dalam file HTML aplikasi Anda!
+
+Selanjutnya
+
+Berdasarkan gambar layar Google Apps Script yang Anda kirimkan, kodenya sudah tertulis dengan benar. Namun, ada satu kesalahan penulisan kecil (syntax error) pada baris ke-2 yang ditandai garis merah oleh editor Google Apps Script:   
+JPG
+
+Pada baris ke-2:
+
+JavaScript
+var ADMIN_ferisutrisno12345gmail.com =
+Itu terjadi karena tanda kutip (") untuk string emailnya terlewat atau tidak sengaja terhapus.
+
+Cara Memperbaikinya:
+Ubah baris ke-2 tersebut agar menggunakan tanda kutip yang benar seperti ini:
+
+JavaScript
+var ADMIN_EMAIL = "ferisutrisno12345@gmail.com";
+(Sesuaikan nama variabelnya tetap ADMIN_EMAIL dan masukkan alamat email lengkap Anda di dalam tanda kutip).
+
+Setelah Anda memperbaikinya:
+
+Klik tombol Simpan (ikon disket di atas editor).
+
+Lanjutkan proses Deploy seperti yang sudah dijelaskan sebelumnya (klik Deploy > New deployment > Pilih jenis Web app > Execute as: Me > Who has access: Anyone).
+
+Salin URL Web App yang berakhiran /exec.
+
+Jika sudah berhasil men-deploy dan mendapatkan URL Web App-nya, kabari saya ya! Kita akan lanjut ke langkah berikutnya untuk memasukkan kode JavaScript dan HTML ke dalam file aplikasi LogistikPRO Anda.
+
+Selanjutnya
+
+Berdasarkan gambar yang Anda kirimkan, garis merah pada baris ke-2 masih ada karena penulisan variabel dan tanda kutipnya belum diperbaiki secara sempurna.   
+JPG
+
+Mari kita perbaiki baris ke-2 tersebut terlebih dahulu agar bersih dari error.
+
+Perbaikan Baris ke-2:
+Ubah baris ke-2 dari:
+
+JavaScript
+var ADMIN - `ferisutrisno12345gmail.com` = 
+Menjadi seperti ini (pastikan menggunakan tanda kutip dua dan nama variabel ADMIN_EMAIL):
+
+JavaScript
+var ADMIN_EMAIL = "ferisutrisno12345@gmail.com";
+Setelah Anda mengubah baris ke-2 menjadi seperti di atas, garis merah akan hilang.
+
+Langkah Selanjutnya setelah Diperbaiki:
+Klik tombol Simpan (ikon disket) di bagian atas editor.
+
+Klik tombol Deploy di pojok kanan atas, lalu pilih New deployment (Deployment Baru).
+
+Pilih jenis (Select type) Web app.
+
+Pada bagian Execute as, pilih Me (email Anda).
+
+Pada bagian Who has access, pilih Anyone (Siapa saja).
+
+Klik Deploy dan berikan izin jika diminta.
+
+Salin URL Web App yang dihasilkan (berakhiran /exec).
+
+Kabari saya jika URL Web App-nya sudah Anda salin, agar kita bisa langsung lanjut memasukkan kode ke dalam file HTML aplikasi LogistikPRO Anda!
+
+Berdasarkan gambar terakhir yang Anda kirimkan, baris ke-2 masih tertulis var ADMIN = ... padahal di bawahnya (seperti pada baris ke-22) Anda memanggilnya dengan nama ADMIN_EMAIL. Inilah yang membuat Google Apps Script masih memberikan garis merah peringatan.   
+JPG
++ 1
+
+Mari kita selesaikan langkah pertama ini dengan sempurna.
+
+Perbaikan Terakhir pada Baris ke-2:
+Ubah baris ke-2 pada editor Google Apps Script Anda dari:
+
+JavaScript
+var ADMIN = "ferisutrisno12345@gmail.com";
+Menjadi persis seperti ini:
+
+JavaScript
+var ADMIN_EMAIL = "ferisutrisno12345@gmail.com";
+Setelah Anda mengubahnya menjadi ADMIN_EMAIL, garis merah tersebut akan hilang secara otomatis.
+
+Langkah Deploy Google Apps Script:
+Klik tombol Simpan (ikon disket) di bagian atas.
+
+Klik tombol Deploy di pojok kanan atas, lalu pilih New deployment.
+
+Pilih jenis (Select type): Web app.
+
+Execute as: Pilih Me (email Anda).
+
+Who has access: Pilih Anyone (Siapa saja).
+
+Klik Deploy, berikan izin akses (Authorize access) jika jendela pop-up muncul.
+
+Salin URL Web App yang dihasilkan (berakhiran /exec).
+
+Silakan kabari saya jika URL Web App-nya sudah berhasil Anda salin, dan kita akan langsung masuk ke Langkah 2 untuk memasukkan kode verifikasi ke dalam file HTML aplikasi Anda!
+
+https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec
+
+Mantap sekali! URL Web App Google Apps Script Anda sudah berhasil dibuat:
+[https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec](https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec)
+
+Sekarang kita masuk ke Langkah 2: Integrasi ke Aplikasi LogistikPRO.
+
+Silakan buka file kode HTML/JavaScript aplikasi LogistikPRO Anda, lalu cari bagian awal kode JavaScript Anda (atau bagian fungsi untuk Login / Submit / inisialisasi aplikasi).
+
+Tambahkan atau sesuaikan kode pengecekan izin akses menggunakan script berikut:
+
+JavaScript
+// Ganti dengan URL Web App Apps Script yang baru saja Anda buat
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec";
+
+// Fungsi untuk memeriksa atau meminta izin akses
+function cekAksesAplikasi() {
+    let userName = prompt("Masukkan Nama Anda untuk Meminta Akses LogistikPRO:");
+    if (!userName) return;
+
+    let sessionId = "session_" + Date.now();
+    localStorage.setItem("sessionId", sessionId);
+
+    // Kirim permintaan izin ke Google Apps Script (mengirim email ke Admin)
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userName, sessionId: sessionId })
+    }).then(() => {
+        alert("Permintaan akses telah dikirim ke Admin. Silakan tunggu persetujuan.");
+        mulaiCekStatus(sessionId);
+    });
+}
+
+// Fungsi polling untuk mengecek apakah akses sudah disetujui
+function mulaiCekStatus(sessionId) {
+    let interval = setInterval(() => {
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    clearInterval(interval);
+                    alert("Akses Disetujui! Selamat datang di LogistikPRO.");
+                    localStorage.setItem("logistikpro_auth", "granted");
+                    // Lanjut buka halaman utama aplikasi
+                    location.reload(); 
+                } else if (data.status === "rejected") {
+                    clearInterval(interval);
+                    alert("Maaf, permintaan akses Anda ditolak oleh Admin.");
+                } else if (data.status === "expired") {
+                    clearInterval(interval);
+                    alert("Sesi akses telah habis (berlaku 8 jam). Silakan minta akses ulang.");
+                }
+            }).catch(err => console.log("Menunggu respon..."));
+    }, 5000); // Cek setiap 5 detik
+}
+
+// Panggil fungsi ini saat aplikasi pertama kali dibuka (jika belum login)
+window.onload = function() {
+    if (localStorage.getItem("logistikpro_auth") !== "granted") {
+        cekAksesAplikasi();
+    }
+};
+Cara Kerjanya:
+Saat pengguna membuka aplikasi LogistikPRO, sebuah kotak dialog (prompt) akan muncul menanyakan nama pengguna.
+
+Aplikasi otomatis mengirimkan email notifikasi ke email Anda (ferisutrisno12345@gmail.com) berisi tombol [TERIMA AKSES 8 JAM] dan [TOLAK AKSES].
+
+Saat Anda mengklik TERIMA AKSES di email Anda, aplikasi di perangkat pengguna akan otomatis terbuka dan memberikan akses selama 8 jam.
+
+Silakan masukkan kode tersebut ke dalam file aplikasi LogistikPRO Anda, lalu uji coba dengan membukanya. Kabari saya jika ada bagian yang ingin disesuaikan atau jika sudah berjalan dengan lancar!
+
+Berdasarkan gambar terakhir yang Anda kirimkan, ada kekeliruan penempatan kode di dalam file HTML Anda:   
+JPG
+
+Kode backend Google Apps Script (var ADMIN_EMAIL = ..., function doPost(e), function doGet(e)) tidak boleh diletakkan di dalam file HTML aplikasi (.html / APK). Kode Google Apps Script itu khusus untuk dijalankan di server Google Apps Script yang sudah Anda buat sebelumnya. Jika diletakkan di dalam file HTML, aplikasi web/APK Anda tidak akan bisa membacanya dan fungsi JavaScript utama untuk login akan gagal berjalan.
+
+Mari kita perbaiki dengan membersihkan file HTML Anda dan memasukkan fungsi JavaScript frontend yang benar.
+
+Cara Memperbaikinya:
+Hapus seluruh baris kode Google Apps Script yang ada di dalam file HTML Anda (dari baris var ADMIN_EMAIL = ... sampai akhir fungsi doGet di sekitar baris 2142).   
+JPG
+
+Ganti dengan skrip JavaScript khusus frontend yang langsung terhubung ke URL Google Apps Script Anda ([https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec](https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec)).
+
+Salin dan tempel kode JavaScript frontend yang bersih ini di dalam tag <script> Anda (sebelum tag </body>):
+
+JavaScript
+<script>
+// URL Web App Google Apps Script Anda
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec";
+
+// Fungsi yang dipanggil saat tombol "Kirim Permintaan Izin" diklik
 function requestAccess() {
     let userName = document.getElementById('requesterName').value;
     if (!userName) {
@@ -2088,83 +2913,191 @@ function requestAccess() {
         return;
     }
 
-    let sessionId = localStorage.getItem("sessionId") || ("session_" + Date.now());
+    let sessionId = "session_" + Date.now();
     localStorage.setItem("sessionId", sessionId);
-    let formSec = document.getElementById('formSection');
-    let waitSec = document.getElementById('waitingSection');
-    let cancelInfo = document.getElementById('cancelInfo');
 
-    if(formSec) formSec.classList.add('hidden');
-    if(waitSec) waitSec.classList.remove('hidden');
-    if(cancelInfo) cancelInfo.innerText = "Session ID: " + sessionId;
+    // Sembunyikan form input, tampilkan status "Menunggu Respon"
+    document.getElementById('formSection').classList.add('hidden');
+    document.getElementById('waitingSection').classList.remove('hidden');
+    document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
 
+    // Kirim data ke Google Apps Script untuk dikirim via email ke Admin
     fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: userName, sessionId: sessionId })
-    })
-    .then(res => res.json())
-    .then(data => {
+    }).then(() => {
         mulaiCekStatus(sessionId);
-    })
-    .catch(err => {
-        mulaiCekStatus(sessionId);
+    }).catch(err => {
+        alert("Gagal mengirim permintaan. Periksa koneksi internet Anda.");
+        document.getElementById('formSection').classList.remove('hidden');
+        document.getElementById('waitingSection').classList.add('hidden');
     });
 }
 
+// Fungsi untuk mengecek status persetujuan dari Admin secara berkala
 function mulaiCekStatus(sessionId) {
     let interval = setInterval(() => {
-        let checkUrl = SCRIPT_URL + "?action=check&session=" + sessionId;
-        
-        fetch(checkUrl)
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
             .then(res => res.json())
             .then(data => {
-                console.log("Status check:", data.status);
-                
                 if (data.status === "accepted") {
                     clearInterval(interval);
-                    let expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000);
-                    localStorage.setItem("accessExpiry", expiryTime);
-                    
-                    // Hilangkan modal tanpa me-looping form awal
+                    localStorage.setItem("logistikpro_auth", "granted");
+                    location.reload(); // Muat ulang aplikasi, data langsung muncul
+                } else if (data.status === "rejected") {
+                    clearInterval(interval);
+                    document.getElementById('waitingSection').classList.add('hidden');
+                    document.getElementById('rejectedSection').classList.remove('hidden');
+                } else if (data.status === "expired") {
+                    clearInterval(interval);
+                    alert("Masa aktif akses 8 jam telah habis.");
+                    localStorage.removeItem("logistikpro_auth");
+                    location.reload();
+                }
+            }).catch(err => console.log("Menunggu respon admin..."));
+    }, 5000); // Cek setiap 5 detik
+}
+
+// Cek status saat aplikasi pertama kali dibuka
+document.addEventListener("DOMContentLoaded", () => {
+    let isAuth = localStorage.getItem("logistikpro_auth");
+    let sessionId = localStorage.getItem("sessionId");
+    let modal = document.getElementById('approvalModal');
+
+    if (isAuth === "granted" && sessionId) {
+        // Cek apakah masa berlaku 8 jam masih ada di server
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    modal.classList.add('hidden'); // Sembunyikan modal, buka aplikasi normal
+                } else {
+                    localStorage.removeItem("logistikpro_auth");
+                    modal.classList.remove('hidden'); // Munculkan modal minta izin
+                }
+            }).catch(() => {
+                // Jika offline/gagal cek, tetap izinkan jika token ada atau tampilkan modal
+                modal.classList.add('hidden');
+            });
+    } else {
+        modal.classList.remove('hidden'); // Belum login, tampilkan modal input nama
+    }
+});
+</script>
+Silakan bersihkan kode Apps Script yang keliru di file HTML Anda, ganti dengan script di atas, simpan, lalu coba buka kembali aplikasinya. Kabari saya hasilnya ya!
+
+Berdasarkan gambar terakhir yang Anda kirimkan, kode Google Apps Script (var ADMIN_EMAIL = ... hingga doGet) masih tertinggal dan belum dihapus dari dalam file HTML Anda.   
+JPG
++ 1
+
+Mari kita bersihkan sekarang agar aplikasi Anda bisa berjalan normal kembali.
+
+Cara Memperbaikinya:
+Hapus seluruh blok kode Google Apps Script di dalam file HTML Anda mulai dari baris 2079 (var ADMIN_EMAIL = ...) sampai sebelum tag penutup </script> (di sekitar baris 2142).   
+JPG
+
+Ganti dan tempelkan kode JavaScript frontend yang bersih yang saya berikan sebelumnya di dalam tag <script> tersebut.
+
+Salin Kode Lengkap Ini (Bagian Bawah File HTML Anda):
+Pastikan bagian bawah file HTML Anda (mulai dari elemen modal sampai penutup file) bentuknya persis seperti ini:
+
+HTML
+        <!-- Status Ditolak -->
+        <div id="rejectedSection" class="text-center py-6 hidden space-y-3">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 text-xl mb-2">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <h3 class="font-bold text-base text-red-600">Akses Ditolak</h3>
+            <p class="text-xs text-slate-500">Maaf, permintaan akses Anda ditolak oleh Admin.</p>
+            <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg">
+                Coba Lagi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// URL Web App Google Apps Script Anda
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec";
+
+// Fungsi yang dipanggil saat tombol "Kirim Permintaan Izin" diklik
+function requestAccess() {
+    let userName = document.getElementById('requesterName').value;
+    if (!userName) {
+        alert("Silakan masukkan nama Anda terlebih dahulu!");
+        return;
+    }
+
+    let sessionId = "session_" + Date.now();
+    localStorage.setItem("sessionId", sessionId);
+
+    document.getElementById('formSection').classList.add('hidden');
+    document.getElementById('waitingSection').classList.remove('hidden');
+    document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userName, sessionId: sessionId })
+    }).then(() => {
+        mulaiCekStatus(sessionId);
+    }).catch(err => {
+        alert("Gagal mengirim permintaan. Periksa koneksi internet Anda.");
+        document.getElementById('formSection').classList.remove('hidden');
+        document.getElementById('waitingSection').classList.add('hidden');
+    });
+}
+
+// Fungsi untuk mengecek status persetujuan dari Admin secara berkala
+function mulaiCekStatus(sessionId) {
+    let interval = setInterval(() => {
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    clearInterval(interval);
+                    localStorage.setItem("logistikpro_auth", "granted");
                     location.reload(); 
                 } else if (data.status === "rejected") {
                     clearInterval(interval);
-                    alert("Akses ditolak oleh Admin.");
-                    localStorage.removeItem("sessionId");
+                    document.getElementById('waitingSection').classList.add('hidden');
+                    document.getElementById('rejectedSection').classList.remove('hidden');
+                } else if (data.status === "expired") {
+                    clearInterval(interval);
+                    alert("Masa aktif akses 8 jam telah habis.");
+                    localStorage.removeItem("logistikpro_auth");
                     location.reload();
                 }
-            })
-            .catch(err => {
-                console.error("Gagal mengecek status:", err);
-            });
-    }, 3000);
+            }).catch(err => console.log("Menunggu respon admin..."));
+    }, 5000);
 }
-    // Cek status izin saat halaman pertama kali dibuka
-window.addEventListener("DOMContentLoaded", () => {
-    let accessExpiry = localStorage.getItem("accessExpiry");
-    let now = new Date().getTime();
-    
-    // Sesuaikan ID modal atau container pembungkus form otorisasi Anda di HTML
-    let authModal = document.getElementById('authModal') || document.getElementById('formSection')?.parentElement;
 
-    if (accessExpiry && now < parseInt(accessExpiry)) {
-        // Jika akses masih berlaku, sembunyikan modal
-        if (authModal) authModal.style.setProperty('display', 'none', 'important');
+// Cek status saat aplikasi pertama kali dibuka
+document.addEventListener("DOMContentLoaded", () => {
+    let isAuth = localStorage.getItem("logistikpro_auth");
+    let sessionId = localStorage.getItem("sessionId");
+    let modal = document.getElementById('approvalModal');
+
+    if (isAuth === "granted" && sessionId) {
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    modal.classList.add('hidden'); 
+                } else {
+                    localStorage.removeItem("logistikpro_auth");
+                    modal.classList.remove('hidden'); 
+                }
+            }).catch(() => {
+                modal.classList.add('hidden');
+            });
     } else {
-        // Jika belum ada izin atau kedaluwarsa, paksa modal muncul di atas layar utama
-        if (authModal) {
-            authModal.style.setProperty('display', 'flex', 'important'); // Ganti 'block' jika bukan flex
-        }
-        let formSec = document.getElementById('formSection');
-        let waitSec = document.getElementById('waitingSection');
-        if (formSec) formSec.classList.remove('hidden');
-        if (waitSec) waitSec.classList.add('hidden');
+        modal.classList.remove('hidden'); 
     }
 });
-
-
 </script>
 </body>
 </html>
-        
