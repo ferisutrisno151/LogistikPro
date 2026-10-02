@@ -3074,28 +3074,28 @@ function mulaiCekStatus(sessionId) {
             }).catch(err => console.log("Menunggu respon admin..."));
     }, 5000);
 }
-
-// Cek status saat aplikasi pertama kali dibuka
+// Cek status izin saat aplikasi pertama kali dibuka
 document.addEventListener("DOMContentLoaded", () => {
     let isAuth = localStorage.getItem("logistikpro_auth");
     let sessionId = localStorage.getItem("sessionId");
     let modal = document.getElementById('approvalModal');
 
-    if (isAuth === "granted" && sessionId) {
-        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "accepted") {
-                    modal.classList.add('hidden'); 
-                } else {
-                    localStorage.removeItem("logistikpro_auth");
-                    modal.classList.remove('hidden'); 
-                }
-            }).catch(() => {
-                modal.classList.add('hidden');
-            });
+    if (isAuth === "granted") {
+        // Jika sudah diizinkan, pastikan modal disembunyikan secara total
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none'; // Tambahan pengaman agar tidak nge-blank/redup
+        }
+        // Jika ada sessionId yang sedang berjalan, aktifkan kembali pengecekan berkala
+        if (sessionId) {
+            mulaiCekStatus(sessionId);
+        }
     } else {
-        modal.classList.remove('hidden'); 
+        // Jika belum ada izin, tampilkan modal
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
     }
 });
 </script>
