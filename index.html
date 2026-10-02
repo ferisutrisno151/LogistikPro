@@ -2086,14 +2086,19 @@ window.addEventListener("DOMContentLoaded", () => {
     if (accessExpiry) {
         let now = new Date().getTime();
         if (now < parseInt(accessExpiry)) {
-            // Jika akses masih berlaku, sembunyikan modal autentikasi
-            let modal = document.getElementById('authModal') || document.getElementById('waitingSection')?.parentNode;
-            if(modal) modal.style.display = 'none';
+            // Jika akses masih berlaku, pastikan seluruh elemen modal/form otorisasi disembunyikan total
+            let formSec = document.getElementById('formSection');
+            let waitSec = document.getElementById('waitingSection');
+            if(formSec) formSec.closest('.modal, div')?.style.setProperty('display', 'none', 'important');
+            if(waitSec) waitSec.closest('.modal, div')?.style.setProperty('display', 'none', 'important');
+            
+            // Atau sembunyikan container pembungkus form jika ada
+            let authModal = document.getElementById('authModal');
+            if(authModal) authModal.style.display = 'none';
             return;
         }
     }
 });
-
 function requestAccess() {
     let userName = document.getElementById('requesterName').value;
     if (!userName) {
