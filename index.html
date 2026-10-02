@@ -2140,6 +2140,24 @@ function mulaiCekStatus(sessionId) {
             });
     }, 3000);
 }
+    // Cek status izin saat halaman pertama kali dibuka
+window.addEventListener("DOMContentLoaded", () => {
+    let accessExpiry = localStorage.getItem("accessExpiry");
+    let now = new Date().getTime();
+    
+    // Ambil elemen pembungkus form atau modal Anda
+    let formSection = document.getElementById('formSection');
+    let authModal = document.getElementById('authModal') || formSection?.parentElement;
+
+    if (accessExpiry && now < parseInt(accessExpiry)) {
+        // Jika akses masih berlaku (belum 8 jam), sembunyikan form otorisasi
+        if (authModal) authModal.style.display = 'none';
+    } else {
+        // Jika belum ada izin atau sudah kedaluwarsa, pastikan form otorisasi muncul
+        if (authModal) authModal.style.display = 'block';
+        if (formSection) formSection.classList.remove('hidden');
+    }
+});
 
 
 </script>
