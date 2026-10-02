@@ -2080,25 +2080,7 @@ function importExcelData(event) {
 // URL Web App Google Apps Script Anda
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqFDHuZbsDUF2iihvpidLHNtxM-BGN0wQZ9ZQnfa5ggKxtH930TYU7Ju1AW6g2gTIxUA/exec";
 
-// Cek otomatis saat halaman dimuat
-window.addEventListener("DOMContentLoaded", () => {
-    let accessExpiry = localStorage.getItem("accessExpiry");
-    if (accessExpiry) {
-        let now = new Date().getTime();
-        if (now < parseInt(accessExpiry)) {
-            // Jika akses masih berlaku, pastikan seluruh elemen modal/form otorisasi disembunyikan total
-            let formSec = document.getElementById('formSection');
-            let waitSec = document.getElementById('waitingSection');
-            if(formSec) formSec.closest('.modal, div')?.style.setProperty('display', 'none', 'important');
-            if(waitSec) waitSec.closest('.modal, div')?.style.setProperty('display', 'none', 'important');
-            
-            // Atau sembunyikan container pembungkus form jika ada
-            let authModal = document.getElementById('authModal');
-            if(authModal) authModal.style.display = 'none';
-            return;
-        }
-    }
-});
+
 function requestAccess() {
     let userName = document.getElementById('requesterName').value;
     if (!userName) {
@@ -2159,29 +2141,7 @@ function mulaiCekStatus(sessionId) {
     }, 3000);
 }
 
-// Cek status saat aplikasi pertama kali dibuka
-document.addEventListener("DOMContentLoaded", () => {
-    let isAuth = localStorage.getItem("logistikpro_auth");
-    let sessionId = localStorage.getItem("sessionId");
-    let modal = document.getElementById('approvalModal');
 
-    if (isAuth === "granted" && sessionId) {
-        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "accepted") {
-                    modal.classList.add('hidden'); 
-                } else {
-                    localStorage.removeItem("logistikpro_auth");
-                    modal.classList.remove('hidden'); 
-                }
-            }).catch(() => {
-                modal.classList.add('hidden');
-            });
-    } else {
-        modal.classList.remove('hidden'); 
-    }
-});
 </script>
 </body>
 </html>
