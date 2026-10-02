@@ -2028,5 +2028,147 @@ function importExcelData(event) {
     reader.readAsArrayBuffer(file);
 }
     </script>
+    <!-- MODAL OTORISASI AKSES 8 JAM -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 text-center space-y-5">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            
+            <div>
+                <h3 class="text-xl font-bold text-slate-900">Otorisasi Akses LogistikPRO</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan nama Anda untuk mengajukan izin akses sesi selama 8 jam ke sistem.</p>
+            </div>
+
+            <!-- Bagian 1: Form Input Nama -->
+            <div id="formSection" class="space-y-3">
+                <input type="text" id="requesterName" placeholder="Contoh: Feri Sutrisno" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 font-medium text-center">
+                <button onclick="requestAccess()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all text-sm">
+                    Kirim Permintaan Izin
+                </button>
+            </div>
+
+            <!-- Bagian 2: Status Menunggu Respon -->
+            <div id="waitingSection" class="hidden space-y-3 py-2">
+                <div class="inline-block animate-spin text-blue-600 text-3xl mb-1">
+                    <i class="fa-solid fa-circle-notch"></i>
+                </div>
+                <p class="text-sm font-semibold text-slate-700">Menunggu Respon Persetujuan Admin...</p>
+                <p id="cancelInfo" class="text-xs text-slate-400"></p>
+                <button onclick="resetAuthSession()" class="text-xs text-rose-500 hover:underline font-medium pt-2">
+                    Ganti Nama / Batalkan
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+    // URL Web App Google Apps Script Anda (Ganti dengan URL deployment Apps Script Anda)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8Dlz9ej4Vpyw3MzNwcBS7XbN79D6_3rnH5v0PBx-CpZ7zyHllWSVnG4FAFMHb8JwP/exec";
+
+    // 1. Fungsi saat tombol "Kirim Permintaan Izin" ditekan
+    function requestAccess() {
+        let userName = document.getElementById('requesterName').value.trim();
+        if (!userName) {
+            alert("Silakan masukkan nama Anda terlebih dahulu!");
+            return;
+        }
+
+        let sessionId = localStorage.getItem("sessionId") || ("session_" + Date.now());
+        localStorage.setItem("sessionId", sessionId);
+
+        let formSec = document.getElementById('formSection');
+        let waitSec = document.getElementById('waitingSection');
+        let cancelInfo = document.getElementById('cancelInfo');
+
+        if (formSec) formSec.classList.add('hidden');
+        if (waitSec) waitSec.classList.remove('hidden');
+        if (cancelInfo) cancelInfo.innerText = "Session ID: " + sessionId;
+
+        // Kirim data permintaan ke backend Google Apps Script
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: userName, sessionId: sessionId })
+        })
+        .then(() => {
+            mulaiCekStatus(sessionId);
+        })
+        .catch(err => {
+            console.error("Gagal mengirim permintaan:", err);
+            mulaiCekStatus(sessionId);
+        });
+    }
+
+    // 2. Fungsi pengecekan status berkala (Polling setiap 3 detik)
+    function mulaiCekStatus(sessionId) {
+        let interval = setInterval(() => {
+            let checkUrl = SCRIPT_URL + "?action=check&session=" + sessionId;
+
+            fetch(checkUrl)
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Status check:", data.status);
+
+                    if (data.status === "accepted") {
+                        clearInterval(interval);
+                        let expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000); // 8 Jam
+                        localStorage.setItem("accessExpiry", expiryTime);
+                        localStorage.setItem("logistikpro_auth", "granted");
+
+                        // Tutup modal secara instan dan mulus tanpa reload halaman
+                        tutupModalOtorisasi();
+                    } else if (data.status === "rejected") {
+                        clearInterval(interval);
+                        alert("Akses ditolak oleh Admin.");
+                        localStorage.removeItem("sessionId");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.log("Menunggu respon admin...");
+                });
+        }, 3000);
+    }
+
+    // 3. Fungsi untuk menutup modal otorisasi dan menampilkan layar utama
+    function tutupModalOtorisasi() {
+        let authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // 4. Fungsi Reset Session
+    function resetAuthSession() {
+        localStorage.removeItem("sessionId");
+        localStorage.removeItem("accessExpiry");
+        localStorage.removeItem("logistikpro_auth");
+        location.reload();
+    }
+
+    // 5. Pengecekan otomatis saat halaman dimuat pertama kali
+    document.addEventListener("DOMContentLoaded", () => {
+        let accessExpiry = localStorage.getItem("accessExpiry");
+        let isAuth = localStorage.getItem("logistikpro_auth");
+        let now = new Date().getTime();
+        let authModal = document.getElementById('authModal');
+
+        if (isAuth === "granted" && accessExpiry && now < parseInt(accessExpiry)) {
+            // Jika akses masih berlaku (belum 8 jam), sembunyikan modal sepenuhnya
+            tutupModalOtorisasi();
+        } else {
+            // Jika belum ada izin atau sudah kedaluwarsa, pastikan modal muncul di depan
+            if (authModal) {
+                authModal.style.setProperty('display', 'flex', 'important');
+            }
+            // Bersihkan data lama jika sudah kedaluwarsa
+            if (accessExpiry && now >= parseInt(accessExpiry)) {
+                localStorage.removeItem("accessExpiry");
+                localStorage.removeItem("logistikpro_auth");
+            }
+        }
+    });
+</script>
 </body>
 </html>
