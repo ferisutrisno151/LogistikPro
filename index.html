@@ -2078,22 +2078,20 @@ function importExcelData(event) {
 
 <script>
 // URL Web App Google Apps Script Anda
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrjrSTBdMqmqWr-8KZJ9Kf2t023XgObpm4uI3f6CCyAnoSmBCUZVhNtflHRTD4qPMfBw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqFDHuZbsDUF2iihvpidLHNtxM-BGN0wQZ9ZQnfa5ggKxtH930TYU7Ju1AW6g2gTIxUA/exec";
 
-// Cek otomatis saat halaman dimuat apakah sudah pernah di-approve sebelumnya
+// Cek otomatis saat halaman dimuat
 window.addEventListener("DOMContentLoaded", () => {
-    let savedSession = localStorage.getItem("sessionId");
     let accessExpiry = localStorage.getItem("accessExpiry");
-    
-    if (savedSession && accessExpiry) {
+    if (accessExpiry) {
         let now = new Date().getTime();
         if (now < parseInt(accessExpiry)) {
-            // Jika akses masih berlaku (belum 8 jam), sembunyikan modal otoritas
-            document.getElementById('authModal').classList.add('hidden'); // Sesuaikan ID modal Anda
+            // Jika akses masih berlaku, sembunyikan modal autentikasi
+            let modal = document.getElementById('authModal') || document.getElementById('waitingSection')?.parentNode;
+            if(modal) modal.style.display = 'none';
             return;
         }
     }
-    // Jika belum ada akses atau sudah expired, tampilkan form awal
 });
 
 function requestAccess() {
@@ -2103,15 +2101,16 @@ function requestAccess() {
         return;
     }
 
-    // Buat atau gunakan session ID yang unik dan simpan permanen di browser
     let sessionId = localStorage.getItem("sessionId") || ("session_" + Date.now());
     localStorage.setItem("sessionId", sessionId);
+    let formSec = document.getElementById('formSection');
+    let waitSec = document.getElementById('waitingSection');
+    let cancelInfo = document.getElementById('cancelInfo');
 
-    document.getElementById('formSection').classList.add('hidden');
-    document.getElementById('waitingSection').classList.remove('hidden');
-    document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
+    if(formSec) formSec.classList.add('hidden');
+    if(waitSec) waitSec.classList.remove('hidden');
+    if(cancelInfo) cancelInfo.innerText = "Session ID: " + sessionId;
 
-    // Kirim data ke Apps Script
     fetch(SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -2137,11 +2136,10 @@ function mulaiCekStatus(sessionId) {
                 
                 if (data.status === "accepted") {
                     clearInterval(interval);
-                    // Simpan masa berlaku akses 8 jam ke depan di browser
                     let expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000);
                     localStorage.setItem("accessExpiry", expiryTime);
                     
-                    // Hilangkan modal dan masuk ke aplikasi
+                    // Hilangkan modal tanpa me-looping form awal
                     location.reload(); 
                 } else if (data.status === "rejected") {
                     clearInterval(interval);
