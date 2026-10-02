@@ -2145,17 +2145,21 @@ window.addEventListener("DOMContentLoaded", () => {
     let accessExpiry = localStorage.getItem("accessExpiry");
     let now = new Date().getTime();
     
-    // Ambil elemen pembungkus form atau modal Anda
-    let formSection = document.getElementById('formSection');
-    let authModal = document.getElementById('authModal') || formSection?.parentElement;
+    // Sesuaikan ID modal atau container pembungkus form otorisasi Anda di HTML
+    let authModal = document.getElementById('authModal') || document.getElementById('formSection')?.parentElement;
 
     if (accessExpiry && now < parseInt(accessExpiry)) {
-        // Jika akses masih berlaku (belum 8 jam), sembunyikan form otorisasi
-        if (authModal) authModal.style.display = 'none';
+        // Jika akses masih berlaku, sembunyikan modal
+        if (authModal) authModal.style.setProperty('display', 'none', 'important');
     } else {
-        // Jika belum ada izin atau sudah kedaluwarsa, pastikan form otorisasi muncul
-        if (authModal) authModal.style.display = 'block';
-        if (formSection) formSection.classList.remove('hidden');
+        // Jika belum ada izin atau kedaluwarsa, paksa modal muncul di atas layar utama
+        if (authModal) {
+            authModal.style.setProperty('display', 'flex', 'important'); // Ganti 'block' jika bukan flex
+        }
+        let formSec = document.getElementById('formSection');
+        let waitSec = document.getElementById('waitingSection');
+        if (formSec) formSec.classList.remove('hidden');
+        if (waitSec) waitSec.classList.add('hidden');
     }
 });
 
