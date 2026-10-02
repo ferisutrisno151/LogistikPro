@@ -2080,7 +2080,22 @@ function importExcelData(event) {
 // URL Web App Google Apps Script Anda
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrjrSTBdMqmqWr-8KZJ9Kf2t023XgObpm4uI3f6CCyAnoSmBCUZVhNtflHRTD4qPMfBw/exec";
 
-// Fungsi yang dipanggil saat tombol "Kirim Permintaan Izin" diklik
+// Cek otomatis saat halaman dimuat apakah sudah pernah di-approve sebelumnya
+window.addEventListener("DOMContentLoaded", () => {
+    let savedSession = localStorage.getItem("sessionId");
+    let accessExpiry = localStorage.getItem("accessExpiry");
+    
+    if (savedSession && accessExpiry) {
+        let now = new Date().getTime();
+        if (now < parseInt(accessExpiry)) {
+            // Jika akses masih berlaku (belum 8 jam), sembunyikan modal otoritas
+            document.getElementById('authModal').classList.add('hidden'); // Sesuaikan ID modal Anda
+            return;
+        }
+    }
+    // Jika belum ada akses atau sudah expired, tampilkan form awal
+});
+
 function requestAccess() {
     let userName = document.getElementById('requesterName').value;
     if (!userName) {
@@ -2088,34 +2103,31 @@ function requestAccess() {
         return;
     }
 
-    let sessionId = "session_" + Date.now();
+    // Buat atau gunakan session ID yang unik dan simpan permanen di browser
+    let sessionId = localStorage.getItem("sessionId") || ("session_" + Date.now());
     localStorage.setItem("sessionId", sessionId);
 
     document.getElementById('formSection').classList.add('hidden');
     document.getElementById('waitingSection').classList.remove('hidden');
     document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
 
-    // Mengirim data tanpa no-cors agar payload terbaca oleh Apps Script
+    // Kirim data ke Apps Script
     fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, // Menggunakan text/plain menghindari preflight CORS error di Apps Script
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ name: userName, sessionId: sessionId })
     })
     .then(res => res.json())
     .then(data => {
-        console.label("Terkirim:", data);
         mulaiCekStatus(sessionId);
     })
     .catch(err => {
-        console.log("Memulai pengecekan status...");
         mulaiCekStatus(sessionId);
     });
 }
 
-// Fungsi untuk mengecek status persetujuan dari Admin secara berkala
 function mulaiCekStatus(sessionId) {
     let interval = setInterval(() => {
-        // Panggil doGet dengan action=check
         let checkUrl = SCRIPT_URL + "?action=check&session=" + sessionId;
         
         fetch(checkUrl)
@@ -2125,24 +2137,23 @@ function mulaiCekStatus(sessionId) {
                 
                 if (data.status === "accepted") {
                     clearInterval(interval);
-                    // Sembunyikan pop-up modal dan buka akses aplikasi
-                    document.getElementById('waitingSection').classList.add('hidden');
-                    // Tambahkan fungsi/perintah untuk membuka aplikasi utama Anda di sini, contoh:
-                    location.reload(); // Atau sembunyikan modal autentikasi
+                    // Simpan masa berlaku akses 8 jam ke depan di browser
+                    let expiryTime = new Date().getTime() + (8 * 60 * 60 * 1000);
+                    localStorage.setItem("accessExpiry", expiryTime);
+                    
+                    // Hilangkan modal dan masuk ke aplikasi
+                    location.reload(); 
                 } else if (data.status === "rejected") {
                     clearInterval(interval);
                     alert("Akses ditolak oleh Admin.");
-                    location.reload();
-                } else if (data.status === "expired") {
-                    clearInterval(interval);
-                    alert("Waktu akses telah habis.");
+                    localStorage.removeItem("sessionId");
                     location.reload();
                 }
             })
             .catch(err => {
                 console.error("Gagal mengecek status:", err);
             });
-    }, 3000); // Mengecek setiap 3 detik
+    }, 3000);
 }
 
 // Cek status saat aplikasi pertama kali dibuka
