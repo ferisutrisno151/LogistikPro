@@ -2028,5 +2028,135 @@ function importExcelData(event) {
     reader.readAsArrayBuffer(file);
 }
     </script>
+    <!-- MODAL PERMINTAAN IZIN AKSES KE ADMIN -->
+<div id="approvalModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="w-full max-w-md p-6 bg-white rounded-2xl shadow-2xl mx-4 text-slate-800">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">Otoritas Akses LogistikPRO</h2>
+            <p class="text-xs text-slate-500 mt-1">Masukkan nama Anda untuk meminta izin akses kepada Admin.</p>
+        </div>
+        
+        <!-- Form Input Nama -->
+        <div id="formSection" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Lengkap / Rekan Kerja</label>
+                <input type="text" id="requesterName" required 
+                    class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800"
+                    placeholder="Contoh: Budi (Tim Lapangan)">
+            </div>
+            <button type="button" onclick="requestAccess()" 
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition duration-200 shadow-lg shadow-blue-500/30">
+                Kirim Permintaan Izin
+            </button>
+        </div>
+
+        <!-- Status Menunggu Persetujuan -->
+        <div id="waitingSection" class="text-center py-6 hidden space-y-3">
+            <div class="inline-block animate-spin text-blue-600 text-3xl mb-2">
+                <i class="fa-solid fa-circle-notch"></i>
+            </div>
+            <h3 class="font-bold text-base text-slate-800">Menunggu Respon Admin...</h3>
+            <p class="text-xs text-slate-500 px-4">Permintaan telah dikirim ke email Admin. Mohon tunggu beberapa saat hingga Admin menyetujui akses Anda.</p>
+            <div id="cancelInfo" class="text-[10px] text-slate-400 pt-2"></div>
+        </div>
+<!-- Status Ditolak -->
+        <div id="rejectedSection" class="text-center py-6 hidden space-y-3">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 text-xl mb-2">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <h3 class="font-bold text-base text-red-600">Akses Ditolak</h3>
+            <p class="text-xs text-slate-500">Maaf, permintaan akses Anda ditolak oleh Admin.</p>
+            <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg">
+                Coba Lagi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// URL Web App Google Apps Script Anda
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRC7f_SXk1jyOZx0ImqGCKphOkaN4Xj6bgY86hjXNENsTydsbxxTOFDl9ApL-nRRum/exec";
+
+// Fungsi yang dipanggil saat tombol "Kirim Permintaan Izin" diklik
+function requestAccess() {
+    let userName = document.getElementById('requesterName').value;
+    if (!userName) {
+        alert("Silakan masukkan nama Anda terlebih dahulu!");
+        return;
+    }
+
+    let sessionId = "session_" + Date.now();
+    localStorage.setItem("sessionId", sessionId);
+
+    document.getElementById('formSection').classList.add('hidden');
+    document.getElementById('waitingSection').classList.remove('hidden');
+    document.getElementById('cancelInfo').innerText = "Session ID: " + sessionId;
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userName, sessionId: sessionId })
+    }).then(() => {
+        mulaiCekStatus(sessionId);
+    }).catch(err => {
+        alert("Gagal mengirim permintaan. Periksa koneksi internet Anda.");
+        document.getElementById('formSection').classList.remove('hidden');
+        document.getElementById('waitingSection').classList.add('hidden');
+    });
+}
+
+// Fungsi untuk mengecek status persetujuan dari Admin secara berkala
+function mulaiCekStatus(sessionId) {
+    let interval = setInterval(() => {
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    clearInterval(interval);
+                    localStorage.setItem("logistikpro_auth", "granted");
+                    location.reload(); 
+                } else if (data.status === "rejected") {
+                    clearInterval(interval);
+                    document.getElementById('waitingSection').classList.add('hidden');
+                    document.getElementById('rejectedSection').classList.remove('hidden');
+                } else if (data.status === "expired") {
+                    clearInterval(interval);
+                    alert("Masa aktif akses 8 jam telah habis.");
+                    localStorage.removeItem("logistikpro_auth");
+                    location.reload();
+                }
+            }).catch(err => console.log("Menunggu respon admin..."));
+    }, 5000);
+}
+
+// Cek status saat aplikasi pertama kali dibuka
+document.addEventListener("DOMContentLoaded", () => {
+    let isAuth = localStorage.getItem("logistikpro_auth");
+    let sessionId = localStorage.getItem("sessionId");
+    let modal = document.getElementById('approvalModal');
+
+    if (isAuth === "granted" && sessionId) {
+        fetch(`${SCRIPT_URL}?action=check&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "accepted") {
+                    modal.classList.add('hidden'); 
+                } else {
+                    localStorage.removeItem("logistikpro_auth");
+                    modal.classList.remove('hidden'); 
+                }
+            }).catch(() => {
+                modal.classList.add('hidden');
+            });
+    } else {
+        modal.classList.remove('hidden'); 
+    }
+});
+</script>
 </body>
 </html>
+        
