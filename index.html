@@ -764,14 +764,18 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (!window.fbFirestore) {
-                    loadDataLocal();
-                    refreshAll();
-                }
-            }, 1000);
-            switchTab('dashboard');
-        });
+    setTimeout(() => {
+        if (window.FbFirestore) {
+            loadDataLocal();
+            refreshAll();
+        }
+        // Tambahkan fungsi ProARK di sini agar ikut termuat otomatis
+        if (typeof updateProARKDashboard === 'function') {
+            updateProARKDashboard();
+        }
+    }, 1000);
+    switchTab('dashboard');
+});
 
         function initFirestoreRealtimeSync() {
             const { firestoreDb, collection, onSnapshot } = window.fbFirestore;
