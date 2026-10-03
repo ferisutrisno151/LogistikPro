@@ -132,6 +132,12 @@
                 <i class="fa-solid fa-warehouse w-5"></i>
                 <span>Stok Barang</span>
             </a>
+            <!-- Tambahan Menu ProARK -->
+<a href="#" onclick="switchTab('proark'); toggleSidebar();" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-tools w-5"></i>
+    <span>ProARK (Alat Proyek)</span>
+</a>
+            
             <!-- Menu Tambahan untuk Backup & Data di Sidebar -->
     <div class="pt-4 mt-4 border-t border-slate-700/50 space-y-1">
         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Data & Backup</div>
@@ -719,6 +725,164 @@
             </div>
         </div>
     </div>
+<!-- BAGIAN 2: HTML KONTEN UTAMA PROARK         -->
+<!-- ========================================== -->
+<!-- Letakkan section ini di dalam container utama sejajar dengan section LogistikPro Anda -->
+
+<!-- SECTION LOGISTIK (Bungkus tampilan lama Anda dengan id="app-logistik") -->
+<div id="app-logistik" class="app-view">
+    <!-- Tampilan LogistikPro Anda yang sudah sempurna tetap di sini -->
+</div>
+
+<!-- SECTION PROARK (Tampilan baru untuk ProARK) -->
+<div id="app-proark" class="app-view" style="display: none;">
+    <!-- Top Bar ProARK -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div>
+            <h2 style="margin: 0; font-size: 20px; color: #1e293b;"><i class="fas fa-tools" style="color: #2563eb;"></i> ProARK - Monitoring Inventaris Alat</h2>
+            <p style="margin: 5px 0 0 0; font-size: 13px; color: #64748b;">Sistem Pengendalian & Manajemen Alat Proyek</p>
+        </div>
+        <div>
+            <button onclick="exportProARKExcel()" style="background: #16a34a; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fas fa-file-excel"></i> Export Excel</button>
+            <button onclick="refreshProARKData()" style="background: #2563eb; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 5px;"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+    </div>
+
+    <!-- Sub-Tabs Navigasi ProARK -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+        <button class="proark-tab-btn active" onclick="switchProARKTab('dashboard', this)" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Dashboard</button>
+        <button class="proark-tab-btn" onclick="switchProARKTab('inventaris', this)" style="padding: 8px 16px; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Inventaris Alat</button>
+        <button class="proark-tab-btn" onclick="switchProARKTab('peminjaman', this)" style="padding: 8px 16px; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Peminjaman & Pengembalian</button>
+        <button class="proark-tab-btn" onclick="switchProARKTab('stok', this)" style="padding: 8px 16px; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Stok Alat</button>
+    </div>
+
+    <!-- TAB 1: DASHBOARD -->
+    <div id="proark-tab-dashboard" class="proark-content">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
+            <div onclick="openProARKModalDetail('total_alat')" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #2563eb;">
+                <span style="font-size: 13px; color: #64748b;">Total Alat</span>
+                <h3 id="card-total-alat" style="margin: 5px 0 0 0; font-size: 24px; color: #1e293b;">0 Qty</h3>
+            </div>
+            <div onclick="openProARKModalDetail('kondisi_baik')" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #16a34a;">
+                <span style="font-size: 13px; color: #64748b;">Kondisi Baik</span>
+                <h3 id="card-kondisi-baik" style="margin: 5px 0 0 0; font-size: 24px; color: #16a34a;">0 Qty</h3>
+            </div>
+            <div onclick="openProARKModalDetail('rusak_perbaikan')" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #dc2626;">
+                <span style="font-size: 13px; color: #64748b;">Rusak / Perbaikan</span>
+                <h3 id="card-rusak-perbaikan" style="margin: 5px 0 0 0; font-size: 24px; color: #dc2626;">0 Qty</h3>
+            </div>
+            <div onclick="openProARKModalDetail('stok_alat')" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #9333ea;">
+                <span style="font-size: 13px; color: #64748b;">Stok Alat Tersedia</span>
+                <h3 id="card-stok-alat" style="margin: 5px 0 0 0; font-size: 24px; color: #9333ea;">0 Qty</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: INVENTARIS ALAT -->
+    <div id="proark-tab-inventaris" class="proark-content" style="display: none;">
+        <div style="margin-bottom: 15px;">
+            <button onclick="openFormInventaris()" style="background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fas fa-plus"></i> Tambah Inventaris Alat</button>
+        </div>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
+                        <th style="padding: 12px;">No</th>
+                        <th style="padding: 12px;">Tanggal Pembelian</th>
+                        <th style="padding: 12px;">No Inventaris</th>
+                        <th style="padding: 12px;">Kategori</th>
+                        <th style="padding: 12px;">Nama Equipment / Tool</th>
+                        <th style="padding: 12px;">Brand / Type</th>
+                        <th style="padding: 12px;">Qty</th>
+                        <th style="padding: 12px;">Sat</th>
+                        <th style="padding: 12px; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="table-inventaris-body">
+                    <!-- Data Dynamic JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 3: PEMINJAMAN & PENGEMBALIAN -->
+    <div id="proark-tab-peminjaman" class="proark-content" style="display: none;">
+        <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <button onclick="openFormPeminjaman()" style="background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i class="fas fa-plus"></i> Tambah Peminjaman</button>
+        </div>
+        
+        <h4 style="margin: 20px 0 10px 0; color: #334155;">Tabel Peminjaman Alat</h4>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; margin-bottom: 25px;">
+            <table style="width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
+                        <th style="padding: 12px;">No</th>
+                        <th style="padding: 12px;">Tanggal Pinjam</th>
+                        <th style="padding: 12px;">Nama Peminjam</th>
+                        <th style="padding: 12px;">No Inventaris</th>
+                        <th style="padding: 12px;">Nama Equipment</th>
+                        <th style="padding: 12px;">Brand / Type</th>
+                        <th style="padding: 12px;">Qty</th>
+                        <th style="padding: 12px;">Sat</th>
+                        <th style="padding: 12px;">Lokasi Kerja</th>
+                        <th style="padding: 12px; text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="table-peminjaman-body"></tbody>
+            </table>
+        </div>
+
+        <h4 style="margin: 20px 0 10px 0; color: #334155;">Tabel Pengembalian & Perbaikan Alat</h4>
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
+                        <th style="padding: 12px;">No</th>
+                        <th style="padding: 12px;">Tanggal Pinjam</th>
+                        <th style="padding: 12px;">Nama Peminjam</th>
+                        <th style="padding: 12px;">No Inventaris</th>
+                        <th style="padding: 12px;">Nama Equipment</th>
+                        <th style="padding: 12px;">Brand / Type</th>
+                        <th style="padding: 12px;">Qty Pinjam</th>
+                        <th style="padding: 12px;">Sat</th>
+                        <th style="padding: 12px;">Lokasi Kerja</th>
+                        <th style="padding: 12px;">Riwayat Pengembalian</th>
+                        <th style="padding: 12px; text-align: center;">Aksi (Return / Repair)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-pengembalian-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: STOK ALAT -->
+    <div id="proark-tab-stok" class="proark-content" style="display: none;">
+        <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
+                        <th style="padding: 12px;">No</th>
+                        <th style="padding: 12px;">Tanggal Update</th>
+                        <th style="padding: 12px;">No Inventaris</th>
+                        <th style="padding: 12px;">Nama Equipment / Tool</th>
+                        <th style="padding: 12px;">Brand / Type</th>
+                        <th style="padding: 12px;">Total Masuk</th>
+                        <th style="padding: 12px;">Total Keluar</th>
+                        <th style="padding: 12px;">Stok Alat Tersedia</th>
+                    </tr>
+                </thead>
+                <tbody id="table-stok-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- POP-UP / MODAL GENERAL CONTAINER -->
+<div id="proark-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div id="proark-modal-content" style="background: white; width: 90%; max-width: 650px; border-radius: 8px; padding: 20px; max-height: 90vh; overflow-y: auto;">
+        <!-- Dynamic Form / Content Here -->
+    </div>
+</div>
 
     <!-- APLIKASI JAVASCRIPT & FIRESTORE SYNC -->
     <script>
@@ -2168,7 +2332,545 @@ function importExcelData(event) {
                 localStorage.removeItem("logistikpro_auth");
             }
         }
+    });        
+<!-- ========================================== -->
+<!-- BAGIAN 3: LOGIKA JAVASCRIPT PROARK         -->
+<!-- ========================================== -->
+<script>
+// State Management ProARK
+let proarkData = JSON.parse(localStorage.getItem('proark_data_storage')) || {
+    inventaris: [],
+    peminjaman: [],
+    pengembalian: [], // Menyimpan array riwayat pengembalian bertahap [{idPinjam, tglKembali, qty, kondisi}]
+    perbaikan: []     // Menyimpan riwayat perbaikan [{idKembali, tglPerbaikan, statusSaatIni}]
+};
+
+function saveProARKStorage() {
+    localStorage.setItem('proark_data_storage', JSON.stringify(proarkData));
+    updateProARKDashboard();
+}
+
+// Navigasi Antar App (Logistik vs ProARK)
+function switchApp(appName) {
+    document.getElementById('app-logistik').style.display = appName === 'logistik' ? 'block' : 'none';
+    document.getElementById('app-proark').style.display = appName === 'proark' ? 'block' : 'none';
+    
+    document.getElementById('nav-logistik').classList.toggle('active', appName === 'logistik');
+    document.getElementById('nav-proark').classList.toggle('active', appName === 'proark');
+    
+    if(appName === 'proark') {
+        updateProARKDashboard();
+        renderInventarisTable();
+        renderPeminjamanTable();
+        renderStokTable();
+    }
+}
+
+// Navigasi Tab dalam ProARK
+function switchProARKTab(tabName, btnElement) {
+    document.querySelectorAll('.proark-content').forEach(el => el.style.display = 'none');
+    document.getElementById('proark-tab-' + tabName).style.display = 'block';
+    
+    document.querySelectorAll('.proark-tab-btn').forEach(btn => {
+        btn.style.background = '#e2e8f0';
+        btn.style.color = '#334155';
     });
+    btnElement.style.background = '#2563eb';
+    btnElement.style.color = 'white';
+
+    if(tabName === 'dashboard') updateProARKDashboard();
+    if(tabName === 'inventaris') renderInventarisTable();
+    if(tabName === 'peminjaman') { renderPeminjamanTable(); renderPengembalianTable(); }
+    if(tabName === 'stok') renderStokTable();
+}
+
+function refreshProARKData() {
+    updateProARKDashboard();
+    renderInventarisTable();
+    renderPeminjamanTable();
+    renderPengembalianTable();
+    renderStokTable();
+    alert('Data ProARK berhasil di-refresh!');
+}
+
+// --- FITUR 1: DASHBOARD & HITUNGAN ---
+function updateProARKDashboard() {
+    let totalQtyAlat = proarkData.inventaris.reduce((sum, item) => sum + Number(item.qty), 0);
+    
+    // Hitung total keluar dari peminjaman
+    let totalKeluar = proarkData.peminjaman.reduce((sum, item) => sum + Number(item.qty), 0);
+
+    // Hitung pengembalian kondisi baik atau selesai perbaikan
+    let totalKembaliBaik = 0;
+    let totalRusakAtauProses = 0;
+
+    proarkData.pengembalian.forEach(ret => {
+        if(ret.kondisi === 'baik') totalKembaliBaik += Number(ret.qty);
+        if(ret.kondisi === 'rusak') totalRusakAtauProses += Number(ret.qty);
+        if(ret.kondisi === 'perbaikan') {
+            // Cek status perbaikan terakhir
+            let repair = proarkData.perbaikan.find(p => p.idRetur === ret.id);
+            if(repair && repair.status === 'selesai') {
+                totalKembaliBaik += Number(ret.qty);
+            } else {
+                totalRusakAtauProses += Number(ret.qty);
+            }
+        }
+    });
+
+    let stokTersedia = totalQtyAlat - totalKeluar + totalKembaliBaik;
+    let kondisiBaikQty = totalQtyAlat - totalKeluar + totalKembaliBaik; // atau sesuai logika operasional alat
+
+    document.getElementById('card-total-alat').innerText = totalQtyAlat + ' Qty';
+    document.getElementById('card-kondisi-baik').innerText = kondisiBaikQty + ' Qty';
+    document.getElementById('card-rusak-perbaikan').innerText = totalRusakAtauProses + ' Qty';
+    document.getElementById('card-stok-alat').innerText = stokTersedia + ' Qty';
+}
+
+// --- FITUR 2: INVENTARIS ALAT & MULTI INPUT ---
+function openFormInventaris(editId = null) {
+    let modal = document.getElementById('proark-modal');
+    let content = document.getElementById('proark-modal-content');
+    modal.style.display = 'flex';
+
+    content.innerHTML = `
+        <h3 style="margin-top:0;">${editId ? 'Edit Inventaris Alat' : 'Tambah Inventaris Alat (Multi-Item per Tanggal)'}</h3>
+        <div id="inventaris-form-rows">
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:12px; font-weight:600;">Tanggal Pembelian</label>
+                <input type="date" class="inv-tgl" value="${new Date().toISOString().split('T')[0]}" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+            </div>
+            <div style="border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px;" class="inv-item-row">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" placeholder="No Inventaris" class="inv-no" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Kategori" class="inv-kat" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" placeholder="Nama Equipment / Tool" class="inv-nama" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Brand / Type" class="inv-brand" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <input type="number" placeholder="Qty" class="inv-qty" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Sat (Pcs/Unit/Set)" class="inv-sat" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+            </div>
+        </div>
+        ${!editId ? '<button type="button" onclick="addInvRow()" style="background:#0284c7; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-bottom:15px;"><i class="fas fa-plus"></i> Tambah Baris Alat Lain</button>' : ''}
+        <div style="text-align: right; margin-top: 15px;">
+            <button onclick="closeProARKModal()" style="background:#cbd5e1; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; margin-right:5px;">Batal</button>
+            <button onclick="saveInventaris(${editId})" style="background:#2563eb; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Simpan Data</button>
+        </div>
+    `;
+}
+
+function addInvRow() {
+    let container = document.getElementById('inventaris-form-rows');
+    let div = document.createElement('div');
+    div.className = 'inv-item-row';
+    div.style.cssText = 'border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px;';
+    div.innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <input type="text" placeholder="No Inventaris" class="inv-no" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Kategori" class="inv-kat" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <input type="text" placeholder="Nama Equipment / Tool" class="inv-nama" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Brand / Type" class="inv-brand" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <input type="number" placeholder="Qty" class="inv-qty" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Sat (Pcs/Unit/Set)" class="inv-sat" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function saveInventaris(editId) {
+    let tgl = document.querySelector('.inv-tgl').value;
+    let rows = document.querySelectorAll('.inv-item-row');
+    
+    rows.forEach(r => {
+        let noInv = r.querySelector('.inv-no').value;
+        let kat = r.querySelector('.inv-kat').value;
+        let nama = r.querySelector('.inv-nama').value;
+        let brand = r.querySelector('.inv-brand').value;
+        let qty = r.querySelector('.inv-qty').value;
+        let sat = r.querySelector('.inv-sat').value;
+
+        if(noInv && nama) {
+            proarkData.inventaris.push({
+                id: Date.now() + Math.random(),
+                tanggal: tgl,
+                noInventaris: noInv,
+                kategori: kat,
+                nama: nama,
+                brand: brand,
+                qty: Number(qty) || 1,
+                sat: sat
+            });
+        }
+    });
+
+    saveProARKStorage();
+    closeProARKModal();
+    renderInventarisTable();
+}
+
+function renderInventarisTable() {
+    let tbody = document.getElementById('table-inventaris-body');
+    tbody.innerHTML = '';
+    proarkData.inventaris.forEach((item, index) => {
+        tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;">${index + 1}</td>
+                <td style="padding: 12px;">${item.tanggal}</td>
+                <td style="padding: 12px; font-weight:600; color:#2563eb;">${item.noInventaris}</td>
+                <td style="padding: 12px;">${item.kategori}</td>
+                <td style="padding: 12px;">${item.nama}</td>
+                <td style="padding: 12px;">${item.brand}</td>
+                <td style="padding: 12px;">${item.qty}</td>
+                <td style="padding: 12px;">${item.sat}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <button onclick="deleteInventaris('${item.id}')" style="background:none; border:none; color:#dc2626; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function deleteInventaris(id) {
+    if(confirm('Hapus data inventaris ini?')) {
+        proarkData.inventaris = proarkData.inventaris.filter(i => i.id != id);
+        saveProARKStorage();
+        renderInventarisTable();
+    }
+}
+
+// --- FITUR 3: PEMINJAMAN & PENGEMBALIAN BERTAHAP ---
+function openFormPeminjaman() {
+    let modal = document.getElementById('proark-modal');
+    let content = document.getElementById('proark-modal-content');
+    modal.style.display = 'flex';
+
+    // Dropdown pilihan inventaris alat
+    let optionsInv = proarkData.inventaris.map(i => `<option value="${i.noInventaris}" data-nama="${i.nama}" data-brand="${i.brand}" data-sat="${i.sat}">${i.noInventaris} - ${i.nama} (${i.brand})</option>`).join('');
+
+    content.innerHTML = `
+        <h3 style="margin-top:0;">Tambah Peminjaman Alat</h3>
+        <div style="margin-bottom: 10px;">
+            <label style="font-size:12px; font-weight:600;">Tanggal Pinjam</label>
+            <input type="date" id="pinjam-tgl" value="${new Date().toISOString().split('T')[0]}" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="font-size:12px; font-weight:600;">Nama Peminjam / Mandor</label>
+            <input type="text" id="pinjam-peminjam" placeholder="Nama Peminjam" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div id="peminjaman-form-rows">
+            <div style="border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px;" class="pinjam-item-row">
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size:11px;">Pilih No Inventaris Alat</label>
+                    <select class="pinjam-noinv" onchange="autofillPinjam(this)" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                        <option value="">-- Pilih Alat --</option>
+                        ${optionsInv}
+                    </select>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" placeholder="Nama Equipment" class="pinjam-nama" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Brand / Type" class="pinjam-brand" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                    <input type="number" placeholder="Qty" class="pinjam-qty" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Sat" class="pinjam-sat" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+                    <input type="text" placeholder="Lokasi Kerja" class="pinjam-lokasi" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="addPinjamRow()" style="background:#0284c7; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-bottom:15px;"><i class="fas fa-plus"></i> Tambah Alat Lain</button>
+        <div style="text-align: right; margin-top: 15px;">
+            <button onclick="closeProARKModal()" style="background:#cbd5e1; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; margin-right:5px;">Batal</button>
+            <button onclick="savePeminjaman()" style="background:#2563eb; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Simpan Peminjaman</button>
+        </div>
+    `;
+}
+
+function autofillPinjam(selectEl) {
+    let opt = selectEl.options[selectEl.selectedIndex];
+    let row = selectEl.closest('.pinjam-item-row');
+    row.querySelector('.pinjam-nama').value = opt.getAttribute('data-nama') || '';
+    row.querySelector('.pinjam-brand').value = opt.getAttribute('data-brand') || '';
+    row.querySelector('.pinjam-sat').value = opt.getAttribute('data-sat') || '';
+}
+
+function addPinjamRow() {
+    let optionsInv = proarkData.inventaris.map(i => `<option value="${i.noInventaris}" data-nama="${i.nama}" data-brand="${i.brand}" data-sat="${i.sat}">${i.noInventaris} - ${i.nama} (${i.brand})</option>`).join('');
+    let container = document.getElementById('peminjaman-form-rows');
+    let div = document.createElement('div');
+    div.className = 'pinjam-item-row';
+    div.style.cssText = 'border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px;';
+    div.innerHTML = `
+        <div style="margin-bottom: 8px;">
+            <label style="font-size:11px;">Pilih No Inventaris Alat</label>
+            <select class="pinjam-noinv" onchange="autofillPinjam(this)" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+                <option value="">-- Pilih Alat --</option>
+                ${optionsInv}
+            </select>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <input type="text" placeholder="Nama Equipment" class="pinjam-nama" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Brand / Type" class="pinjam-brand" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <input type="number" placeholder="Qty" class="pinjam-qty" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Sat" class="pinjam-sat" readonly style="padding:6px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+            <input type="text" placeholder="Lokasi Kerja" class="pinjam-lokasi" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function savePeminjaman() {
+    let tgl = document.getElementById('pinjam-tgl').value;
+    let peminjam = document.getElementById('pinjam-peminjam').value;
+    let rows = document.querySelectorAll('.pinjam-item-row');
+
+    rows.forEach(r => {
+        let noInv = r.querySelector('.pinjam-noinv').value;
+        let nama = r.querySelector('.pinjam-nama').value;
+        let brand = r.querySelector('.pinjam-brand').value;
+        let qty = r.querySelector('.pinjam-qty').value;
+        let sat = r.querySelector('.pinjam-sat').value;
+        let lokasi = r.querySelector('.pinjam-lokasi').value;
+
+        if(noInv && peminjam) {
+            proarkData.peminjaman.push({
+                id: Date.now() + Math.random(),
+                tanggal: tgl,
+                peminjam: peminjam,
+                noInventaris: noInv,
+                nama: nama,
+                brand: brand,
+                qty: Number(qty) || 1,
+                sat: sat,
+                lokasi: lokasi
+            });
+        }
+    });
+
+    saveProARKStorage();
+    closeProARKModal();
+    renderPeminjamanTable();
+    renderPengembalianTable();
+}
+
+function renderPeminjamanTable() {
+    let tbody = document.getElementById('table-peminjaman-body');
+    tbody.innerHTML = '';
+    proarkData.peminjaman.forEach((item, index) => {
+        tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;">${index + 1}</td>
+                <td style="padding: 12px;">${item.tanggal}</td>
+                <td style="padding: 12px; font-weight:600;">${item.peminjam}</td>
+                <td style="padding: 12px; color:#2563eb;">${item.noInventaris}</td>
+                <td style="padding: 12px;">${item.nama}</td>
+                <td style="padding: 12px;">${item.brand}</td>
+                <td style="padding: 12px;">${item.qty}</td>
+                <td style="padding: 12px;">${item.sat}</td>
+                <td style="padding: 12px;">${item.lokasi}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <button onclick="deletePeminjaman('${item.id}')" style="background:none; border:none; color:#dc2626; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function deletePeminjaman(id) {
+    if(confirm('Hapus data peminjaman ini?')) {
+        proarkData.peminjaman = proarkData.peminjaman.filter(i => i.id != id);
+        saveProARKStorage();
+        renderPeminjamanTable();
+        renderPengembalianTable();
+    }
+}
+
+function renderPengembalianTable() {
+    let tbody = document.getElementById('table-pengembalian-body');
+    tbody.innerHTML = '';
+    proarkData.peminjaman.forEach((item, index) => {
+        // Ambil riwayat pengembalian untuk item ini
+        let returList = proarkData.pengembalian.filter(r => r.idPinjam == item.id);
+        let returHtml = returList.length > 0 ? returList.map(r => `
+            <div style="background:#f8fafc; padding:4px 8px; border-radius:4px; margin-bottom:4px; font-size:11px; border-left:3px solid ${r.kondisi==='baik'?'#16a34a':r.kondisi==='rusak'?'#dc2626':'#ca8a04'}">
+                <b>${r.tanggal}</b> - Qty: ${r.qty} (${r.kondisi.toUpperCase()})
+                <button onclick="deletePengembalian('${r.id}')" style="background:none; border:none; color:#dc2626; cursor:pointer; margin-left:5px;"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('') : '<span style="color:#94a3b8; font-style:italic;">Belum ada pengembalian</span>';
+
+        tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;">${index + 1}</td>
+                <td style="padding: 12px;">${item.tanggal}</td>
+                <td style="padding: 12px; font-weight:600;">${item.peminjam}</td>
+                <td style="padding: 12px; color:#2563eb;">${item.noInventaris}</td>
+                <td style="padding: 12px;">${item.nama}</td>
+                <td style="padding: 12px;">${item.brand}</td>
+                <td style="padding: 12px;">${item.qty} ${item.sat}</td>
+                <td style="padding: 12px;">${item.sat}</td>
+                <td style="padding: 12px;">${item.lokasi}</td>
+                <td style="padding: 12px; min-width: 200px;">${returHtml}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <button onclick="openFormPengembalian('${item.id}')" style="background:#16a34a; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;" title="Input Pengembalian"><i class="fas fa-undo"></i> Return</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function openFormPengembalian(pinjamId) {
+    let item = proarkData.peminjaman.find(p => p.id == pinjamId);
+    let modal = document.getElementById('proark-modal');
+    let content = document.getElementById('proark-modal-content');
+    modal.style.display = 'flex';
+
+    content.innerHTML = `
+        <h3 style="margin-top:0;">Form Pengembalian Alat</h3>
+        <p style="font-size:13px; color:#64748b;">Alat: <b>${item.nama}</b> (${item.noInventaris}) - Peminjam: <b>${item.peminjam}</b></p>
+        <div style="margin-bottom: 10px;">
+            <label style="font-size:12px; font-weight:600;">Tanggal Kembali</label>
+            <input type="date" id="retur-tgl" value="${new Date().toISOString().split('T')[0]}" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label style="font-size:12px; font-weight:600;">Qty Kembali</label>
+            <input type="number" id="retur-qty" value="${item.qty}" max="${item.qty}" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="font-size:12px; font-weight:600;">Kondisi Kembali</label>
+            <select id="retur-kondisi" style="width:100%; padding:8px; margin-top:4px; border:1px solid #cbd5e1; border-radius:4px;">
+                <option value="baik">Baik (Langsung Masuk Stok)</option>
+                <option value="perbaikan">Perbaikan (Masuk Servis)</option>
+                <option value="rusak">Rusak Total</option>
+            </select>
+        </div>
+        <div style="text-align: right;">
+            <button onclick="closeProARKModal()" style="background:#cbd5e1; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; margin-right:5px;">Batal</button>
+            <button onclick="savePengembalian('${item.id}')" style="background:#2563eb; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Simpan Pengembalian</button>
+        </div>
+    `;
+}
+
+function savePengembalian(pinjamId) {
+    let tgl = document.getElementById('retur-tgl').value;
+    let qty = document.getElementById('retur-qty').value;
+    let kondisi = document.getElementById('retur-kondisi').value;
+
+    proarkData.pengembalian.push({
+        id: Date.now() + Math.random(),
+        idPinjam: pinjamId,
+        tanggal: tgl,
+        qty: Number(qty) || 1,
+        kondisi: kondisi
+    });
+
+    saveProARKStorage();
+    closeProARKModal();
+    renderPengembalianTable();
+    renderStokTable();
+}
+
+function deletePengembalian(id) {
+    if(confirm('Hapus riwayat pengembalian ini?')) {
+        proarkData.pengembalian = proarkData.pengembalian.filter(r => r.id != id);
+        saveProARKStorage();
+        renderPengembalianTable();
+        renderStokTable();
+    }
+}
+
+// --- FITUR 4: STOK ALAT ---
+function renderStokTable() {
+    let tbody = document.getElementById('table-stok-body');
+    tbody.innerHTML = '';
+
+    proarkData.inventaris.forEach((item, index) => {
+        let totalMasuk = item.qty;
+        
+        // Hitung total keluar berdasarkan peminjaman alat ini
+        let pinjamItems = proarkData.peminjaman.filter(p => p.noInventaris == item.noInventaris);
+        let totalKeluar = pinjamItems.reduce((sum, p) => sum + Number(p.qty), 0);
+
+        // Hitung pengembalian dengan kondisi baik
+        let totalKembaliBaik = 0;
+        pinjamItems.forEach(p => {
+            let returs = proarkData.pengembalian.filter(r => r.idPinjam == p.id);
+            returs.forEach(r => {
+                if(r.kondisi === 'baik') totalKembaliBaik += Number(r.qty);
+                if(r.kondisi === 'perbaikan') {
+                    // Jika perbaikan sudah selesai
+                    let rep = proarkData.perbaikan.find(pr => pr.idRetur == r.id);
+                    if(rep && rep.status === 'selesai') totalKembaliBaik += Number(r.qty);
+                }
+            });
+        });
+
+        let stokTersedia = totalMasuk - totalKeluar + totalKembaliBaik;
+
+        tbody.innerHTML += `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px;">${index + 1}</td>
+                <td style="padding: 12px;">${item.tanggal}</td>
+                <td style="padding: 12px; font-weight:600; color:#2563eb;">${item.noInventaris}</td>
+                <td style="padding: 12px;">${item.nama}</td>
+                <td style="padding: 12px;">${item.brand}</td>
+                <td style="padding: 12px; color:#16a34a; font-weight:600;">${totalMasuk} ${item.sat}</td>
+                <td style="padding: 12px; color:#dc2626; font-weight:600;">${totalKeluar} ${item.sat}</td>
+                <td style="padding: 12px; font-weight:bold; color:#2563eb;">${stokTersedia} ${item.sat}</td>
+            </tr>
+        `;
+    });
+}
+
+// --- EXPORT MULTI-SHEET EXCEL SIMULASI ---
+function exportProARKExcel() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "=== INVENTARIS ALAT PROYEK ===\n";
+    csvContent += "No,Tanggal,No Inventaris,Kategori,Nama Equipment,Brand,Qty,Sat\n";
+    proarkData.inventaris.forEach((i, idx) => {
+        csvContent += `${idx+1},${i.tanggal},${i.noInventaris},${i.kategori},"${i.nama}",${i.brand},${i.qty},${i.sat}\n`;
+    });
+
+    csvContent += "\n=== PEMINJAMAN ALAT ===\n";
+    csvContent += "No,Tanggal,Peminjam,No Inventaris,Nama Equipment,Qty,Lokasi\n";
+    proarkData.peminjaman.forEach((p, idx) => {
+        csvContent += `${idx+1},${p.tanggal},"${p.peminjam}",${p.noInventaris},"${p.nama}",${p.qty},"${p.lokasi}"\n`;
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "ProARK_Laporan_Inventaris_Alat.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function openProARKModalDetail(type) {
+    let modal = document.getElementById('proark-modal');
+    let content = document.getElementById('proark-modal-content');
+    modal.style.display = 'flex';
+    content.innerHTML = `
+        <h3 style="margin-top:0;">Rincian Panel: ${type.replace('_', ' ').toUpperCase()}</h3>
+        <p style="font-size:13px; color:#64748b;">Data dihitung secara otomatis dari modul Inventaris & Peminjaman Alat Proyek.</p>
+        <div style="text-align: right; margin-top: 15px;">
+            <button onclick="closeProARKModal()" style="background:#2563eb; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Tutup</button>
+        </div>
+    `;
+}
+
+function closeProARKModal() {
+    document.getElementById('proark-modal').style.display = 'none';
+}
+</script>
 </script>
 </body>
 </html>
