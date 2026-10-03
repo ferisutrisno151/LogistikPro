@@ -132,6 +132,11 @@
                 <i class="fa-solid fa-warehouse w-5"></i>
                 <span>Stok Barang</span>
             </a>
+            <!-- Tambahan Menu ProARK -->
+<a href="#" onclick="switchTab('proark'); toggleSidebar();" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-tools w-5"></i>
+    <span>ProARK (Alat Proyek)</span>
+</a>
             <!-- Menu Tambahan untuk Backup & Data di Sidebar -->
     <div class="pt-4 mt-4 border-t border-slate-700/50 space-y-1">
         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Data & Backup</div>
@@ -2169,6 +2174,262 @@ function importExcelData(event) {
             }
         }
     });
+        <!-- ========================================== -->
+<!-- KONTAINER UTAMA PROARK (LANGKAH 1)         -->
+<!-- ========================================== -->
+<div id="app-proark" class="app-section" style="display: none; padding: 20px;">
+    
+    <!-- Top Bar Header ProARK -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-tools text-blue-600"></i> ProARK - Monitoring Inventaris Alat
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">Sistem Pengendalian, Peminjaman & Stok Alat Proyek</p>
+        </div>
+        <div class="flex gap-2 mt-3 md:mt-0">
+            <button onclick="exportProARKExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-file-excel"></i> Export Excel
+            </button>
+            <button onclick="refreshProARKData()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-sync"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Sub-Menu / Tabs Navigasi ProARK -->
+    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-3 overflow-x-auto">
+        <button class="proark-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white transition-all shadow-sm" onclick="switchProARKTab('dashboard', this)">
+            <i class="fa-solid fa-chart-pie mr-1"></i> Dashboard
+        </button>
+        <button class="proark-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all" onclick="switchProARKTab('inventaris', this)">
+            <i class="fa-solid fa-boxes-stacked mr-1"></i> Inventaris Alat
+        </button>
+        <button class="proark-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all" onclick="switchProARKTab('peminjaman', this)">
+            <i class="fa-solid fa-handshake mr-1"></i> Peminjaman & Pengembalian
+        </button>
+        <button class="proark-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all" onclick="switchProARKTab('stok', this)">
+            <i class="fa-solid warehouse mr-1"></i> Stok Alat
+        </button>
+    </div>
+
+    <!-- Konten Tab Akan Masuk di Sini Secara Bertahap -->
+<div id="proark-tab-content-container">
+    <!-- Tab Dashboard Content -->
+    <div id="proark-content-dashboard" class="space-y-6">
+        <!-- Grid Kartu Statistik -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Total Jenis Alat</p>
+                    <h3 id="stat-total-alat" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Alat Dipinjam</p>
+                    <h3 id="stat-dipinjam" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Alat Tersedia</p>
+                    <h3 id="stat-tersedia" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Perlu Perbaikan / Rusak</p>
+                    <h3 id="stat-rusak" class="text-2xl font-bold text-rose-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- Tab Inventaris Alat Content -->
+<div id="proark-content-inventaris" class="space-y-6 mt-6" style="display: none;">
+    <!-- Header Aksi Tabel -->
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 gap-3">
+        <div class="w-full sm:w-auto">
+            <input type="text" id="search-proark-alat" placeholder="Cari nama alat / kode..." onkeyup="filterProARKAlat()" class="w-full sm:w-64 text-xs px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500">
+        </div>
+        <button onclick="openModalTambahAlat()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Tambah Alat Baru
+        </button>
+    </div>
+
+    <!-- Tabel Data Alat -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                        <th class="p-4 font-semibold">No</th>
+                        <th class="p-4 font-semibold">Kode Alat</th>
+                        <th class="p-4 font-semibold">Nama Alat</th>
+                        <th class="p-4 font-semibold">Kategori</th>
+                        <th class="p-4 font-semibold">Kondisi / Status</th>
+                        <th class="p-4 font-semibold text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-proark-alat-body" class="text-xs text-slate-700 divide-y divide-slate-100">
+                    <!-- Data akan dirender otomatis lewat JavaScript -->
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-400">Belum ada data alat. Silakan klik "Tambah Alat Baru".</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+        // --- FUNGSI NAVIGASI TAB UTAMA (LOGISTIK VS PROARK) ---
+function switchTab(tabName) {
+    // Sembunyikan semua section utama aplikasi LogistikPro Anda yang lama
+    const sections = ['dashboard', 'spp', 'barangMasuk', 'stokBarang'];
+    sections.forEach(sec => {
+        let el = document.getElementById(sec);
+        if(el) el.style.display = 'none';
+    });
+
+    // Sembunyikan atau tampilkan ProARK
+    let proarkEl = document.getElementById('app-proark');
+    if(proarkEl) {
+        proarkEl.style.display = (tabName === 'proark') ? 'block' : 'none';
+    }
+
+    // Jika memilih tab selain proark, aktifkan kembali section logistik yang sesuai
+    if(tabName !== 'proark') {
+        let targetSec = document.getElementById(tabName);
+        if(targetSec) targetSec.style.display = 'block';
+    } else {
+        // Jika masuk ke ProARK, update dashboard-nya
+        if(typeof updateProARKDashboard === 'function') updateProARKDashboard();
+    }
+}
+
+// --- FUNGSI NAVIGASI SUB-TAB DI DALAM PROARK ---
+function switchProARKTab(tabName, btnElement) {
+    // Sembunyikan semua konten sub-tab proark (nanti kita isi isinya satu-satu)
+    // Untuk sekarang kita siapkan fungsi dasarnya dulu
+    document.querySelectorAll('.proark-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    if(btnElement) {
+        btnElement.classList.remove('bg-slate-100', 'text-slate-600');
+        btnElement.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+    }
+}
+        // --- FUNGSI UPDATE DASHBOARD PROARK ---
+function updateProARKDashboard() {
+    // Dummy data awal atau ambil dari localStorage jika sudah ada
+    // Anda bisa menghubungkannya dengan array data inventaris alat Anda nanti
+    let daftarAlat = JSON.parse(localStorage.getItem('logistikpro_proark_alat')) || [];
+    
+    let totalAlat = daftarAlat.length;
+    let dipinjam = daftarAlat.filter(item => item.status === 'Dipinjam').length;
+    let tersedia = daftarAlat.filter(item => item.status === 'Tersedia' || !item.status).length;
+    let rusak = daftarAlat.filter(item => item.status === 'Rusak' || item.status === 'Perbaikan').length;
+
+    // Masukkan ke elemen HTML statistik
+    let elTotal = document.getElementById('stat-total-alat');
+    let elDipinjam = document.getElementById('stat-dipinjam');
+    let elTersedia = document.getElementById('stat-tersedia');
+    let elRusak = document.getElementById('stat-rusak');
+
+    if(elTotal) elTotal.innerText = totalAlat;
+    if(elDipinjam) elDipinjam.innerText = dipinjam;
+    if(elTersedia) elTersedia.innerText = tersedia;
+    if(elRusak) elRusak.innerText = rusak;
+}
+
+// Panggil fungsi saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    updateProARKDashboard();
+});
+        // --- FUNGSI NAVIGASI SUB-TAB PROARK ---
+function switchProARKTab(tabName, btnElement) {
+    // Sembunyikan semua konten sub-tab proark
+    let contentDashboard = document.getElementById('proark-content-dashboard');
+    let contentInventaris = document.getElementById('proark-content-inventaris');
+    
+    if(contentDashboard) contentDashboard.style.display = 'none';
+    if(contentInventaris) contentInventaris.style.display = 'none';
+
+    // Tampilkan sub-tab yang dipilih
+    if(tabName === 'dashboard' && contentDashboard) {
+        contentDashboard.style.display = 'block';
+        updateProARKDashboard();
+    } else if(tabName === 'inventaris' && contentInventaris) {
+        contentInventaris.style.display = 'block';
+        renderTabelProARKAlat();
+    }
+
+    // Atur warna tombol aktif/tidak aktif
+    document.querySelectorAll('.proark-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    
+    if(btnElement) {
+        btnElement.classList.remove('bg-slate-100', 'text-slate-600');
+        btnElement.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+    }
+}
+
+// --- FUNGSI RENDER TABEL ALAT PROARK ---
+function renderTabelProARKAlat() {
+    let daftarAlat = JSON.parse(localStorage.getItem('logistikpro_proark_alat')) || [];
+    let tbody = document.getElementById('tabel-proark-alat-body');
+    if(!tbody) return;
+
+    if(daftarAlat.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data alat. Silakan klik "Tambah Alat Baru".</td></tr>`;
+        return;
+    }
+
+    let html = '';
+    daftarAlat.forEach((item, index) => {
+        let badgeColor = 'bg-emerald-50 text-emerald-600';
+        if(item.status === 'Dipinjam') badgeColor = 'bg-amber-50 text-amber-600';
+        if(item.status === 'Rusak' || item.status === 'Perbaikan') badgeColor = 'bg-rose-50 text-rose-600';
+
+        html += `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="p-4 font-medium text-slate-600">${index + 1}</td>
+                <td class="p-4 font-bold text-slate-800">${item.kode || '-'}</td>
+                <td class="p-4 font-medium text-slate-800">${item.nama || '-'}</td>
+                <td class="p-4 text-slate-600">${item.kategori || '-'}</td>
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                        ${item.status || 'Tersedia'}
+                    </span>
+                </td>
+                <td class="p-4 text-center">
+                    <button onclick="editProARKAlat(${index})" class="text-blue-600 hover:text-blue-800 p-1 mr-2" title="Edit">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button onclick="hapusProARKAlat(${index})" class="text-rose-600 hover:text-rose-800 p-1" title="Hapus">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
 </script>
 </body>
 </html>
