@@ -2152,11 +2152,14 @@ function importExcelData(event) {
     }
 
     // 5. Pengecekan otomatis saat halaman dimuat pertama kali
-    document.addEventListener("DOMContentLoaded", () => {
-        let accessExpiry = localStorage.getItem("accessExpiry");
-        let isAuth = localStorage.getItem("logistikpro_auth");
-        let now = new Date().getTime();
-        let authModal = document.getElementById('authModal');
+    document.addEventListener('DOMContentLoaded', () => {
+    // Panggil fungsi inisialisasi utama LogistikPro (sesuaikan dengan nama fungsi utama lama Anda, atau jalankan fungsi load data)
+    if (typeof loadData === 'function') { loadData(); }
+    if (typeof initApp === 'function') { initApp(); }
+    
+    // Jalankan fungsi ProARK
+    updateProARKDashboard();
+});
 
         if (isAuth === "granted" && accessExpiry && now < parseInt(accessExpiry)) {
             // Jika akses masih berlaku (belum 8 jam), sembunyikan modal sepenuhnya
