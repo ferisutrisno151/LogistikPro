@@ -173,7 +173,8 @@
             </a>
         </div>
     <!-- MAIN CONTAINER -->
-<main class="flex-1 lg:ml-72 max-w-7xl w-full mx-auto px-4 py-6">
+<main class="flex-1 lg:ml-72 w-full mx-auto px-4 py-6">
+
        <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2170,6 +2171,27 @@ function importExcelData(event) {
             }
         }
     });
+        function switchSystem(system) {
+    const btnLogistik = document.getElementById('btnLogistikPro');
+    const btnProARK = document.getElementById('btnProARK');
+    const menuLogistik = document.getElementById('menuLogistikPro');
+    const menuProARK = document.getElementById('menuProARK');
+    
+    if (system === 'logistikpro') {
+        if(btnLogistik) btnLogistik.className = "py-2 px-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md";
+        if(btnProARK) btnProARK.className = "py-2 px-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white";
+        if(menuLogistik) menuLogistik.classList.remove('hidden');
+        if(menuProARK) menuProARK.classList.add('hidden');
+        switchTab('dashboard');
+    } else {
+        if(btnProARK) btnProARK.className = "py-2 px-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md";
+        if(btnLogistik) btnLogistik.className = "py-2 px-3 rounded-xl font-bold text-xs text-slate-400 hover:text-white";
+        if(menuProARK) menuProARK.classList.remove('hidden');
+        if(menuLogistik) menuLogistik.classList.add('hidden');
+        switchTab('proarkDashboard');
+    }
+}
+
 </script>
 </body>
 </html>
