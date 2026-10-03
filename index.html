@@ -2150,32 +2150,36 @@ function importExcelData(event) {
         localStorage.removeItem("logistikpro_auth");
         location.reload();
     }
-
+        
     // 5. Pengecekan otomatis saat halaman dimuat pertama kali
-    document.addEventListener('DOMContentLoaded', () => {
-    // Panggil fungsi inisialisasi utama LogistikPro (sesuaikan dengan nama fungsi utama lama Anda, atau jalankan fungsi load data)
-    if (typeof loadData === 'function') { loadData(); }
-    if (typeof initApp === 'function') { initApp(); }
+document.addEventListener('DOMContentLoaded', () => {
+    // Panggil fungsi utama pemuat data LogistikPro lama
+    if (typeof render === 'function') { render(); }
     
     // Jalankan fungsi ProARK
     updateProARKDashboard();
-});
 
-        if (isAuth === "granted" && accessExpiry && now < parseInt(accessExpiry)) {
-            // Jika akses masih berlaku (belum 8 jam), sembunyikan modal sepenuhnya
-            tutupModalOtorisasi();
-        } else {
-            // Jika belum ada izin atau sudah kedaluwarsa, pastikan modal muncul di depan
-            if (authModal) {
-                authModal.style.setProperty('display', 'flex', 'important');
-            }
-            // Bersihkan data lama jika sudah kedaluwarsa
-            if (accessExpiry && now >= parseInt(accessExpiry)) {
-                localStorage.removeItem("accessExpiry");
-                localStorage.removeItem("logistikpro_auth");
-            }
+    // Pengecekan Sesi Otorisasi
+    let isAuth = localStorage.getItem("logistikpro_auth");
+    let accessExpiry = localStorage.getItem("accessExpiry");
+    let now = new Date().getTime();
+    let authModal = document.getElementById("authModal");
+
+    if (isAuth === "granted" && accessExpiry && now < parseInt(accessExpiry)) {
+        // Jika akses masih berlaku (belum 8 jam), sembunyikan modal sepenuhnya
+        tutupModalOtorisasi();
+    } else {
+        // Jika belum ada izin atau sudah kedaluwarsa, pastikan modal muncul di depan
+        if (authModal) {
+            authModal.style.setProperty('display', 'flex', 'important');
         }
-    });
+        // Bersihkan data lama jika sudah kedaluwarsa
+        if (accessExpiry && now >= parseInt(accessExpiry)) {
+            localStorage.removeItem("accessExpiry");
+            localStorage.removeItem("logistikpro_auth");
+        }
+    }
+});
         <!-- ========================================== -->
 <!-- KONTAINER UTAMA PROARK (LANGKAH 1)         -->
 <!-- ========================================== -->
